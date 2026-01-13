@@ -1,13 +1,21 @@
 window.addEventListener('load', () => {
-  Zest.run(gameData)
+  // load and start the game
+  const lcd = document.getElementById('lcd')
+  Zest.run(gameData, lcd)
 
+  // display cartridge info
+  document.getElementById('label-title').innerText = Zest.meta.name
+  document.getElementById('label-author').innerText = Zest.meta.author
+
+  // snapshow button
   const btn = document.getElementById('btn-snap')
   btn.addEventListener('click', () => {
     const ts = Date.now()
     btn.download = `zest-snap-${ts}.png`
-    btn.href = document.getElementById('lcd').toDataURL()
+    btn.href = lcd.toDataURL()
   })
 
+  // theme buttons
   document.getElementById('btn-lemon').addEventListener('click', () => {
     document.body.className = 'lemon'
   })

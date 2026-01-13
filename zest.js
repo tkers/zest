@@ -51,17 +51,13 @@ const repairAndCleanup = (data) => {
 Zest = {}
 
 // entrypoint
-Zest.run = function (data) {
+Zest.run = function (data, canvas) {
   console.log(data)
   repairAndCleanup(data)
 
   const meta = getMetaInfo(data)
-  document.getElementById('label-title').innerText = meta.name
-  document.getElementById('label-author').innerText = meta.author
-
-  console.log(
-    `${meta.name} by ${meta.author}\n${meta.intro}\n(version ${meta.version}, build ${meta.build})`
-  )
+  console.log(`Running "${meta.name}" by ${meta.author}...`)
+  Zest.meta = meta
 
   // make rooms reference frames directly for convenience
   resolveFrames(data.tiles, data.frames)
@@ -86,8 +82,7 @@ Zest.run = function (data) {
   // current room to render, for demo purposes
   let currentRoom = wrapRoom ?? cardRoom ?? initRoom
 
-  // find the canvas context for our display
-  const canvas = document.getElementById('lcd')
+  // get the canvas context for our display
   const ctx = canvas.getContext('2d')
 
   // advance 1 tick and render the canvas
