@@ -23,16 +23,13 @@ const resolveTiles = (rooms, tileData) => {
   })
 }
 
-// the current tick (and how many ticks are needed for a full loop)
-let globalLoopPeriod = -1
-let frameIx = 0
+// get the current frame of a tile, fps aware
+const getCurrentFrameForTile = (tile, frameIx) =>
+  tile.frames[Math.floor((tile.fps / 20) * frameIx) % tile.frames.length]
 
-// get the current snapshot (25x12 frames) of a room, tile fps aware
-const roomToStill = (room) =>
-  room.tiles.map(
-    (tile) =>
-      tile.frames[Math.floor((tile.fps / 20) * frameIx) % tile.frames.length]
-  )
+// get the current snapshot of a room, as an array of frames
+const roomToStill = (room, frameIx) =>
+  room.tiles.map((tile) => getCurrentFrameForTile(tile, frameIx))
 
 // extract key meta information from the game data
 const getMetaInfo = (data) => ({
@@ -48,48 +45,80 @@ const repairAndCleanup = (data) => {
 }
 
 // library namespace
-Zest = {}
+class Zest {
+  static run(data, canvas) {
+    const game = new Zest(data, canvas)
+    game.play()
+    game.attract()
+    return game
+  }
 
-// entrypoint
-Zest.run = function (data, canvas) {
-  console.log(data)
-  repairAndCleanup(data)
+  static load(data, canvas) {
+    return new Zest(data, canvas)
+  }
 
-  const meta = getMetaInfo(data)
-  console.log(`Running "${meta.name}" by ${meta.author}...`)
-  Zest.meta = meta
+  constructor(data, canvas) {
+    repairAndCleanup(data)
+    console.log(data)
 
-  // make rooms reference frames directly for convenience
-  resolveFrames(data.tiles, data.frames)
-  resolveTiles(data.rooms, data.tiles)
+    this.cart = data
+    this.canvas = canvas
+    this.meta = getMetaInfo(data)
+    this.frameIx = 0
 
-  // calculate the animation period (how many ticks it takes for ALL tiles to be back at frame 0)
-  data.tiles.forEach((tile) => {
-    const isAnimated = tile.frames.length > 0 && tile.fps > 0
-    const loopPeriod = isAnimated ? (tile.frames.length * 20) / tile.fps : 1
-    globalLoopPeriod = Math.max(globalLoopPeriod, loopPeriod)
-  })
+    console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
-  // create a lookup table foor room and tile names
-  const namedRooms = byName(data.rooms)
-  const namedTiles = byName(data.tiles)
+    // make rooms reference frames directly for convenience
+    resolveFrames(data.tiles, data.frames)
+    resolveTiles(data.rooms, data.tiles)
 
-  // lookup the rooms for the Wrapper, Card and player starting location
-  const wrapRoom = data.rooms[data.wrap]
-  const cardRoom = data.rooms[data.card]
-  const initRoom = data.rooms[data.player.room]
+    // create a lookup table foor room and tile names
+    this.namedRooms = byName(data.rooms)
+    this.namedTiles = byName(data.tiles)
 
-  // current room to render, for demo purposes
-  let currentRoom = wrapRoom ?? cardRoom ?? initRoom
+    // lookup the rooms for the Wrapper, Card and player starting location
+    this.wrap = data.wrap !== -1 ? data.rooms[data.wrap] : null
+    this.card = data.card !== -1 ? data.rooms[data.card] : null
+    this.icon = data.card !== -1 ? data.rooms[data.icon] : null
+    this.start = data.rooms[data.player.room]
 
-  // get the canvas context for our display
-  const ctx = canvas.getContext('2d')
+    // current room to render
+    this.room = this.wrap ?? this.card ?? this.start
+    this.render()
+  }
 
-  // advance 1 tick and render the canvas
-  const renderNextFrame = () => {
-    const cardImgData = roomToStill(currentRoom)
-    frameIx = (frameIx + 1) % globalLoopPeriod
-    // console.log(`${frameIx} / ${globalLoopPeriod}`)
+  play() {
+    this.room = this.start
+
+    // loop at 20 FPS (50ms per tick)
+    setInterval(() => {
+      this.render()
+      this.frameIx++
+    }, 50)
+  }
+
+  attract() {
+    // demo reel, loop through the available rooms
+    this.room = this.wrap ?? this.card
+    setTimeout(() => {
+      this.room = this.card
+      setTimeout(() => {
+        this.room = this.start
+
+        let cr = this.cart.player.room
+        setInterval(() => {
+          cr = (cr + 1) % this.cart.rooms.length
+          this.room = this.cart.rooms[cr]
+          // console.log(currentRoom)
+        }, 5000)
+      }, 2400)
+    }, 800)
+  }
+
+  render() {
+    // get the canvas context for our display
+    const ctx = this.canvas.getContext('2d')
+    const cardImgData = roomToStill(this.room, this.frameIx)
 
     const imgData = new ImageData(200, 120)
     const pixels = imgData.data
@@ -120,22 +149,4 @@ Zest.run = function (data, canvas) {
 
     ctx.putImageData(imgData, 0, 0)
   }
-
-  // loop at 20 FPS (50ms per tick)
-  setInterval(renderNextFrame, 50)
-
-  // demo reel, loop through the available rooms
-  setTimeout(() => {
-    currentRoom = cardRoom
-    setTimeout(() => {
-      currentRoom = initRoom
-
-      let cr = data.player.room
-      setInterval(() => {
-        cr = (cr + 1) % data.rooms.length
-        currentRoom = data.rooms[cr]
-        // console.log(currentRoom)
-      }, 5000)
-    }, 2400)
-  }, 800)
 }

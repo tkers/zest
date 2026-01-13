@@ -1,11 +1,11 @@
 window.addEventListener('load', () => {
   // load and start the game
   const lcd = document.getElementById('lcd')
-  Zest.run(gameData, lcd)
+  const game = Zest.run(gameData, lcd)
 
   // display cartridge info
-  document.getElementById('label-title').innerText = Zest.meta.name
-  document.getElementById('label-author').innerText = Zest.meta.author
+  document.getElementById('label-title').innerText = game.meta.name
+  document.getElementById('label-author').innerText = game.meta.author
 
   // snapshow button
   const btn = document.getElementById('btn-snap')
