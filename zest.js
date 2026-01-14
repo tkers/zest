@@ -69,6 +69,7 @@ class Zest {
   constructor(canvas) {
     this.canvas = canvas
     this.isRunning = false
+    this.isPaused = false
   }
 
   load(data) {
@@ -122,6 +123,7 @@ class Zest {
 
     // loop at 20 FPS (50ms per tick)
     this.loopTimer = setInterval(() => {
+      if (this.isPaused) return
       this.render()
       this.frameIx++
     }, 50)
@@ -135,6 +137,11 @@ class Zest {
     this.isRunning = false
     clearInterval(this.loopTimer)
     this.loopTimer = null
+  }
+
+  pauseResume() {
+    this.isPaused = !this.isPaused
+    return this.isPaused
   }
 
   getTileAt(x, y) {
@@ -248,20 +255,28 @@ class Zest {
   }
 
   pressUp() {
+    if (!this.isRunning || this.isPaused) return
     this.movePlayer(0, -1)
   }
 
   pressDown() {
+    if (!this.isRunning || this.isPaused) return
     this.movePlayer(0, 1)
   }
 
   pressLeft() {
+    if (!this.isRunning || this.isPaused) return
     this.movePlayer(-1, 0)
   }
 
   pressRight() {
+    if (!this.isRunning || this.isPaused) return
     this.movePlayer(1, 0)
   }
+
+  pressA() {}
+
+  pressB() {}
 
   attract() {
     // demo reel, loop through the available rooms

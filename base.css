@@ -116,3 +116,8 @@ small a:hover {
   margin-left: -8px;
   mix-blend-mode: hard-light;
 }
+
+#lcd.paused {
+  filter: brightness(0.5);
+  mix-blend-mode: unset;
+}
