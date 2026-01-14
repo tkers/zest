@@ -3,6 +3,16 @@ window.addEventListener('load', () => {
   const lcd = document.getElementById('lcd')
   const game = Zest.run(gameData, lcd)
 
+  window.addEventListener('keydown', (evt) => {
+    if (evt.key == 'ArrowUp') game.pressUp()
+    if (evt.key == 'ArrowDown') game.pressDown()
+    if (evt.key == 'ArrowLeft') game.pressLeft()
+    if (evt.key == 'ArrowRight') game.pressRight()
+    // if (evt.key == 'a') game.pressB()
+    // if (evt.key == 's') game.pressA()
+    // if (evt.key == " ") game.pauseResume()
+  })
+
   // display cartridge info
   document.getElementById('label-title').innerText = game.meta.name
   document.getElementById('label-author').innerText = game.meta.author

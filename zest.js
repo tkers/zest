@@ -9,6 +9,17 @@ COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
 
+const ROOM_WIDTH = 25
+const ROOM_HEIGHT = 15
+const coordToIndex = (x, y) => x + y * ROOM_WIDTH
+const indexToCoord = (ix) => {
+  const y = Math.floor(ix / ROOM_WIDTH)
+  const x = ix - y * ROOM_WIDTH
+  return [x, y]
+}
+
+const EdgeDirection = { TOP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
+
 // 'inline' frames into tiles for easier access
 const resolveFrames = (tiles, frameData) => {
   tiles.forEach((tile) => {
@@ -42,6 +53,7 @@ const getMetaInfo = (data) => ({
 
 const repairAndCleanup = (data) => {
   data.tiles = data.tiles.filter(Boolean) // remove garbage?
+  data.rooms = data.rooms.filter(Boolean) // remove garbage?
 }
 
 // library namespace
@@ -49,7 +61,7 @@ class Zest {
   static run(data, canvas) {
     const game = new Zest(data, canvas)
     game.play()
-    game.attract()
+    // game.attract()
     return game
   }
 
@@ -71,10 +83,16 @@ class Zest {
     // make rooms reference frames directly for convenience
     resolveFrames(data.tiles, data.frames)
     resolveTiles(data.rooms, data.tiles)
+    data.player.tile = data.tiles[data.player.id]
 
-    // create a lookup table foor room and tile names
+    // create a lookup table for room and tile names
     this.namedRooms = byName(data.rooms)
     this.namedTiles = byName(data.tiles)
+    this.backgroundTile =
+      this.namedTiles[data.background == 1 ? 'black' : 'white']
+
+    // some sort of context?
+    this.globals = {}
 
     // lookup the rooms for the Wrapper, Card and player starting location
     this.wrap = data.wrap !== -1 ? data.rooms[data.wrap] : null
@@ -83,6 +101,7 @@ class Zest {
     this.start = data.rooms[data.player.room]
 
     // current room to render
+    this.player = data.player
     this.room = this.wrap ?? this.card ?? this.start
     this.render()
   }
@@ -95,6 +114,132 @@ class Zest {
       this.render()
       this.frameIx++
     }, 50)
+  }
+
+  getTileAt(x, y) {
+    const ix = coordToIndex(x, y)
+    return this.room.tiles[ix]
+  }
+
+  say(message) {
+    console.log(`[SAY] ${message}`)
+  }
+
+  playSound(ix) {
+    const snd = this.cart.sounds[ix]
+    console.log(`[PLAY] ${snd.name}`)
+  }
+
+  gotoRoom(roomIx, px, py) {
+    this.room = this.cart.rooms[roomIx]
+    this.player.room = roomIx
+    this.player.x = px
+    this.player.y = py
+  }
+
+  movePlayer(dx, dy) {
+    let tx = this.player.x + dx
+    let ty = this.player.y + dy
+
+    // @TODO also emit bump on room boundary?
+    if (tx < 0) {
+      tx = 0
+    }
+    if (tx >= ROOM_WIDTH) {
+      tx = ROOM_WIDTH - 1
+    }
+    if (ty < 0) {
+      ty = 0
+    }
+    if (ty >= ROOM_HEIGHT) {
+      ty = ROOM_HEIGHT - 1
+    }
+
+    const target = this.getTileAt(tx, ty)
+    if (target.solid) {
+      // @TODO emit bump
+      if (target.type == 2) {
+        // sprite type
+        // @TODO check autoact first?
+        if (typeof target.sound !== 'undefined') {
+          this.playSound(target.sound)
+        }
+        if (target.says) {
+          this.say(target.says)
+        }
+      }
+      return
+    }
+
+    if (target.type == 3) {
+      // item type
+      // @TODO emit collect
+      const keyName = `${target.name}s`
+      const counter = this.globals[keyName] ?? 0
+      this.globals[keyName] = counter + 1
+      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
+      if (typeof target.sound !== 'undefined') {
+        this.playSound(target.sound)
+      }
+      if (target.says) {
+        this.say(target.says)
+      }
+      console.log(`Collected ${counter + 1} ${keyName}`)
+    }
+
+    // @TODO emit update
+    const prevX = this.player.x
+    const prevY = this.player.y
+    this.player.x = tx
+    this.player.y = ty
+
+    // check for exits
+    this.room.exits.forEach((exit) => {
+      if (typeof exit.edge !== 'undefined') {
+        if (exit.edge == EdgeDirection.TOP) {
+          if (prevY == exit.y && dy < 0) {
+            this.gotoRoom(exit.room, prevX, exit.ty)
+          }
+        } else if (exit.edge == EdgeDirection.RIGHT) {
+          if (prevX == exit.x && dx > 0) {
+            this.gotoRoom(exit.room, exit.tx, prevY)
+          }
+        } else if (exit.edge == EdgeDirection.DOWN) {
+          if (prevY == exit.y && dy > 0) {
+            this.gotoRoom(exit.room, prevX, exit.ty)
+          }
+        } else if (exit.edge == EdgeDirection.LEFT) {
+          if (prevX == exit.x && dx < 0) {
+            this.gotoRoom(exit.room, exit.tx, prevY)
+          }
+        }
+      } else if (tx == exit.x && ty == exit.y) {
+        if (exit.fin) {
+          // @TODO use exit.song to play/stop music
+          console.log(`[FIN] ${exit.fin}`)
+          // @TODO actually end the game
+          this.room = this.card
+        } else {
+          this.gotoRoom(exit.room, exit.tx, exit.ty)
+        }
+      }
+    })
+  }
+
+  pressUp() {
+    this.movePlayer(0, -1)
+  }
+
+  pressDown() {
+    this.movePlayer(0, 1)
+  }
+
+  pressLeft() {
+    this.movePlayer(-1, 0)
+  }
+
+  pressRight() {
+    this.movePlayer(1, 0)
   }
 
   attract() {
@@ -144,6 +289,28 @@ class Zest {
         pixels[ix * 4 + 1] = g
         pixels[ix * 4 + 2] = b
         pixels[ix * 4 + 3] = a
+      }
+    }
+
+    if (this.room == this.cart.rooms[this.player.room]) {
+      const px = this.player.x * 8
+      const py = this.player.y * 8
+      const pf = getCurrentFrameForTile(this.player.tile, this.frameIx)
+
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          const col = pf[x + y * 8]
+
+          if (col == 2) continue // transparent
+          let [r, g, b, a] = COLOR_WHITE
+          if (col == 1) [r, g, b, a] = COLOR_BLACK
+
+          let ix = px + x + (py + y) * 200
+          pixels[ix * 4] = r
+          pixels[ix * 4 + 1] = g
+          pixels[ix * 4 + 2] = b
+          pixels[ix * 4 + 3] = a
+        }
       }
     }
 
