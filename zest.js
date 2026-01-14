@@ -59,22 +59,27 @@ const repairAndCleanup = (data) => {
 // library namespace
 class Zest {
   static run(data, canvas) {
-    const game = new Zest(data, canvas)
+    const game = new Zest(canvas)
+    game.load(data)
     game.play()
     // game.attract()
     return game
   }
 
-  static load(data, canvas) {
-    return new Zest(data, canvas)
+  constructor(canvas) {
+    this.canvas = canvas
+    this.isRunning = false
   }
 
-  constructor(data, canvas) {
+  load(data) {
+    if (this.isRunning) {
+      this.stop()
+    }
+
     repairAndCleanup(data)
     console.log(data)
 
     this.cart = data
-    this.canvas = canvas
     this.meta = getMetaInfo(data)
     this.frameIx = 0
 
@@ -107,13 +112,29 @@ class Zest {
   }
 
   play() {
+    if (this.isRunning) {
+      console.log('[WARN] Already running')
+      return
+    }
+    this.isRunning = true
+
     this.room = this.start
 
     // loop at 20 FPS (50ms per tick)
-    setInterval(() => {
+    this.loopTimer = setInterval(() => {
       this.render()
       this.frameIx++
     }, 50)
+  }
+
+  stop() {
+    if (!this.isRunning) {
+      console.log('[WARN] Already stopped')
+      return
+    }
+    this.isRunning = false
+    clearInterval(this.loopTimer)
+    this.loopTimer = null
   }
 
   getTileAt(x, y) {

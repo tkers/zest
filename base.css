@@ -112,8 +112,7 @@ small a:hover {
   image-rendering: pixelated;
   /* width: 400px; */
   width: 100%;
-  margin-top: 8;
-  margin-left: -8px;
   margin-bottom: 16px;
+  margin-left: -8px;
   mix-blend-mode: hard-light;
 }
