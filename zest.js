@@ -23,14 +23,14 @@ const EdgeDirection = { TOP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 // 'inline' frames into tiles for easier access
 const resolveFrames = (tiles, frameData) => {
   tiles.forEach((tile) => {
-    tile.frames = tile.frames.map((id) => frameData[id]?.data)
+    tile.frames = tile.frames?.map((id) => frameData[id]?.data)
   })
 }
 
 // 'inline' tiles into rooms for easier access
 const resolveTiles = (rooms, tileData) => {
   rooms.forEach((room) => {
-    room.tiles = room.tiles.map((id) => tileData[id])
+    room.tiles = room.tiles?.map((id) => tileData[id])
   })
 }
 
@@ -51,10 +51,10 @@ const getMetaInfo = (data) => ({
   intro: data.intro,
 })
 
-const repairAndCleanup = (data) => {
-  data.tiles = data.tiles.filter(Boolean) // remove garbage?
-  data.rooms = data.rooms.filter(Boolean) // remove garbage?
-}
+// const repairAndCleanup = (data) => {
+//   data.tiles = data.tiles.filter(Boolean) // remove gaps
+//   data.rooms = data.rooms.filter(Boolean) // remove gaps
+// }
 
 // library namespace
 class Zest {
@@ -76,7 +76,7 @@ class Zest {
       this.stop()
     }
 
-    repairAndCleanup(data)
+    // repairAndCleanup(data)
     console.log(data)
 
     this.cart = data
