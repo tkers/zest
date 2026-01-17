@@ -7,22 +7,6 @@ const getDroppedJSON = (e) =>
     .map((item) => item.getAsFile())
     .filter((file) => file)?.[0]
 
-// prevent accidentally dropping files in window
-window.addEventListener('drop', (e) => {
-  if (getDroppedFiles(e).length > 0) {
-    e.preventDefault()
-  }
-})
-
-window.addEventListener('dragover', (e) => {
-  if (getDroppedFiles(e).length > 0) {
-    e.preventDefault()
-    if (!lcd.contains(e.target)) {
-      e.dataTransfer.dropEffect = 'none'
-    }
-  }
-})
-
 window.addEventListener('load', () => {
   const lcd = document.getElementById('lcd')
   const titleLabel = document.getElementById('label-title')
@@ -70,14 +54,8 @@ window.addEventListener('load', () => {
 
   // accept dropping files on canvas
   lcd.addEventListener('dragover', (e) => {
-    const files = getDroppedFiles(e)
-    if (files.length == 0) return
     e.preventDefault()
-    e.dataTransfer.dropEffect = files.some(
-      (file) => file.type == 'application/json'
-    )
-      ? 'copy'
-      : 'none'
+    e.dataTransfer.dropEffect = 'copy'
   })
 
   lcd.addEventListener('drop', (e) => {
@@ -87,7 +65,7 @@ window.addEventListener('load', () => {
     const reader = new FileReader()
     reader.onload = () => {
       const data = JSON.parse(reader.result)
-      game.loadCart(data)
+      game.load(data)
       titleLabel.innerText = game.meta.name
       authorLabel.innerText = game.meta.author
       setTimeout(() => game.play(), 1200)
@@ -96,5 +74,15 @@ window.addEventListener('load', () => {
       console.log('[ERROR] Failed to load dropped file')
     }
     reader.readAsText(file)
+  })
+
+  // prevent accidentally dropping files in window
+  window.addEventListener('drop', (e) => {
+    e.preventDefault()
+  })
+
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = lcd.contains(e.target) ? 'copy' : 'none'
   })
 })

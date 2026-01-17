@@ -109,8 +109,7 @@ class Zest {
 
   static load(data, canvas) {
     const game = new Zest(canvas)
-    game.loadCart(data)
-    game.render()
+    game.load(data)
     return game
   }
 
@@ -124,6 +123,12 @@ class Zest {
   restart() {
     this.loadCart(JSON.parse(this.originalCart))
     this.play()
+  }
+
+  load(data, wrapped) {
+    this.loadCart(data)
+    if (wrapped) this.room = this.wrap ?? this.card ?? this.start
+    this.render()
   }
 
   loadCart(data) {
@@ -163,7 +168,7 @@ class Zest {
 
     // current room to render
     this.player = data.player
-    this.room = this.wrap ?? this.card ?? this.start
+    this.room = this.card ?? this.start
   }
 
   play() {
