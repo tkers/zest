@@ -101,9 +101,16 @@ const getMetaInfo = (data) => ({
 class Zest {
   static run(data, canvas) {
     const game = new Zest(canvas)
-    game.load(data)
+    game.loadCart(data)
     game.play()
     // game.attract()
+    return game
+  }
+
+  static load(data, canvas) {
+    const game = new Zest(canvas)
+    game.loadCart(data)
+    game.render()
     return game
   }
 
@@ -114,7 +121,12 @@ class Zest {
     this.isPaused = false
   }
 
-  load(data) {
+  restart() {
+    this.loadCart(JSON.parse(this.originalCart))
+    this.play()
+  }
+
+  loadCart(data) {
     if (this.isRunning) {
       this.stop()
     }
@@ -122,6 +134,7 @@ class Zest {
     // repairAndCleanup(data)
     console.log(data)
 
+    this.originalCart = JSON.stringify(data)
     this.cart = data
     this.meta = getMetaInfo(data)
     this.frameIx = 0
@@ -151,7 +164,6 @@ class Zest {
     // current room to render
     this.player = data.player
     this.room = this.wrap ?? this.card ?? this.start
-    this.render()
   }
 
   play() {
@@ -320,9 +332,12 @@ class Zest {
       } else if (tx == exit.x && ty == exit.y) {
         if (exit.fin) {
           // @TODO use exit.song to play/stop music
-          console.log(`[FIN] ${exit.fin}`)
-          // @TODO actually end the game
-          this.room = this.card
+          this.room = {
+            tiles: Array(15 * 25).fill(this.namedTiles.black),
+          }
+          this.say(exit.fin, () => {
+            this.restart()
+          })
         } else {
           this.gotoRoom(exit.room, exit.tx, exit.ty)
         }

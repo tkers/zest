@@ -29,7 +29,8 @@ window.addEventListener('load', () => {
   const authorLabel = document.getElementById('label-author')
 
   // load and start the demo game
-  const game = Zest.run(gameData, lcd)
+  const game = Zest.load(gameData, lcd)
+  setTimeout(() => game.play(), 1200)
 
   window.addEventListener('keydown', (e) => {
     if (e.key == 'ArrowUp') game.pressUp()
