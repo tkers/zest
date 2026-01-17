@@ -144,6 +144,24 @@ class Zest {
     this.meta = getMetaInfo(data)
     this.frameIx = 0
 
+    this.dialogFrameIx = 0
+    this.dialogActive = false
+
+    this.config = {
+      sayAdvanceDelay: 0.2,
+      textSpeed: 20,
+      textSkip: true,
+      // inputRepeat: true,
+      // inputRepeatDelay: 0.4,
+      // inputRepeatBetween: 0.2,
+      // autoAct: true,
+      // follow: false,
+      // followCenterX: 12,
+      // followCenterY: 7,
+      // followOverflowTile: 'black',
+      // allowDismissRootMenu: false,
+    }
+
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
     // make rooms reference frames directly for convenience
@@ -184,7 +202,16 @@ class Zest {
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
       this.render()
-      if (!this.dialogActive) this.frameIx++
+      if (!this.dialogActive) {
+        this.frameIx++
+      } else {
+        this.dialogLock--
+        if (this.dialogTextIx < this.dialogText.length) {
+          this.dialogTextIx += this.config.textSpeed / 20
+        } else {
+          this.dialogFrameIx++
+        }
+      }
     }, 50)
   }
 
@@ -232,13 +259,26 @@ class Zest {
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
+    this.dialogTextIx = 0
+    this.dialogLock = this.config.sayAdvanceDelay * 20
     this.dialogCb = cb ?? noop
   }
 
   advanceSay() {
     if (!this.dialogActive) return false
+
+    if (this.dialogLock >= 0) return true
+
+    if (this.dialogTextIx < this.dialogText.length) {
+      if (this.config.textSkip) {
+        this.dialogTextIx = this.dialogText.length
+      }
+      return true
+    }
+
     if (this.dialogPages.length > 0) {
       this.dialogText = this.dialogPages.shift()
+      this.dialogTextIx = 0
     } else {
       this.dialogActive = false
       this.dialogCb()
@@ -427,21 +467,28 @@ class Zest {
 
     // draw window
     if (this.dialogActive) {
-      tilemap[coordToIndex(3, 3)] = this.cart.font.pipe[0] // top left
+      tilemap[coordToIndex(3, 3)] = this.cart.font.pipe[0] // top left corner
+      tilemap[coordToIndex(21, 3)] = this.cart.font.pipe[2] // top right corner
+
+      // horizontal border
       for (let x = 4; x < 21; x++) {
         tilemap[coordToIndex(x, 3)] = this.cart.font.pipe[1]
         tilemap[coordToIndex(x, 8)] = this.cart.font.pipe[7]
       }
-      tilemap[coordToIndex(21, 3)] = this.cart.font.pipe[2] // top right
 
+      // vertical border
       for (let y = 4; y < 8; y++) {
         tilemap[coordToIndex(3, y)] = this.cart.font.pipe[3]
         tilemap[coordToIndex(21, y)] = this.cart.font.pipe[5]
       }
 
-      tilemap[coordToIndex(3, 8)] = this.cart.font.pipe[6] // arrow
-      tilemap[coordToIndex(20, 8)] = this.cart.font.pipe[9] // arrow
-      tilemap[coordToIndex(21, 8)] = this.cart.font.pipe[8] // bottom right
+      tilemap[coordToIndex(3, 8)] = this.cart.font.pipe[6] // bottom left corner
+      tilemap[coordToIndex(21, 8)] = this.cart.font.pipe[8] // bottom right corner
+
+      if (this.dialogTextIx >= this.dialogText.length) {
+        const arrowIx = 9 + (Math.floor(this.dialogFrameIx / 10) % 2)
+        tilemap[coordToIndex(20, 8)] = this.cart.font.pipe[arrowIx] // arrow
+      }
 
       for (let y = 4; y < 8; y++) {
         for (let x = 4; x < 21; x++) {
@@ -451,7 +498,7 @@ class Zest {
 
       let xx = 4
       let yy = 4
-      let text = this.dialogText
+      let text = this.dialogText.substring(0, this.dialogTextIx)
 
       for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
