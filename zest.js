@@ -204,18 +204,22 @@ class Zest {
   }
 
   psEval(src) {
+    // string or num literal
+    if (!Array.isArray(src)) return src
+
+    // expression
     const [head, ...rest] = src
     if (head === 'format') {
-      return rest.reduce((str, part) => {
-        if (Array.isArray(part) && part[0] === 'get') {
-          return `${str}${this.globals[part[1]] ?? 0}`
-        } else {
-          return `${str}${part}`
-        }
-      }, '')
-    } else {
-      return '[ParseError]'
+      return rest.reduce((str, part) => `${str}${this.psEval(part)}`, '')
+    } else if (head === 'get') {
+      return this.globals[rest[0]] ?? 0
+    } else if (head === 'lpad') {
+      return this.psEval(rest[0]).toString().padStart(rest[1], rest[2])
+    } else if (head === 'rpad') {
+      return this.psEval(rest[0]).toString().padEnd(rest[1], rest[2])
     }
+
+    return '[ParseError]'
   }
 
   say(message, cb) {
