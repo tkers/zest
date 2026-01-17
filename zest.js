@@ -260,58 +260,65 @@ class Zest {
 
     let tx = this.player.x + dx
     let ty = this.player.y + dy
+    let canMove = true
 
-    // @TODO also emit bump on room boundary?
     if (tx < 0) {
       tx = 0
+      canMove = false
     }
     if (tx >= ROOM_WIDTH) {
       tx = ROOM_WIDTH - 1
+      canMove = false
     }
     if (ty < 0) {
       ty = 0
+      canMove = false
     }
     if (ty >= ROOM_HEIGHT) {
       ty = ROOM_HEIGHT - 1
+      canMove = false
     }
 
     const target = this.getTileAt(tx, ty)
     if (target.solid) {
-      // @TODO emit bump
-      if (target.type == 2) {
-        // sprite type
-        // @TODO check autoact first?
-        if (typeof target.sound !== 'undefined') {
-          this.playSound(target.sound)
-        }
-        if (target.says) {
-          this.say(target.says)
-        }
-      }
-      return
+      canMove = false
     }
 
-    if (target.type == 3) {
-      // item type
-      // @TODO emit collect
-      const keyName = `${target.name}s`
-      const counter = this.globals[keyName] ?? 0
-      this.globals[keyName] = counter + 1
-      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
+    // sprite type
+    if (target.type == 2) {
+      // @TODO check config.autoAct first
       if (typeof target.sound !== 'undefined') {
         this.playSound(target.sound)
       }
       if (target.says) {
         this.say(target.says)
       }
-      console.log(`Collected ${counter + 1} ${keyName}`)
+    } else if (target.type == 3) {
+      // item type, run the default collect handler
+      const keyName = `${target.name}s`
+      const counter = this.globals[keyName] ?? 0
+      this.globals[keyName] = counter + 1
+      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
+      // @TODO emit collect event
+      if (typeof target.sound !== 'undefined') {
+        this.playSound(target.sound)
+      }
+      if (target.says) {
+        this.say(target.says)
+      }
+      // console.log(`Collected ${counter + 1} ${keyName}`)
     }
 
     // @TODO emit update
     const prevX = this.player.x
     const prevY = this.player.y
-    this.player.x = tx
-    this.player.y = ty
+    if (canMove) {
+      // @TODO emit update event
+      this.player.x = tx
+      this.player.y = ty
+    } else {
+      // @TODO emit bump event
+    }
 
     // check for exits
     this.room.exits.forEach((exit) => {
