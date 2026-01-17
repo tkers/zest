@@ -36,8 +36,8 @@ window.addEventListener('load', () => {
     if (e.key == 'ArrowDown') game.pressDown()
     if (e.key == 'ArrowLeft') game.pressLeft()
     if (e.key == 'ArrowRight') game.pressRight()
-    // if (e.key == 'a') game.pressB()
-    // if (e.key == 's') game.pressA()
+    if (e.key == 'a') game.pressB()
+    if (e.key == 's') game.pressA()
     if (e.key == ' ') {
       const isPaused = game.pauseResume()
       lcd.className = isPaused ? 'paused' : ''

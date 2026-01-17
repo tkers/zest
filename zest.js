@@ -6,7 +6,7 @@ let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
 COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 
-function wrapText(str, maxWidth) {
+function wrapText(str, maxWidth, maxLines) {
   const lines = []
   let from = 0
 
@@ -33,7 +33,16 @@ function wrapText(str, maxWidth) {
       }
     }
   }
-  return lines.join('\n')
+
+  if (maxLines) {
+    const result = []
+    for (let l = 0; l < lines.length; l += maxLines) {
+      result.push(lines.slice(l, l + maxLines).join('\n'))
+    }
+    return result
+  } else {
+    return lines.join('\n')
+  }
 }
 
 // transform [{ name: n, ... }] -> { n: { ... } }
@@ -181,7 +190,19 @@ class Zest {
   }
 
   say(message) {
-    this.dialogText = message
+    this.dialogActive = true
+    this.dialogPages = wrapText(message, 17, 4)
+    this.dialogText = this.dialogPages.shift()
+  }
+
+  advanceSay() {
+    if (!this.dialogActive) return false
+    if (this.dialogPages.length > 0) {
+      this.dialogText = this.dialogPages.shift()
+    } else {
+      this.dialogActive = false
+    }
+    return true
   }
 
   playSound(ix) {
@@ -197,8 +218,7 @@ class Zest {
   }
 
   movePlayer(dx, dy) {
-    if (this.dialogText) {
-      this.dialogText = null
+    if (this.advanceSay()) {
       return
     }
 
@@ -311,15 +331,13 @@ class Zest {
   }
 
   pressA() {
-    if (this.dialogText) {
-      this.dialogText = null
+    if (this.advanceSay()) {
       return
     }
   }
 
   pressB() {
-    if (this.dialogText) {
-      this.dialogText = null
+    if (this.advanceSay()) {
       return
     }
   }
@@ -357,7 +375,7 @@ class Zest {
     }
 
     // draw window
-    if (this.dialogText) {
+    if (this.dialogActive) {
       tilemap[coordToIndex(3, 3)] = this.cart.font.pipe[0] // top left
       for (let x = 4; x < 21; x++) {
         tilemap[coordToIndex(x, 3)] = this.cart.font.pipe[1]
@@ -382,7 +400,7 @@ class Zest {
 
       let xx = 4
       let yy = 4
-      let text = wrapText(this.dialogText, 17)
+      let text = this.dialogText
 
       for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
