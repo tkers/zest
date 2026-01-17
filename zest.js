@@ -6,6 +6,36 @@ let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
 COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 
+function wrapText(str, maxWidth) {
+  const lines = []
+  let from = 0
+
+  while (from < str.length) {
+    let breakAt = from + maxWidth
+
+    if (breakAt >= str.length) {
+      lines.push(str.slice(from))
+      break
+    }
+
+    const nl = str.indexOf('\n', from)
+    if (nl > from && nl < breakAt) {
+      lines.push(str.slice(from, nl))
+      from = nl + 1
+    } else {
+      const bl = str.lastIndexOf(' ', breakAt)
+      if (bl > from) {
+        lines.push(str.slice(from, bl))
+        from = bl + 1
+      } else {
+        lines.push(str.slice(from, breakAt))
+        from = breakAt
+      }
+    }
+  }
+  return lines.join('\n')
+}
+
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
 
@@ -68,6 +98,7 @@ class Zest {
 
   constructor(canvas) {
     this.canvas = canvas
+    this.ctx2d = canvas.getContext('2d')
     this.isRunning = false
     this.isPaused = false
   }
@@ -150,7 +181,7 @@ class Zest {
   }
 
   say(message) {
-    console.log(`[SAY] ${message}`)
+    this.dialogText = message
   }
 
   playSound(ix) {
@@ -166,6 +197,11 @@ class Zest {
   }
 
   movePlayer(dx, dy) {
+    if (this.dialogText) {
+      this.dialogText = null
+      return
+    }
+
     let tx = this.player.x + dx
     let ty = this.player.y + dy
 
@@ -274,9 +310,19 @@ class Zest {
     this.movePlayer(1, 0)
   }
 
-  pressA() {}
+  pressA() {
+    if (this.dialogText) {
+      this.dialogText = null
+      return
+    }
+  }
 
-  pressB() {}
+  pressB() {
+    if (this.dialogText) {
+      this.dialogText = null
+      return
+    }
+  }
 
   attract() {
     // demo reel, loop through the available rooms
@@ -297,10 +343,63 @@ class Zest {
   }
 
   render() {
-    // get the canvas context for our display
-    const ctx = this.canvas.getContext('2d')
-    const cardImgData = roomToStill(this.room, this.frameIx)
+    // get all room frames
+    const tilemap = roomToStill(this.room, this.frameIx)
 
+    // display player
+    if (this.room == this.cart.rooms[this.player.room]) {
+      const playerFrame = getCurrentFrameForTile(this.player.tile, this.frameIx)
+      const ti = coordToIndex(this.player.x, this.player.y)
+      // add background tile to transparent areas
+      tilemap[ti] = playerFrame.map((fg, pi) =>
+        fg == 2 ? tilemap[ti][pi] : fg
+      )
+    }
+
+    // draw window
+    if (this.dialogText) {
+      tilemap[coordToIndex(3, 3)] = this.cart.font.pipe[0] // top left
+      for (let x = 4; x < 21; x++) {
+        tilemap[coordToIndex(x, 3)] = this.cart.font.pipe[1]
+        tilemap[coordToIndex(x, 8)] = this.cart.font.pipe[7]
+      }
+      tilemap[coordToIndex(21, 3)] = this.cart.font.pipe[2] // top right
+
+      for (let y = 4; y < 8; y++) {
+        tilemap[coordToIndex(3, y)] = this.cart.font.pipe[3]
+        tilemap[coordToIndex(21, y)] = this.cart.font.pipe[5]
+      }
+
+      tilemap[coordToIndex(3, 8)] = this.cart.font.pipe[6] // arrow
+      tilemap[coordToIndex(20, 8)] = this.cart.font.pipe[9] // arrow
+      tilemap[coordToIndex(21, 8)] = this.cart.font.pipe[8] // bottom right
+
+      for (let y = 4; y < 8; y++) {
+        for (let x = 4; x < 21; x++) {
+          tilemap[coordToIndex(x, y)] = this.cart.font.pipe[4]
+        }
+      }
+
+      let xx = 4
+      let yy = 4
+      let text = wrapText(this.dialogText, 17)
+
+      for (let i = 0; i < text.length; i++) {
+        let glyph = text.charCodeAt(i)
+        if (xx > 20 || glyph == 10) {
+          xx = 4
+          yy++
+        }
+        if (glyph == 10) continue
+        tilemap[coordToIndex(xx, yy)] = this.cart.font.chars[glyph - 32]
+        xx++
+      }
+    }
+
+    this.drawToCanvas(tilemap)
+  }
+
+  drawToCanvas(tilemap) {
     const imgData = new ImageData(200, 120)
     const pixels = imgData.data
 
@@ -314,11 +413,10 @@ class Zest {
         const ti = tx + 25 * ty
         const pi = px + 8 * py
 
-        const arr = cardImgData[ti]
+        const arr = tilemap[ti]
         const col = arr[pi]
 
-        let [r, g, b, a] = COLOR_WHITE
-        if (col == 1) [r, g, b, a] = COLOR_BLACK
+        const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
 
         let ix = x + y * 200
         pixels[ix * 4] = r
@@ -327,29 +425,6 @@ class Zest {
         pixels[ix * 4 + 3] = a
       }
     }
-
-    if (this.room == this.cart.rooms[this.player.room]) {
-      const px = this.player.x * 8
-      const py = this.player.y * 8
-      const pf = getCurrentFrameForTile(this.player.tile, this.frameIx)
-
-      for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-          const col = pf[x + y * 8]
-
-          if (col == 2) continue // transparent
-          let [r, g, b, a] = COLOR_WHITE
-          if (col == 1) [r, g, b, a] = COLOR_BLACK
-
-          let ix = px + x + (py + y) * 200
-          pixels[ix * 4] = r
-          pixels[ix * 4 + 1] = g
-          pixels[ix * 4 + 2] = b
-          pixels[ix * 4 + 3] = a
-        }
-      }
-    }
-
-    ctx.putImageData(imgData, 0, 0)
+    this.ctx2d.putImageData(imgData, 0, 0)
   }
 }
