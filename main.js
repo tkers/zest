@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
     const reader = new FileReader()
     reader.onload = () => {
       const data = JSON.parse(reader.result)
-      game.load(data)
+      game.loadCart(data)
       titleLabel.innerText = game.meta.name
       authorLabel.innerText = game.meta.author
       setTimeout(() => game.play(), 1200)
