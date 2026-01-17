@@ -1,3 +1,9 @@
+const FPS = 20
+const ROOM_WIDTH = 25
+const ROOM_HEIGHT = 15
+const PIXEL_WIDTH = 200
+const PIXEL_HEIGHT = 120
+
 // standard B/W
 let COLOR_WHITE = [0xff, 0xff, 0xff, 0xff]
 let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
@@ -50,8 +56,6 @@ function wrapText(str, maxWidth, maxLines) {
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
 
-const ROOM_WIDTH = 25
-const ROOM_HEIGHT = 15
 const coordToIndex = (x, y) => x + y * ROOM_WIDTH
 const indexToCoord = (ix) => {
   const y = Math.floor(ix / ROOM_WIDTH)
@@ -77,7 +81,7 @@ const resolveTiles = (rooms, tileData) => {
 
 // get the current frame of a tile, fps aware
 const getCurrentFrameForTile = (tile, frameIx) =>
-  tile.frames[Math.floor((tile.fps / 20) * frameIx) % tile.frames.length]
+  tile.frames[Math.floor((tile.fps / FPS) * frameIx) % tile.frames.length]
 
 // get the current snapshot of a room, as an array of frames
 const roomToStill = (room, frameIx) =>
@@ -207,12 +211,12 @@ class Zest {
       } else {
         this.dialogLock--
         if (this.dialogTextIx < this.dialogText.length) {
-          this.dialogTextIx += this.config.textSpeed / 20
+          this.dialogTextIx += this.config.textSpeed / FPS
         } else {
           this.dialogFrameIx++
         }
       }
-    }, 50)
+    }, 1000 / FPS)
   }
 
   stop() {
@@ -260,7 +264,7 @@ class Zest {
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
     this.dialogTextIx = 0
-    this.dialogLock = this.config.sayAdvanceDelay * 20
+    this.dialogLock = this.config.sayAdvanceDelay * FPS
     this.dialogCb = cb ?? noop
   }
 
@@ -516,13 +520,13 @@ class Zest {
   }
 
   drawToCanvas(tilemap) {
-    const imgData = new ImageData(200, 120)
+    const imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
     const pixels = imgData.data
 
-    for (let y = 0; y < 120; y++) {
+    for (let y = 0; y < PIXEL_HEIGHT; y++) {
       const ty = Math.floor(y / 8)
       const py = y % 8
-      for (let x = 0; x < 200; x++) {
+      for (let x = 0; x < PIXEL_WIDTH; x++) {
         const tx = Math.floor(x / 8)
         const px = x % 8
 
@@ -534,7 +538,7 @@ class Zest {
 
         const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
 
-        let ix = x + y * 200
+        let ix = x + y * PIXEL_WIDTH
         pixels[ix * 4] = r
         pixels[ix * 4 + 1] = g
         pixels[ix * 4 + 2] = b
