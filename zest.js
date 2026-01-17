@@ -6,6 +6,8 @@ let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
 COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 
+const noop = () => {}
+
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
   let from = 0
@@ -165,7 +167,7 @@ class Zest {
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
       this.render()
-      this.frameIx++
+      if (!this.dialogActive) this.frameIx++
     }, 50)
   }
 
@@ -189,10 +191,27 @@ class Zest {
     return this.room.tiles[ix]
   }
 
-  say(message) {
+  psEval(src) {
+    const [head, ...rest] = src
+    if (head === 'format') {
+      return rest.reduce((str, part) => {
+        if (Array.isArray(part) && part[0] === 'get') {
+          return `${str}${this.globals[part[1]] ?? 0}`
+        } else {
+          return `${str}${part}`
+        }
+      }, '')
+    } else {
+      return '[ParseError]'
+    }
+  }
+
+  say(message, cb) {
+    if (Array.isArray(message)) message = this.psEval(message)
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
+    this.dialogCb = cb ?? noop
   }
 
   advanceSay() {
@@ -201,6 +220,7 @@ class Zest {
       this.dialogText = this.dialogPages.shift()
     } else {
       this.dialogActive = false
+      this.dialogCb()
     }
     return true
   }
