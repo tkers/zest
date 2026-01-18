@@ -16,6 +16,10 @@ COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6 }
 
+function warn(message) {
+  console.warn(`[WARN] ${message}`)
+}
+
 class ButtonState {
   constructor() {
     this.isPressed = false
@@ -202,7 +206,7 @@ class Zest {
       inputRepeat: true,
       inputRepeatDelay: 0.4,
       inputRepeatBetween: 0.2,
-      // autoAct: true,
+      autoAct: true,
       // follow: false,
       // followCenterX: 12,
       // followCenterY: 7,
@@ -229,6 +233,7 @@ class Zest {
     // create a lookup table for room and tile names
     this.namedRooms = byName(data.rooms)
     this.namedTiles = byName(data.tiles)
+    this.namedSounds = byName(data.sounds)
     this.backgroundTile =
       this.namedTiles[data.background == 1 ? 'black' : 'white']
 
@@ -248,7 +253,7 @@ class Zest {
 
   play() {
     if (this.isRunning) {
-      console.log('[WARN] Already running')
+      warn('Already running')
       return
     }
     this.isRunning = true
@@ -275,7 +280,7 @@ class Zest {
 
   stop() {
     if (!this.isRunning) {
-      console.log('[WARN] Already stopped')
+      warn('Already stopped')
       return
     }
     this.isRunning = false
@@ -293,28 +298,29 @@ class Zest {
     return this.room.tiles[ix]
   }
 
-  psEval(src) {
+  formatString(src) {
     // string or num literal
-    if (!Array.isArray(src)) return src
+    if (!Array.isArray(src)) return src.toString()
 
     // expression
     const [head, ...rest] = src
     if (head === 'format') {
-      return rest.reduce((str, part) => `${str}${this.psEval(part)}`, '')
+      return rest.reduce((str, part) => `${str}${this.formatString(part)}`, '')
     } else if (head === 'get') {
       return this.globals[rest[0]] ?? 0
     } else if (head === 'lpad') {
-      return this.psEval(rest[0]).toString().padStart(rest[1], rest[2])
+      return this.formatString(rest[0]).toString().padStart(rest[1], rest[2])
     } else if (head === 'rpad') {
-      return this.psEval(rest[0]).toString().padEnd(rest[1], rest[2])
+      return this.formatString(rest[0]).toString().padEnd(rest[1], rest[2])
     }
 
-    return '[ParseError]'
+    warn(`Failed to format string: ${head}`)
+    warn(src)
   }
 
   say(message, cb) {
     this.clearInput()
-    if (Array.isArray(message)) message = this.psEval(message)
+    message = this.formatString(message)
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
@@ -347,9 +353,45 @@ class Zest {
     return true
   }
 
-  playSound(ix) {
-    const snd = this.cart.sounds[ix]
+  fin(message) {
+    this.room = {
+      tiles: Array(15 * 25).fill(this.namedTiles.black),
+    }
+    this.say(message, () => {
+      this.restart()
+    })
+  }
+
+  playSound(ref) {
+    const snd =
+      typeof ref === 'string' ? this.namedSounds[ref] : this.cart.sounds[ref]
     console.log(`[PLAY] ${snd.name}`)
+  }
+
+  actOn(target) {
+    if (target.says) {
+      if (typeof target.sound !== 'undefined') {
+        this.playSound(target.sound)
+      }
+      this.say(target.says)
+    } else {
+      // @TODO run script
+    }
+  }
+
+  collect(target, tx, ty) {
+    if (target.says) {
+      if (typeof target.sound !== 'undefined') {
+        this.playSound(target.sound)
+      }
+      const keyName = `${target.name}s`
+      const counter = this.globals[keyName] ?? 0
+      this.globals[keyName] = counter + 1
+      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
+      this.say(target.says)
+    } else {
+      // @TODO run script
+    }
   }
 
   gotoRoom(roomIx, px, py) {
@@ -388,27 +430,11 @@ class Zest {
 
     // sprite type
     if (target.type == 2) {
-      // @TODO check config.autoAct first
-      if (typeof target.sound !== 'undefined') {
-        this.playSound(target.sound)
-      }
-      if (target.says) {
-        this.say(target.says)
+      if (this.config.autoAct) {
+        this.actOn(target)
       }
     } else if (target.type == 3) {
-      // item type, run the default collect handler
-      const keyName = `${target.name}s`
-      const counter = this.globals[keyName] ?? 0
-      this.globals[keyName] = counter + 1
-      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
-      // @TODO emit collect event
-      if (typeof target.sound !== 'undefined') {
-        this.playSound(target.sound)
-      }
-      if (target.says) {
-        this.say(target.says)
-      }
-      // console.log(`Collected ${counter + 1} ${keyName}`)
+      this.collect(target, tx, ty)
     }
 
     // @TODO emit update
@@ -445,12 +471,7 @@ class Zest {
       } else if (tx == exit.x && ty == exit.y) {
         if (exit.fin) {
           // @TODO use exit.song to play/stop music
-          this.room = {
-            tiles: Array(15 * 25).fill(this.namedTiles.black),
-          }
-          this.say(exit.fin, () => {
-            this.restart()
-          })
+          this.fin(exit.fin)
         } else {
           this.gotoRoom(exit.room, exit.tx, exit.ty)
         }
@@ -551,23 +572,26 @@ class Zest {
     }
   }
 
-  attract() {
-    // demo reel, loop through the available rooms
-    this.room = this.wrap ?? this.card
-    setTimeout(() => {
-      this.room = this.card
-      setTimeout(() => {
-        this.room = this.start
+  // drawFrame(frame, x, y, pixels) {
+  //   const tx = x * 8
+  //   const ty = y * 8
 
-        let cr = this.cart.player.room
-        setInterval(() => {
-          cr = (cr + 1) % this.cart.rooms.length
-          this.room = this.cart.rooms[cr]
-          // console.log(currentRoom)
-        }, 5000)
-      }, 2400)
-    }, 800)
-  }
+  //   for (let y = 0; y < 8; y++) {
+  //     for (let x = 0; x < 8; x++) {
+  //       const col = frame[x + y * 8]
+
+  //       if (col == 2) continue // transparent
+  //       let [r, g, b, a] = COLOR_WHITE
+  //       if (col == 1) [r, g, b, a] = COLOR_BLACK
+
+  //       let ix = tx + x + (ty + y) * PIXEL_WIDTH
+  //       pixels[ix * 4] = r
+  //       pixels[ix * 4 + 1] = g
+  //       pixels[ix * 4 + 2] = b
+  //       pixels[ix * 4 + 3] = a
+  //     }
+  //   }
+  // }
 
   render() {
     // get all room frames
