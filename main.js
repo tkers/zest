@@ -17,16 +17,27 @@ window.addEventListener('load', () => {
   setTimeout(() => game.play(), 1200)
 
   window.addEventListener('keydown', (e) => {
-    if (e.key == 'ArrowUp') game.pressUp()
-    if (e.key == 'ArrowDown') game.pressDown()
-    if (e.key == 'ArrowLeft') game.pressLeft()
-    if (e.key == 'ArrowRight') game.pressRight()
-    if (e.key == 'a') game.pressB()
-    if (e.key == 's') game.pressA()
+    if (e.repeat) return
+
+    if (e.key == 'ArrowUp') game.pressKey(Button.UP)
+    if (e.key == 'ArrowDown') game.pressKey(Button.DOWN)
+    if (e.key == 'ArrowLeft') game.pressKey(Button.LEFT)
+    if (e.key == 'ArrowRight') game.pressKey(Button.RIGHT)
+    if (e.key == 'a') game.pressKey(Button.B)
+    if (e.key == 's') game.pressKey(Button.A)
     if (e.key == ' ') {
       const isPaused = game.pauseResume()
       lcd.className = isPaused ? 'paused' : ''
     }
+  })
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key == 'ArrowUp') game.releaseKey(Button.UP)
+    if (e.key == 'ArrowDown') game.releaseKey(Button.DOWN)
+    if (e.key == 'ArrowLeft') game.releaseKey(Button.LEFT)
+    if (e.key == 'ArrowRight') game.releaseKey(Button.RIGHT)
+    if (e.key == 'a') game.releaseKey(Button.B)
+    if (e.key == 's') game.releaseKey(Button.A)
   })
 
   // update cartridge info

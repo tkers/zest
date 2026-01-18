@@ -3,6 +3,7 @@ const ROOM_WIDTH = 25
 const ROOM_HEIGHT = 15
 const PIXEL_WIDTH = 200
 const PIXEL_HEIGHT = 120
+const FRAME_DURATION = 1 / FPS
 
 // standard B/W
 let COLOR_WHITE = [0xff, 0xff, 0xff, 0xff]
@@ -11,6 +12,51 @@ let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
 // device appearance
 COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
+
+const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
+const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6 }
+
+class ButtonState {
+  constructor() {
+    this.isPressed = false
+    this.heldTime = 0
+    this.justChanged = false
+    this.isRepeating = false
+  }
+  press() {
+    if (this.isPressed) return
+    this.isPressed = true
+    this.justChanged = true
+    this.isRepeating = false
+  }
+  release() {
+    if (!this.isPressed) return
+    this.isPressed = false
+    this.justChanged = true
+    this.heldTime = 0
+  }
+  check(repeat, repeatDelay, repeatBetween) {
+    if (repeat && this.isPressed) {
+      this.heldTime += FRAME_DURATION
+      if (this.isRepeating) {
+        if (this.heldTime > repeatBetween) {
+          this.heldTime -= repeatBetween
+          return true
+        }
+      } else if (this.heldTime > repeatDelay) {
+        this.heldTime -= repeatDelay
+        this.isRepeating = true
+        return true
+      } else if (this.justChanged) {
+        this.justChanged = false
+        return true
+      }
+    }
+    const justChanged = this.justChanged
+    this.justChanged = false
+    return this.isPressed && justChanged
+  }
+}
 
 const noop = () => {}
 
@@ -62,8 +108,6 @@ const indexToCoord = (ix) => {
   const x = ix - y * ROOM_WIDTH
   return [x, y]
 }
-
-const EdgeDirection = { TOP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 
 // 'inline' frames into tiles for easier access
 const resolveFrames = (tiles, frameData) => {
@@ -155,15 +199,24 @@ class Zest {
       sayAdvanceDelay: 0.2,
       textSpeed: 20,
       textSkip: true,
-      // inputRepeat: true,
-      // inputRepeatDelay: 0.4,
-      // inputRepeatBetween: 0.2,
+      inputRepeat: true,
+      inputRepeatDelay: 0.4,
+      inputRepeatBetween: 0.2,
       // autoAct: true,
       // follow: false,
       // followCenterX: 12,
       // followCenterY: 7,
       // followOverflowTile: 'black',
       // allowDismissRootMenu: false,
+    }
+
+    this.input = {
+      [Button.UP]: new ButtonState(),
+      [Button.RIGHT]: new ButtonState(),
+      [Button.DOWN]: new ButtonState(),
+      [Button.LEFT]: new ButtonState(),
+      [Button.A]: new ButtonState(),
+      [Button.B]: new ButtonState(),
     }
 
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
@@ -206,6 +259,7 @@ class Zest {
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
       this.render()
+      this.updateInput()
       if (!this.dialogActive) {
         this.frameIx++
       } else {
@@ -259,6 +313,7 @@ class Zest {
   }
 
   say(message, cb) {
+    this.clearInput()
     if (Array.isArray(message)) message = this.psEval(message)
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
@@ -276,6 +331,7 @@ class Zest {
     if (this.dialogTextIx < this.dialogText.length) {
       if (this.config.textSkip) {
         this.dialogTextIx = this.dialogText.length
+        this.clearInput()
       }
       return true
     }
@@ -283,6 +339,7 @@ class Zest {
     if (this.dialogPages.length > 0) {
       this.dialogText = this.dialogPages.shift()
       this.dialogTextIx = 0
+      this.clearInput()
     } else {
       this.dialogActive = false
       this.dialogCb()
@@ -303,10 +360,6 @@ class Zest {
   }
 
   movePlayer(dx, dy) {
-    if (this.advanceSay()) {
-      return
-    }
-
     let tx = this.player.x + dx
     let ty = this.player.y + dy
     let canMove = true
@@ -372,7 +425,7 @@ class Zest {
     // check for exits
     this.room.exits.forEach((exit) => {
       if (typeof exit.edge !== 'undefined') {
-        if (exit.edge == EdgeDirection.TOP) {
+        if (exit.edge == EdgeDirection.UP) {
           if (prevY == exit.y && dy < 0) {
             this.gotoRoom(exit.room, prevX, exit.ty)
           }
@@ -405,35 +458,96 @@ class Zest {
     })
   }
 
-  pressUp() {
-    if (!this.isRunning || this.isPaused) return
-    this.movePlayer(0, -1)
+  pressKey(key) {
+    this.input[key].press()
+  }
+  releaseKey(key) {
+    this.input[key].release()
   }
 
-  pressDown() {
-    if (!this.isRunning || this.isPaused) return
-    this.movePlayer(0, 1)
+  clearInput() {
+    this.input[Button.UP].release()
+    this.input[Button.RIGHT].release()
+    this.input[Button.DOWN].release()
+    this.input[Button.LEFT].release()
+    this.input[Button.A].release()
+    this.input[Button.B].release()
   }
 
-  pressLeft() {
-    if (!this.isRunning || this.isPaused) return
-    this.movePlayer(-1, 0)
-  }
+  updateInput() {
+    const inputRepeat = this.config.inputRepeat
+    const inputRepeatDelay = this.config.inputRepeatDelay
+    const inputRepeatBetween = this.config.inputRepeatBetween
 
-  pressRight() {
-    if (!this.isRunning || this.isPaused) return
-    this.movePlayer(1, 0)
-  }
+    let dx = 0
+    let dy = 0
+    let anythingPressed = false
 
-  pressA() {
-    if (this.advanceSay()) {
-      return
+    if (
+      this.input[Button.UP].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      dy--
+      anythingPressed = true
     }
-  }
+    if (
+      this.input[Button.DOWN].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      dy++
+      anythingPressed = true
+    }
+    if (
+      this.input[Button.RIGHT].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      dx++
+      anythingPressed = true
+    }
+    if (
+      this.input[Button.LEFT].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      dx--
+      anythingPressed = true
+    }
 
-  pressB() {
-    if (this.advanceSay()) {
-      return
+    if (
+      this.input[Button.A].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      anythingPressed = true
+    }
+    if (
+      this.input[Button.B].check(
+        inputRepeat,
+        inputRepeatDelay,
+        inputRepeatBetween
+      )
+    ) {
+      anythingPressed = true
+    }
+
+    if (!this.isRunning || this.isPaused) return
+    if (!anythingPressed) return
+
+    if (!this.advanceSay()) {
+      this.movePlayer(dx, dy)
     }
   }
 
