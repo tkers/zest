@@ -115,6 +115,7 @@ small a:hover {
   margin-bottom: 16px;
   margin-left: -8px;
   mix-blend-mode: hard-light;
+  touch-action: none;
 }
 
 #lcd.paused {
