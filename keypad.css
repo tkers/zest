@@ -1,0 +1,91 @@
+@media (hover: hover) and (pointer: fine) {
+  .controls {
+    display: none;
+  }
+}
+
+.controls {
+  margin: 64px auto 0;
+  text-align: center;
+  touch-action: none;
+  user-select: none;
+}
+
+.controls .dpad,
+.controls .btns {
+  display: inline-block;
+  width: 160px;
+  height: 160px;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.controls .key {
+  width: 50px;
+  height: 50px;
+  background-color: #00000044;
+  border-bottom: 2px solid #00000066;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  position: absolute;
+  box-sizing: border-box;
+  line-height: 50px;
+  text-align: center;
+}
+
+.controls .key:active {
+  background-color: #00000066;
+  border-bottom: none;
+}
+
+#k-u {
+  top: 0;
+  left: 50px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: none;
+}
+
+#k-r {
+  top: 50px;
+  left: 100px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  /* border-left: none; */
+}
+
+#k-d {
+  top: 100px;
+  left: 50px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  /* border-top: none; */
+}
+
+#k-l {
+  top: 50px;
+  left: 0px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  /* border-right: none; */
+}
+
+#k-m {
+  top: 50px;
+  left: 50px;
+  border-bottom: none;
+}
+
+#k-a {
+  top: 30px;
+  right: 0;
+  border-radius: 50px;
+}
+
+#k-b {
+  top: 60px;
+  right: 75px;
+  border-radius: 50px;
+}

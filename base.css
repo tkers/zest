@@ -62,7 +62,7 @@ body.mint #btn-mint {
 main {
   max-width: 600px;
   margin: 0 auto;
-  padding: 64px 8px 8px;
+  padding: 32px 8px 8px;
 }
 
 h1,
@@ -74,6 +74,7 @@ h2 {
 
 h2 {
   margin-top: 4px;
+  margin-bottom: 16px;
   font-weight: normal;
 }
 
@@ -112,7 +113,7 @@ small a:hover {
   image-rendering: pixelated;
   /* width: 400px; */
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   margin-left: -8px;
   mix-blend-mode: hard-light;
   touch-action: none;
@@ -122,3 +123,23 @@ small a:hover {
   filter: brightness(0.5);
   mix-blend-mode: unset;
 }
+
+/* @media screen and (orientation: landscape) {
+  h1,
+  h2,
+  section,
+  a,
+  small {
+    display: none;
+  }
+  main {
+    padding: 0;
+    max-width: none;
+    text-align: center;
+  }
+  #lcd {
+    width: auto;
+    height: calc(100vh - 24px);
+    margin: 4px;
+  }
+} */

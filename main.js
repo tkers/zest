@@ -12,6 +12,8 @@ window.addEventListener('load', () => {
   const titleLabel = document.getElementById('label-title')
   const authorLabel = document.getElementById('label-author')
 
+  attachTouchGestures(lcd)
+
   // load and start the demo game
   const game = Zest.load(gameData, lcd)
   setTimeout(() => game.play(), 1200)
@@ -38,6 +40,24 @@ window.addEventListener('load', () => {
     if (e.key == 'ArrowRight') game.releaseKey(Button.RIGHT)
     if (e.key == 'a') game.releaseKey(Button.B)
     if (e.key == 's') game.releaseKey(Button.A)
+  })
+
+  Object.entries({
+    '#k-u': Button.UP,
+    '#k-r': Button.RIGHT,
+    '#k-d': Button.DOWN,
+    '#k-l': Button.LEFT,
+    '#k-a': Button.A,
+    '#k-b': Button.B,
+  }).forEach(([query, keyCode]) => {
+    const btn = document.querySelector(query)
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault()
+      game.pressKey(keyCode)
+    })
+    btn.addEventListener('touchend', () => {
+      game.releaseKey(keyCode)
+    })
   })
 
   // update cartridge info

@@ -31,5 +31,7 @@ const emulateKeyPress = (key) => {
   }, 50)
 }
 
-document.addEventListener('touchstart', handleTouchStart, false)
-document.addEventListener('touchmove', handleTouchMove, false)
+function attachTouchGestures(elem) {
+  elem.addEventListener('touchstart', handleTouchStart, false)
+  elem.addEventListener('touchmove', handleTouchMove, false)
+}
