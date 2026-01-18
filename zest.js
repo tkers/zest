@@ -72,8 +72,8 @@ function wrapText(str, maxWidth, maxLines) {
       break
     }
 
-    const nl = str.indexOf('\n', from)
-    if (nl > from && nl < breakAt) {
+    const nl = str.lastIndexOf('\n', breakAt)
+    if (nl > from) {
       lines.push(str.slice(from, nl))
       from = nl + 1
     } else {
