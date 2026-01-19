@@ -20,6 +20,22 @@ function warn(message) {
   console.warn(`[WARN] ${message}`)
 }
 
+const Y2K = 946684800
+const getDateTimePart = (part) => {
+  const now = new Date()
+  if (part === 'year') return now.getFullYear()
+  else if (part === 'year99') return now.getFullYear() % 100
+  else if (part === 'month') return now.getMonth() + 1
+  else if (part === 'day') return now.getDate()
+  else if (part === 'weekday') return now.getDay()
+  else if (part === 'hour') return now.getHours()
+  else if (part === 'hour12') return now.getHours() % 12
+  else if (part === 'minute') return now.getMinutes()
+  else if (part === 'second') return now.getSeconds()
+  else if (part === 'ampm') return now.getHours() < 12 ? 'am' : 'pm'
+  else if (part === 'timestamp') return Math.floor(now.getTime() / 1000) - Y2K
+}
+
 class ButtonState {
   constructor() {
     this.isPressed = false
@@ -378,6 +394,8 @@ class Zest {
           return this.event[parts[1]] ?? 0
         } else if (parts[0] === 'config') {
           return this.config[parts[1]] ?? 0
+        } else if (parts[0] === 'datetime') {
+          return getDateTimePart(parts[1])
         } else {
           return 0
         }
