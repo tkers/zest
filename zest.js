@@ -275,6 +275,21 @@ class Zest {
     // current room to render
     this.player = data.player
     this.room = this.card ?? this.start
+
+    this.event = {
+      px: this.player.x,
+      py: this.player.y,
+      player: this.player.tile.name,
+      room: this.room.name,
+      game: this.meta.name,
+      aa: 0,
+      ra: 0,
+      frame: 0,
+      ax: 0,
+      ay: 0,
+      az: 0,
+      orientation: 'none',
+    }
   }
 
   play() {
@@ -486,7 +501,9 @@ class Zest {
     }
   }
 
-  runScript(script, eventName) {
+  runScriptOn(target, eventName) {
+    const script = target.script
+    if (!script) return
     const expr = script[eventName]
     if (!expr) return
     this.runExpression(expr, script.__blocks)
@@ -499,7 +516,7 @@ class Zest {
       }
       this.say(target.says)
     } else {
-      this.runScript(target.script, 'interact')
+      this.runScriptOn(target, 'interact')
     }
   }
 
@@ -514,7 +531,7 @@ class Zest {
       this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
       this.say(target.says)
     } else {
-      this.runScript(target.script, 'interact')
+      this.runScriptOn(target, 'interact')
     }
   }
 
@@ -523,6 +540,12 @@ class Zest {
     this.player.room = roomIx
     this.player.x = px
     this.player.y = py
+    this.event = {
+      ...this.event,
+      room: this.room.name,
+      px,
+      py,
+    }
   }
 
   #movePlayer(dx, dy) {
@@ -533,12 +556,7 @@ class Zest {
     let ty = this.player.y + dy
     let canMove = true
 
-    this.event = {
-      dx,
-      dy,
-      tx,
-      ty,
-    }
+    this.event = { ...this.event, dx, dy, tx, ty }
 
     if (tx < 0) {
       tx = 0
