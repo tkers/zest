@@ -400,6 +400,8 @@ class Zest {
   }
 
   movePlayer(dx, dy) {
+    if (dx !== 0 && dy !== 0) dx = 0 // no diagonal movement allowed
+
     let tx = this.player.x + dx
     let ty = this.player.y + dy
     let canMove = true
