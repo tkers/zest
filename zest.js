@@ -159,7 +159,7 @@ const getMetaInfo = (data) => ({
 class Zest {
   static run(data, canvas) {
     const game = new Zest(canvas)
-    game.loadCart(data)
+    game.#loadCart(data)
     game.play()
     // game.attract()
     return game
@@ -182,17 +182,17 @@ class Zest {
   }
 
   restart() {
-    this.loadCart(JSON.parse(this.originalCart))
+    this.#loadCart(JSON.parse(this.originalCart))
     this.play()
   }
 
   load(data, wrapped) {
-    this.loadCart(data)
+    this.#loadCart(data)
     if (wrapped) this.room = this.wrap ?? this.card ?? this.start
     this.render()
   }
 
-  loadCart(data) {
+  #loadCart(data) {
     if (this.isRunning) {
       this.stop()
     }
@@ -274,7 +274,7 @@ class Zest {
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
       this.render()
-      this.updateInput()
+      this.#updateInput()
       if (!this.dialogActive) {
         this.frameIx++
       } else {
@@ -309,7 +309,7 @@ class Zest {
   }
 
   say(message, cb) {
-    this.clearInput()
+    this.#clearInput()
     message = this.runExpression(message)
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
@@ -327,7 +327,7 @@ class Zest {
     if (this.dialogTextIx < this.dialogText.length) {
       if (this.config.textSkip) {
         this.dialogTextIx = this.dialogText.length
-        this.clearInput()
+        this.#clearInput()
       }
       return true
     }
@@ -335,7 +335,7 @@ class Zest {
     if (this.dialogPages.length > 0) {
       this.dialogText = this.dialogPages.shift()
       this.dialogTextIx = 0
-      this.clearInput()
+      this.#clearInput()
     } else {
       this.dialogActive = false
       this.dialogCb()
@@ -500,14 +500,15 @@ class Zest {
     }
   }
 
-  gotoRoom(roomIx, px, py) {
+  #gotoRoom(roomIx, px, py) {
     this.room = this.cart.rooms[roomIx]
     this.player.room = roomIx
     this.player.x = px
     this.player.y = py
   }
 
-  movePlayer(dx, dy) {
+  #movePlayer(dx, dy) {
+    if (dx == 0 && dy == 0) return
     if (dx !== 0 && dy !== 0) dx = 0 // no diagonal movement allowed
 
     let tx = this.player.x + dx
@@ -571,19 +572,19 @@ class Zest {
       if (typeof exit.edge !== 'undefined') {
         if (exit.edge == EdgeDirection.UP) {
           if (prevY == exit.y && dy < 0) {
-            this.gotoRoom(exit.room, prevX, exit.ty)
+            this.#gotoRoom(exit.room, prevX, exit.ty)
           }
         } else if (exit.edge == EdgeDirection.RIGHT) {
           if (prevX == exit.x && dx > 0) {
-            this.gotoRoom(exit.room, exit.tx, prevY)
+            this.#gotoRoom(exit.room, exit.tx, prevY)
           }
         } else if (exit.edge == EdgeDirection.DOWN) {
           if (prevY == exit.y && dy > 0) {
-            this.gotoRoom(exit.room, prevX, exit.ty)
+            this.#gotoRoom(exit.room, prevX, exit.ty)
           }
         } else if (exit.edge == EdgeDirection.LEFT) {
           if (prevX == exit.x && dx < 0) {
-            this.gotoRoom(exit.room, exit.tx, prevY)
+            this.#gotoRoom(exit.room, exit.tx, prevY)
           }
         }
       } else if (tx == exit.x && ty == exit.y) {
@@ -591,7 +592,7 @@ class Zest {
           // @TODO use exit.song to play/stop music
           this.fin(exit.fin)
         } else {
-          this.gotoRoom(exit.room, exit.tx, exit.ty)
+          this.#gotoRoom(exit.room, exit.tx, exit.ty)
         }
       }
     })
@@ -604,7 +605,7 @@ class Zest {
     this.input[key].release()
   }
 
-  clearInput() {
+  #clearInput() {
     this.input[Button.UP].release()
     this.input[Button.RIGHT].release()
     this.input[Button.DOWN].release()
@@ -613,7 +614,7 @@ class Zest {
     this.input[Button.B].release()
   }
 
-  updateInput() {
+  #updateInput() {
     const inputRepeat = this.config.inputRepeat
     const inputRepeatDelay = this.config.inputRepeatDelay
     const inputRepeatBetween = this.config.inputRepeatBetween
@@ -686,7 +687,7 @@ class Zest {
     if (!anythingPressed) return
 
     if (!this.advanceSay()) {
-      this.movePlayer(dx, dy)
+      this.#movePlayer(dx, dy)
     }
   }
 
@@ -772,10 +773,10 @@ class Zest {
       }
     }
 
-    this.drawToCanvas(tilemap)
+    this.#drawToCanvas(tilemap)
   }
 
-  drawToCanvas(tilemap) {
+  #drawToCanvas(tilemap) {
     const imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
     const pixels = imgData.data
 
