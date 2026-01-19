@@ -426,6 +426,8 @@ class Zest {
   }
 
   runExpression(expr, blocks = []) {
+    if (this.calledDone) return
+
     //  pass through literals
     if (!Array.isArray(expr)) {
       return expr
@@ -572,6 +574,8 @@ class Zest {
       return run(args[0]).toString().padStart(args[1], args[2])
     } else if (op === 'rpad') {
       return run(args[0]).toString().padEnd(args[1], args[2])
+    } else if (op === 'done') {
+      this.calledDone = true // could it really be this simple?
     } else {
       warn(`Unknown expression type: ${op}`)
       warn(expr)
@@ -584,6 +588,7 @@ class Zest {
     const expr = script[eventName]
     if (!expr) return
     this.runExpression(expr, script.__blocks)
+    this.calledDone = false
   }
 
   actOn(target) {
