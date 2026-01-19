@@ -276,6 +276,9 @@ class Zest {
     this.player = data.player
     this.room = this.card ?? this.start
 
+    this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
+    this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
+
     this.event = {
       px: this.player.x,
       py: this.player.y,
@@ -290,6 +293,30 @@ class Zest {
       az: 0,
       orientation: 'none',
     }
+  }
+
+  store(name) {
+    if (name) {
+      this.storeData[name] = this.globals[name]
+    } else {
+      localStorage.setItem(this.storeKey, JSON.stringify(this.storeData))
+    }
+  }
+
+  restore(name) {
+    if (name) {
+      this.globals[name] = this.storeData[name]
+    } else {
+      this.globals = {
+        ...this.globals,
+        ...this.storeData,
+      }
+    }
+  }
+
+  toss() {
+    this.storeData = {}
+    localStorage.removeItem(this.storeKey)
   }
 
   play() {
@@ -489,6 +516,12 @@ class Zest {
       return getValueOf(args[0])
     } else if (op === 'set') {
       setValueOf(args[0], run(args[1]))
+    } else if (op === 'store') {
+      this.store(args[0])
+    } else if (op === 'restore') {
+      this.restore(args[0])
+    } else if (op === 'toss') {
+      this.toss()
     } else if (op === 'random') {
       const range = Math.abs(args[1] - args[0] + 1)
       return Math.floor(Math.random() * range) + Math.min(args[0], args[1])
