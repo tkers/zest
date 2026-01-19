@@ -193,7 +193,7 @@ class Zest {
     this.isRunning = false
     this.isPaused = false
     window.dump = () => {
-      console.log(this.globals)
+      this.dump()
     }
   }
 
@@ -410,6 +410,15 @@ class Zest {
     })
   }
 
+  dump() {
+    console.log({
+      event: this.event,
+      game: this.globals,
+      store: this.storeData,
+      config: this.config,
+    })
+  }
+
   playSound(ref) {
     const snd =
       typeof ref === 'string' ? this.namedSounds[ref] : this.cart.sounds[ref]
@@ -510,6 +519,10 @@ class Zest {
       }
     } else if (op === 'fin') {
       this.fin(args[0])
+    } else if (op === 'log') {
+      console.log(run(args[0]))
+    } else if (op === 'dump') {
+      this.dump()
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'get') {
