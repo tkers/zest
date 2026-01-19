@@ -432,6 +432,9 @@ class Zest {
       }
     }
 
+    const updateValueOf = (name, update) =>
+      setValueOf(name, update(getValueOf(name)))
+
     const run = (e) => this.runExpression(e, blocks)
     const [op, ...args] = expr
 
@@ -489,6 +492,34 @@ class Zest {
     } else if (op === 'random') {
       const range = Math.abs(args[1] - args[0] + 1)
       return Math.floor(Math.random() * range) + Math.min(args[0], args[1])
+    } else if (op === 'sine') {
+      return Math.sin(args[0])
+    } else if (op === 'cosine') {
+      return Math.cos(args[0])
+    } else if (op === 'tangent') {
+      return Math.tan(args[0])
+    } else if (op === 'radians') {
+      return (args[0] * Math.PI) / 180
+    } else if (op === 'degrees') {
+      return (args[0] * 180) / Math.PI
+    } else if (op === 'inc') {
+      return updateValueOf(args[0], (x) => x + 1)
+    } else if (op === 'dec') {
+      return updateValueOf(args[0], (x) => x - 1)
+    } else if (op === 'add') {
+      return updateValueOf(args[0], (x) => x + args[1])
+    } else if (op === 'sub') {
+      return updateValueOf(args[0], (x) => x - args[1])
+    } else if (op === 'mul') {
+      return updateValueOf(args[0], (x) => x * args[1])
+    } else if (op === 'div') {
+      return updateValueOf(args[0], (x) => x / args[1])
+    } else if (op === 'floor') {
+      return Math.floor(run(args[0]))
+    } else if (op === 'ceil') {
+      return Math.ceil(run(args[0]))
+    } else if (op === 'round') {
+      return Math.round(run(args[0]))
     } else if (op === 'format') {
       return args.reduce((str, part) => `${str}${run(part)}`, '')
     } else if (op === 'lpad') {
