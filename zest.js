@@ -118,6 +118,14 @@ const resolveFrames = (tiles, frameData) => {
   })
 }
 
+const resolveTileScripts = (tiles, scriptData) => {
+  tiles
+    .filter((t) => typeof t.script !== 'undefined')
+    .forEach((tile) => {
+      tile.script = scriptData[tile.script].data
+    })
+}
+
 // 'inline' tiles into rooms for easier access
 const resolveTiles = (rooms, tileData) => {
   rooms.forEach((room) => {
@@ -168,6 +176,9 @@ class Zest {
     this.ctx2d = canvas.getContext('2d')
     this.isRunning = false
     this.isPaused = false
+    window.dump = () => {
+      console.log(this.globals)
+    }
   }
 
   restart() {
@@ -224,6 +235,7 @@ class Zest {
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
     // make rooms reference frames directly for convenience
+    resolveTileScripts(data.tiles, data.scripts)
     resolveFrames(data.tiles, data.frames)
     resolveTiles(data.rooms, data.tiles)
     data.player.tile = data.tiles[data.player.id]
@@ -296,29 +308,9 @@ class Zest {
     return this.room.tiles[ix]
   }
 
-  formatString(src) {
-    // string or num literal
-    if (!Array.isArray(src)) return src.toString()
-
-    // expression
-    const [head, ...rest] = src
-    if (head === 'format') {
-      return rest.reduce((str, part) => `${str}${this.formatString(part)}`, '')
-    } else if (head === 'get') {
-      return this.globals[rest[0]] ?? 0
-    } else if (head === 'lpad') {
-      return this.formatString(rest[0]).toString().padStart(rest[1], rest[2])
-    } else if (head === 'rpad') {
-      return this.formatString(rest[0]).toString().padEnd(rest[1], rest[2])
-    }
-
-    warn(`Failed to format string: ${head}`)
-    warn(src)
-  }
-
   say(message, cb) {
     this.clearInput()
-    message = this.formatString(message)
+    message = this.runExpression(message)
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
@@ -366,6 +358,122 @@ class Zest {
     console.log(`[PLAY] ${snd.name}`)
   }
 
+  runExpression(expr, blocks = []) {
+    //  pass through literals
+    if (!Array.isArray(expr)) {
+      return expr
+    }
+
+    const getValueOf = (name) => {
+      if (typeof name !== 'string') {
+        // number literal
+        return name
+      }
+
+      const parts = name.split('.')
+      if (parts.length === 1) {
+        return this.globals[name] ?? 0
+      } else if (parts.length === 2) {
+        if (parts[0] === 'event') {
+          return this.event[parts[1]] ?? 0
+        } else if (parts[0] === 'config') {
+          return this.config[parts[1]] ?? 0
+        } else {
+          return 0
+        }
+      } else {
+        warn('Syntax error? Trying to get value of:')
+        warn(identifier)
+      }
+    }
+
+    const setValueOf = (name, val) => {
+      const parts = name.split('.')
+      if (parts.length === 1) {
+        // global
+        this.globals[name] = val
+      } else if (parts[0] == 'config') {
+        this.config[parts[1]] = val
+      } else {
+        warn(`Not allowed to set: ${name}`)
+      }
+    }
+
+    const run = (e) => this.runExpression(e, blocks)
+    const [op, ...args] = expr
+
+    if (op === '_') {
+      // ignore, identation maybe?
+    } else if (op == '#') {
+      // ignore, probably comments
+    } else if (op === 'block') {
+      blocks[args[0]].forEach(run)
+    } else if (op === 'if') {
+      const [condition, iftrue, ...elses] = args
+      const res = run(condition)
+      if (res) {
+        run(iftrue)
+      } else {
+        for (let i = 0; i < elses.length; i++) {
+          const branch = elses[i]
+          if (branch[0] === 'else') {
+            run(branch[1])
+            return
+          } else if (branch[0] === 'elseif' && run(branch[1])) {
+            run(branch[2])
+            return
+          }
+        }
+      }
+    } else if (op === 'eq') {
+      return getValueOf(args[0]) == getValueOf(args[1])
+    } else if (op === 'neq') {
+      return getValueOf(args[0]) != getValueOf(args[1])
+    } else if (op === 'gt') {
+      return getValueOf(args[0]) > getValueOf(args[1])
+    } else if (op === 'lt') {
+      return getValueOf(args[0]) < getValueOf(args[1])
+    } else if (op === 'gte') {
+      return getValueOf(args[0]) >= getValueOf(args[1])
+    } else if (op === 'lte') {
+      return getValueOf(args[0]) <= getValueOf(args[1])
+    } else if (op === 'say') {
+      if (args[1]) {
+        this.say(args[0], () => {
+          run(args[1])
+        })
+      } else {
+        this.say(args[0])
+      }
+    } else if (op === 'fin') {
+      this.fin(args[0])
+    } else if (op === 'sound') {
+      this.playSound(run(args[0]))
+    } else if (op === 'get') {
+      return getValueOf(args[0])
+    } else if (op === 'set') {
+      setValueOf(args[0], run(args[1]))
+    } else if (op === 'random') {
+      const range = Math.abs(args[1] - args[0] + 1)
+      return Math.floor(Math.random() * range) + Math.min(args[0], args[1])
+    } else if (op === 'format') {
+      return args.reduce((str, part) => `${str}${run(part)}`, '')
+    } else if (op === 'lpad') {
+      return run(args[0]).toString().padStart(args[1], args[2])
+    } else if (op === 'rpad') {
+      return run(args[0]).toString().padEnd(args[1], args[2])
+    } else {
+      warn(`Unknown expression type: ${op}`)
+      warn(expr)
+    }
+  }
+
+  runScript(script, eventName) {
+    const expr = script[eventName]
+    if (!expr) return
+    this.runExpression(expr, script.__blocks)
+  }
+
   actOn(target) {
     if (target.says) {
       if (typeof target.sound !== 'undefined') {
@@ -373,7 +481,7 @@ class Zest {
       }
       this.say(target.says)
     } else {
-      // @TODO run script
+      this.runScript(target.script, 'interact')
     }
   }
 
@@ -388,7 +496,7 @@ class Zest {
       this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
       this.say(target.says)
     } else {
-      // @TODO run script
+      this.runScript(target.script, 'interact')
     }
   }
 
@@ -405,6 +513,13 @@ class Zest {
     let tx = this.player.x + dx
     let ty = this.player.y + dy
     let canMove = true
+
+    this.event = {
+      dx,
+      dy,
+      tx,
+      ty,
+    }
 
     if (tx < 0) {
       tx = 0
@@ -427,6 +542,9 @@ class Zest {
     if (target.solid) {
       canMove = false
     }
+
+    this.event.px = canMove ? tx : this.player.x
+    this.event.py = canMove ? ty : this.player.y
 
     // sprite type
     if (target.type == 2) {
