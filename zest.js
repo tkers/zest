@@ -419,10 +419,19 @@ class Zest {
     })
   }
 
+  getTile(ref) {
+    if (typeof ref === 'string') return this.namedTiles[ref]
+    else return this.cart.tiles[ref]
+  }
+
+  getSound(ref) {
+    if (typeof ref === 'string') return this.namedSounds[ref]
+    else return this.cart.sounds[ref]
+  }
+
   playSound(ref) {
-    const snd =
-      typeof ref === 'string' ? this.namedSounds[ref] : this.cart.sounds[ref]
-    console.log(`[PLAY] ${snd.name}`)
+    const snd = this.getSound(ref)
+    console.log(`[PLAY] ${snd.name}`) // @TODO implement
   }
 
   runExpression(expr, blocks = []) {
@@ -574,6 +583,9 @@ class Zest {
       return run(args[0]).toString().padStart(args[1], args[2])
     } else if (op === 'rpad') {
       return run(args[0]).toString().padEnd(args[1], args[2])
+    } else if (op === 'embed') {
+      const tile = this.getTile(args[0])
+      return String.fromCharCode(128 + tile.id)
     } else if (op === 'done') {
       this.calledDone = true // could it really be this simple?
     } else {
@@ -885,8 +897,11 @@ class Zest {
           xx = 4
           yy++
         }
-        if (glyph == 10) continue
-        tilemap[coordToIndex(xx, yy)] = this.cart.font.chars[glyph - 32]
+        if (glyph == 10) continue // space
+        tilemap[coordToIndex(xx, yy)] =
+          glyph > 128
+            ? this.cart.tiles[glyph - 128].frames[0]
+            : this.cart.font.chars[glyph - 32]
         xx++
       }
     }
