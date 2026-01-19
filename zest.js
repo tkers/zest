@@ -604,28 +604,32 @@ class Zest {
   }
 
   actOn(target) {
-    if (target.says) {
+    if (target.script) {
+      this.runScriptOn(target, 'interact')
+    } else {
       if (typeof target.sound !== 'undefined') {
         this.playSound(target.sound)
       }
-      this.say(target.says)
-    } else {
-      this.runScriptOn(target, 'interact')
+      if (target.says) {
+        this.say(target.says)
+      }
     }
   }
 
   collect(target, tx, ty) {
-    if (target.says) {
-      if (typeof target.sound !== 'undefined') {
-        this.playSound(target.sound)
-      }
+    if (target.script) {
+      this.runScriptOn(target, 'interact')
+    } else {
       const keyName = `${target.name}s`
       const counter = this.globals[keyName] ?? 0
       this.globals[keyName] = counter + 1
       this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
-      this.say(target.says)
-    } else {
-      this.runScriptOn(target, 'interact')
+      if (typeof target.sound !== 'undefined') {
+        this.playSound(target.sound)
+      }
+      if (target.says) {
+        this.say(target.says)
+      }
     }
   }
 
