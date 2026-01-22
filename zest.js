@@ -338,7 +338,12 @@ class Zest {
       } else {
         this.dialogLock--
         if (this.dialogTextIx < this.dialogText.length) {
-          this.dialogTextIx += this.config.textSpeed / FPS
+          do {
+            this.dialogTextIx += this.config.textSpeed / FPS
+          } while (
+            this.dialogText[this.dialogTextIx]?.trim() == '' &&
+            this.dialogTextIx < this.dialogText.length
+          )
         } else {
           this.dialogFrameIx++
         }
