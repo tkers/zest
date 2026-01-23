@@ -118,6 +118,9 @@ body.lemon .lcd-bg {
   /* effectively cancels out blend mode */
   background-color: #808080;
 }
+body.plum .lcd-bg {
+  background: radial-gradient(#8d00ff, transparent);
+}
 
 #lcd {
   background-color: #312f28;
