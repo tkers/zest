@@ -557,17 +557,17 @@ class Zest {
         }
       }
     } else if (op === 'eq') {
-      return getValueOf(args[0]) == getValueOf(args[1])
+      return getValueOf(args[0]) == run(args[1])
     } else if (op === 'neq') {
-      return getValueOf(args[0]) != getValueOf(args[1])
+      return getValueOf(args[0]) != run(args[1])
     } else if (op === 'gt') {
-      return getValueOf(args[0]) > getValueOf(args[1])
+      return getValueOf(args[0]) > run(args[1])
     } else if (op === 'lt') {
-      return getValueOf(args[0]) < getValueOf(args[1])
+      return getValueOf(args[0]) < run(args[1])
     } else if (op === 'gte') {
-      return getValueOf(args[0]) >= getValueOf(args[1])
+      return getValueOf(args[0]) >= run(args[1])
     } else if (op === 'lte') {
-      return getValueOf(args[0]) <= getValueOf(args[1])
+      return getValueOf(args[0]) <= run(args[1])
     } else if (op === 'say') {
       if (args[1]) {
         this.say(args[0], () => {
