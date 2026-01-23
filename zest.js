@@ -143,6 +143,14 @@ const resolveTileScripts = (tiles, scriptData) => {
     })
 }
 
+const resolveRoomScripts = (rooms, scriptData) => {
+  rooms
+    .filter((r) => isDefined(r.script))
+    .forEach((room) => {
+      room.script = scriptData[room.script].data
+    })
+}
+
 // 'inline' tiles into rooms for easier access
 const resolveTiles = (rooms, tileData) => {
   rooms.forEach((room) => {
@@ -205,7 +213,7 @@ class Zest {
 
   load(data, wrapped) {
     this.#loadCart(data)
-    if (wrapped) this.room = this.wrap ?? this.card ?? this.start
+    if (wrapped) this.room = this.wrap ?? this.card
     this.render()
   }
 
@@ -253,10 +261,12 @@ class Zest {
 
     // make rooms reference frames directly for convenience
     resolveTileScripts(data.tiles, data.scripts)
+    resolveRoomScripts(data.rooms, data.scripts)
     resolveFrames(data.tiles, data.frames)
     resolveTiles(data.rooms, data.tiles)
     data.player.tile = data.tiles[data.player.id]
 
+    this.gameScript = data.scripts[data.script]?.data
     this.playerScript = data.player.tile.script
 
     // create a lookup table for room and tile names
@@ -277,7 +287,7 @@ class Zest {
 
     // current room to render
     this.player = data.player
-    this.room = this.card ?? this.start
+    this.room = this.card
 
     this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
     this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
@@ -322,6 +332,12 @@ class Zest {
     localStorage.removeItem(this.storeKey)
   }
 
+  #tick() {
+    this.frameIx++
+    this.event.frame = this.frameIx
+    this.runScript(this.gameScript, 'loop')
+  }
+
   play() {
     if (this.isRunning) {
       warn('Already running')
@@ -329,15 +345,23 @@ class Zest {
     }
     this.isRunning = true
 
-    this.room = this.start
+    // LOAD event
+    this.runScript(this.gameScript, 'load')
+    this.cart.rooms.forEach((room) => this.runScript(room.script, 'load'))
+    this.cart.tiles.forEach((tile) => this.runScript(tile.script, 'load'))
+
+    // START
+    this.runScript(this.gameScript, 'start')
+
+    // ENTER starting room
+    this.#enter(this.start)
 
     // loop at 20 FPS (50ms per tick)
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
-      this.render()
       this.#updateInput()
       if (!this.dialogActive) {
-        this.frameIx++
+        this.#tick()
       } else {
         this.dialogLock--
         if (this.dialogTextIx < this.dialogText.length) {
@@ -351,6 +375,8 @@ class Zest {
           this.dialogFrameIx++
         }
       }
+      this.runScript(this.playerScript, 'draw')
+      this.render()
     }, 1000 / FPS)
   }
 
@@ -411,6 +437,7 @@ class Zest {
 
   fin(message) {
     this.store()
+    this.runScript(this.gameScript, 'finish')
     this.room = {
       tiles: Array(15 * 25).fill(this.namedTiles.black),
     }
@@ -681,11 +708,29 @@ class Zest {
     }
   }
 
+  #enter(room) {
+    this.room = room
+    this.player.room = this.room.id
+
+    // ENTER event
+    this.runScript(this.gameScript, 'enter')
+    this.runScript(this.room.script, 'enter')
+    this.room.tiles.forEach((tile) => this.runScript(tile.script, 'enter'))
+    this.runScript(this.playerScript, 'enter')
+  }
+
   goto(x, y, room) {
     if (room) {
-      this.room = this.getRoom(room)
-      this.player.room = this.room.id
-      this.store() // @TODO this should happen between exit and enter
+      // EXIT event
+      this.runScript(this.gameScript, 'exit')
+      this.runScript(this.room.script, 'exit')
+      this.room.tiles.forEach((tile) => this.runScript(tile.script, 'exit'))
+      this.runScript(this.playerScript, 'exit')
+
+      this.store() //  this should happen between EXIT and ENTER
+
+      // @TODO this should happen in the next frame
+      this.#enter(this.getRoom(room))
     }
 
     this.player.x = x
@@ -731,19 +776,16 @@ class Zest {
       canMove = false
     }
 
-    // @TODO emit update
     const prevX = this.player.x
     const prevY = this.player.y
     if (canMove) {
-      // @TODO emit update event
       this.player.x = tx
       this.player.y = ty
-    } else {
-      // @TODO emit bump event
+      this.event.px = this.player.x
+      this.event.py = this.player.y
     }
 
-    this.event.px = this.player.x
-    this.event.py = this.player.y
+    this.runScript(this.playerScript, 'update')
 
     // sprite type
     if (target.type == 2) {
@@ -752,6 +794,8 @@ class Zest {
       }
     } else if (target.type == 3) {
       this.#collect(target, tx, ty)
+    } else if (!canMove) {
+      this.runScript(this.playerScript, 'bump')
     }
 
     // check for exits
