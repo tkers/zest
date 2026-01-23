@@ -16,8 +16,6 @@ window.addEventListener('load', () => {
 
   // load and start the demo game
   const game = Zest.load(gameData, lcd)
-  game.config.inputRepeatDelay = 0.2
-  // game.config.inputRepeatBetween = 0.1
 
   setTimeout(() => game.play(), 1200)
 
