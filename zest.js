@@ -415,6 +415,10 @@ class Zest {
     })
   }
 
+  log(message) {
+    console.log(`[GAME] ${message}`)
+  }
+
   dump() {
     console.log({
       event: this.event,
@@ -427,6 +431,11 @@ class Zest {
   getTile(ref) {
     if (typeof ref === 'string') return this.namedTiles[ref]
     else return this.cart.tiles[ref]
+  }
+
+  getRoom(ref) {
+    if (typeof ref === 'string') return this.namedRooms[ref]
+    else return this.cart.rooms[ref]
   }
 
   getSound(ref) {
@@ -536,9 +545,15 @@ class Zest {
     } else if (op === 'fin') {
       this.fin(args[0])
     } else if (op === 'log') {
-      console.log(run(args[0]))
+      this.log(run(args[0]))
     } else if (op === 'dump') {
       this.dump()
+    } else if (op === 'act') {
+      this.act()
+    } else if (op === 'goto') {
+      const [_xy, _x, _y] = args[0]
+      if (_xy !== 'xy') return warn(`Unknown goto: ${_xy}`)
+      this.goto(run(_x), run(_y), run(args[1]))
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'get') {
@@ -599,8 +614,7 @@ class Zest {
     }
   }
 
-  runScriptOn(target, eventName) {
-    const script = target.script
+  runScript(script, eventName) {
     if (!script) return
     const expr = script[eventName]
     if (!expr) return
@@ -608,10 +622,21 @@ class Zest {
     this.calledDone = false
   }
 
-  actOn(target) {
+  act() {
+    const { px, py, dx, dy } = this.event
+    const tx = px + dx
+    const ty = py + dy
+    const target = this.getTileAt(tx, ty)
+    if (target) {
+      this.#actOn(target, tx, ty)
+    }
+  }
+
+  #actOn(target, tx, ty) {
     if (target.script) {
-      this.runScriptOn(target, 'interact')
+      this.runScript(target.script, 'interact')
     } else {
+      // noscript handler
       if (typeof target.sound !== 'undefined') {
         this.playSound(target.sound)
       }
@@ -621,10 +646,11 @@ class Zest {
     }
   }
 
-  collect(target, tx, ty) {
+  #collect(target, tx, ty) {
     if (target.script) {
-      this.runScriptOn(target, 'interact')
+      this.runScript(target.script, 'collect')
     } else {
+      // noscript handler
       const keyName = `${target.name}s`
       const counter = this.globals[keyName] ?? 0
       this.globals[keyName] = counter + 1
@@ -638,16 +664,20 @@ class Zest {
     }
   }
 
-  #gotoRoom(roomIx, px, py) {
-    this.room = this.cart.rooms[roomIx]
-    this.player.room = roomIx
-    this.player.x = px
-    this.player.y = py
+  goto(x, y, room) {
+    if (room) {
+      this.room = this.getRoom(room)
+      this.player.room = this.room.id
+    }
+
+    this.player.x = x
+    this.player.y = y
+
     this.event = {
       ...this.event,
       room: this.room.name,
-      px,
-      py,
+      px: x,
+      py: y,
     }
   }
 
@@ -683,18 +713,6 @@ class Zest {
       canMove = false
     }
 
-    this.event.px = canMove ? tx : this.player.x
-    this.event.py = canMove ? ty : this.player.y
-
-    // sprite type
-    if (target.type == 2) {
-      if (this.config.autoAct) {
-        this.actOn(target)
-      }
-    } else if (target.type == 3) {
-      this.collect(target, tx, ty)
-    }
-
     // @TODO emit update
     const prevX = this.player.x
     const prevY = this.player.y
@@ -706,24 +724,36 @@ class Zest {
       // @TODO emit bump event
     }
 
+    this.event.px = this.player.x
+    this.event.py = this.player.y
+
+    // sprite type
+    if (target.type == 2) {
+      if (this.config.autoAct) {
+        this.#actOn(target, tx, ty)
+      }
+    } else if (target.type == 3) {
+      this.#collect(target, tx, ty)
+    }
+
     // check for exits
     this.room.exits.forEach((exit) => {
       if (typeof exit.edge !== 'undefined') {
         if (exit.edge == EdgeDirection.UP) {
           if (prevY == exit.y && dy < 0) {
-            this.#gotoRoom(exit.room, prevX, exit.ty)
+            this.goto(prevX, exit.ty, exit.room)
           }
         } else if (exit.edge == EdgeDirection.RIGHT) {
           if (prevX == exit.x && dx > 0) {
-            this.#gotoRoom(exit.room, exit.tx, prevY)
+            this.goto(exit.tx, prevY, exit.room)
           }
         } else if (exit.edge == EdgeDirection.DOWN) {
           if (prevY == exit.y && dy > 0) {
-            this.#gotoRoom(exit.room, prevX, exit.ty)
+            this.goto(prevX, exit.ty, exit.room)
           }
         } else if (exit.edge == EdgeDirection.LEFT) {
           if (prevX == exit.x && dx < 0) {
-            this.#gotoRoom(exit.room, exit.tx, prevY)
+            this.goto(exit.tx, prevY, exit.room)
           }
         }
       } else if (tx == exit.x && ty == exit.y) {
@@ -731,7 +761,7 @@ class Zest {
           // @TODO use exit.song to play/stop music
           this.fin(exit.fin)
         } else {
-          this.#gotoRoom(exit.room, exit.tx, exit.ty)
+          this.goto(exit.tx, exit.ty, exit.room)
         }
       }
     })
