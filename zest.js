@@ -535,7 +535,10 @@ class Zest {
     } else if (op == '#') {
       // ignore, probably comments
     } else if (op === 'block') {
-      blocks[args[0]].forEach(run)
+      blocks[args[0]].forEach((e) => {
+        if (this.calledDone) return
+        run(e)
+      })
     } else if (op === 'if') {
       const [condition, iftrue, ...elses] = args
       const res = run(condition)
