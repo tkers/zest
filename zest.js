@@ -652,11 +652,12 @@ class Zest {
     }
   }
 
-  runScript(script, eventName, context = {}) {
+  runScript(script, name, ctx = {}) {
     if (!script) return
-    const expr = script[eventName]
+    const expr = script[name]
     if (!expr) return
-    this.runExpression(expr, script.__blocks, { ...this.event, ...context })
+    const context = { ...this.event, ...ctx, name }
+    this.runExpression(expr, script.__blocks, context)
     this.calledDone = false
   }
 
