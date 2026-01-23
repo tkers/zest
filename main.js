@@ -25,6 +25,10 @@ window.addEventListener('load', () => {
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return
 
+    if (e.key.startsWith('Arrow')) {
+      e.preventDefault()
+    }
+
     if (e.key == 'ArrowUp') game.pressKey(Button.UP)
     if (e.key == 'ArrowDown') game.pressKey(Button.DOWN)
     if (e.key == 'ArrowLeft') game.pressKey(Button.LEFT)
