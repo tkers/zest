@@ -301,11 +301,11 @@ class Zest {
       game: this.meta.name,
       aa: 0,
       ra: 0,
-      frame: 0,
+      frame: this.frameIx,
       ax: 0,
       ay: 0,
       az: 0,
-      orientation: 'none',
+      orientation: 'standing up',
     }
   }
 
