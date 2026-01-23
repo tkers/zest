@@ -64,6 +64,10 @@ window.addEventListener('load', () => {
     })
   })
 
+  document.querySelector('#k-m').addEventListener('touchstart', (e) => {
+    e.preventDefault()
+  })
+
   // snapshow button
   // const btn = document.getElementById('btn-snap')
   // btn.addEventListener('click', () => {
