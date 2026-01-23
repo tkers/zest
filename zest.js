@@ -288,6 +288,7 @@ class Zest {
     // current room to render
     this.player = data.player
     this.room = this.card
+    this.roomTransition = null
 
     this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
     this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
@@ -333,6 +334,11 @@ class Zest {
   }
 
   #tick() {
+    if (this.roomTransition) {
+      this.#enter(this.roomTransition)
+      this.roomTransition = null
+    }
+
     this.frameIx++
     this.event.frame = this.frameIx
     this.runScript(this.gameScript, 'loop')
@@ -731,10 +737,8 @@ class Zest {
       this.room.tiles.forEach((tile) => this.runScript(tile.script, 'exit'))
       this.runScript(this.playerScript, 'exit')
 
-      this.store() //  this should happen between EXIT and ENTER
-
-      // @TODO this should happen in the next frame
-      this.#enter(this.getRoom(room))
+      this.store()
+      this.roomTransition = this.getRoom(room)
     }
 
     this.player.x = x
