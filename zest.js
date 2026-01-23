@@ -423,9 +423,9 @@ class Zest {
     console.log(`[GAME] ${message}`)
   }
 
-  dump() {
+  dump(context) {
     console.log({
-      event: this.event,
+      event: context ?? this.event,
       game: this.globals,
       store: this.storeData,
       config: this.config,
@@ -471,7 +471,7 @@ class Zest {
         return this.globals[name] ?? 0
       } else if (parts.length === 2) {
         if (parts[0] === 'event') {
-          return this.event[parts[1]] ?? 0
+          return context[parts[1]] ?? 0 // extended from this.event
         } else if (parts[0] === 'config') {
           return this.config[parts[1]] ?? 0
         } else if (parts[0] === 'datetime') {
@@ -551,7 +551,7 @@ class Zest {
     } else if (op === 'log') {
       this.log(run(args[0]))
     } else if (op === 'dump') {
-      this.dump()
+      this.dump(context)
     } else if (op === 'swap') {
       this.room.tiles[coordToIndex(context.x, context.y)] = this.getTile(
         run(args[0])
@@ -625,11 +625,11 @@ class Zest {
     }
   }
 
-  runScript(script, eventName, context) {
+  runScript(script, eventName, context = {}) {
     if (!script) return
     const expr = script[eventName]
     if (!expr) return
-    this.runExpression(expr, script.__blocks, context)
+    this.runExpression(expr, script.__blocks, { ...this.event, ...context })
     this.calledDone = false
   }
 
@@ -646,7 +646,6 @@ class Zest {
   #actOn(target, tx, ty) {
     if (target.script) {
       this.runScript(target.script, 'interact', {
-        ...this.event,
         x: tx,
         y: ty,
       })
@@ -664,7 +663,6 @@ class Zest {
   #collect(target, tx, ty) {
     if (target.script) {
       this.runScript(target.script, 'collect', {
-        ...this.event,
         x: tx,
         y: ty,
       })
@@ -884,9 +882,9 @@ class Zest {
     if (dx !== 0 || dy !== 0) {
       this.#movePlayer(dx, dy)
     } else if (confirmPressed) {
-      this.runScript(this.playerScript, 'confirm', this.event)
+      this.runScript(this.playerScript, 'confirm')
     } else if (cancelPressed) {
-      this.runScript(this.playerScript, 'cancel', this.event)
+      this.runScript(this.playerScript, 'cancel')
     }
   }
 
