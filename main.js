@@ -16,8 +16,11 @@ window.addEventListener('load', () => {
 
   // load and start the demo game
   const game = Zest.load(gameData, lcd)
-
   setTimeout(() => game.play(), 1200)
+
+  // update cartridge info
+  titleLabel.innerText = game.meta.name || 'untitled'
+  authorLabel.innerText = game.meta.author || 'anonymous'
 
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return
@@ -61,17 +64,13 @@ window.addEventListener('load', () => {
     })
   })
 
-  // update cartridge info
-  titleLabel.innerText = game.meta.name
-  authorLabel.innerText = game.meta.author
-
   // snapshow button
-  const btn = document.getElementById('btn-snap')
-  btn.addEventListener('click', () => {
-    const ts = Date.now()
-    btn.download = `zest-snap-${ts}.png`
-    btn.href = lcd.toDataURL()
-  })
+  // const btn = document.getElementById('btn-snap')
+  // btn.addEventListener('click', () => {
+  //   const ts = Date.now()
+  //   btn.download = `zest-snap-${ts}.png`
+  //   btn.href = lcd.toDataURL()
+  // })
 
   // theme buttons
   document.getElementById('btn-lemon').addEventListener('click', () => {
@@ -98,8 +97,8 @@ window.addEventListener('load', () => {
     reader.onload = () => {
       const data = JSON.parse(reader.result)
       game.load(data)
-      titleLabel.innerText = game.meta.name
-      authorLabel.innerText = game.meta.author
+      titleLabel.innerText = game.meta.name || 'untitled'
+      authorLabel.innerText = game.meta.author || 'anonymous'
       setTimeout(() => game.play(), 1200)
     }
     reader.onerror = () => {

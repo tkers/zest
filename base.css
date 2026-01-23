@@ -8,7 +8,21 @@ body {
   color: #312f28;
   background-color: #f8f0e7;
   font-family: monospace;
+  font-size: 16px;
   padding: 0 8px;
+}
+
+section,
+footer {
+  margin: 32px 0;
+}
+
+footer {
+  color: #312f2880;
+  font-size: small;
+  padding-top: 32px;
+  border-top: 1px solid #ffffff20;
+  box-shadow: 0 -1px 0 #00000010;
 }
 
 body.lemon,
@@ -67,15 +81,26 @@ main {
 
 h1,
 h2 {
-  color: #000000;
   text-align: center;
   margin-bottom: 0;
+}
+
+h1 {
+  color: #000000;
 }
 
 h2 {
   margin-top: 4px;
   margin-bottom: 16px;
   font-weight: normal;
+}
+
+h2 a {
+  color: #000000;
+  text-decoration: none;
+}
+h2 a:hover {
+  text-decoration: underline;
 }
 
 a#btn-snap {
@@ -93,32 +118,50 @@ a#btn-snap:hover {
   color: #ffffff;
 }
 
-small {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.16);
+small.meta {
+  /* color: #b8afaa; */
+  color: #808080;
+  /* text-shadow: 0 1px 0 rgba(255, 255, 255, 0.16); */
+  font-size: small;
+  line-height: 26px;
+}
+small.meta #label-title {
+  font-style: italic;
 }
 
-small a {
+/* small a {
   color: #000;
   text-decoration: none;
 }
 small a:hover {
   text-decoration: underline;
+} */
+
+.lcd-bezel {
+  clear: both;
+  border: 8px #000000 solid;
+  width: 100%;
+  margin-left: -8px;
+  border-radius: 8px;
+  margin-top: 32px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lcd-bezel {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .lcd-bg {
-  clear: both;
-  border: 8px #000000 solid;
-  border-radius: 8px;
-  width: 100%;
-  margin-left: -8px;
-  margin-bottom: 8px;
-}
-
-body.lemon .lcd-bg {
-  /* effectively cancels out blend mode */
   background-color: #808080;
 }
+
+body.mint .lcd-bg {
+  /* effectively cancels out blend mode */
+  background-color: transparent;
+}
 body.plum .lcd-bg {
+  background-color: transparent;
   background: radial-gradient(#8d00ff, transparent);
 }
 
@@ -135,6 +178,11 @@ body.plum .lcd-bg {
 #lcd.paused {
   filter: brightness(0.5);
   mix-blend-mode: unset;
+}
+
+.lcd-bar {
+  padding: 8px 4px 0;
+  background-color: #000000;
 }
 
 /* @media screen and (orientation: landscape) {

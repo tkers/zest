@@ -11,22 +11,32 @@
     <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="touch.js"></script>
   </head>
-  <body class="plum">
+  <body class="lemon">
     <main>
-      <h1 id="label-title">Loading</h1>
-      <h2 id="label-author">...</h2>
-      <section style="float: right">
-        <button id="btn-lemon">Lemon</button>
-        <button id="btn-plum">Plum</button>
-        <button id="btn-mint">Mint</button>
+      <h1>Zest</h1>
+      <h2>
+        A web runtime for
+        <a href="https://play.date/pulp/about" target="_blank">Pulp</a> games
+      </h2>
+
+      <section class="lcd-bezel">
+        <div class="lcd-bg">
+          <canvas id="lcd" width="200" height="120"></canvas>
+        </div>
+        <div class="lcd-bar">
+          <small class="meta">
+            &#8220;<span id="label-title">game</span>&#8221; by
+            <span id="label-author">author</span>
+          </small>
+          <div style="float: right">
+            <!-- <a href="#" id="btn-snap" style="float: right">Snapshot</a> -->
+            <button id="btn-lemon">Lemon</button>
+            <button id="btn-plum">Plum</button>
+            <button id="btn-mint">Mint</button>
+          </div>
+        </div>
       </section>
-      <section class="lcd-bg">
-        <canvas id="lcd" width="200" height="120"></canvas>
-      </section>
-      <a href="#" id="btn-snap" style="float: right">Snapshot</a>
-      <small
-        >Running on 🍋 <a href="https://github.com/tkers/zest">Zest</a></small
-      >
+
       <section class="controls">
         <div class="dpad">
           <div class="key" id="k-u">▲&#xFE0E;</div>
@@ -40,6 +50,33 @@
           <div class="key" id="k-b">B</div>
         </div>
       </section>
+
+      <section>
+        <p>
+          <strong>🍋 Zest</strong> is a new way to play and distribute games
+          made with Pulp. It's build from the ground up (without using Panic's
+          proprietary code) so that developers can use it to make their games
+          available to more players.
+        </p>
+        <p>
+          This project is still in active development, so don't expect your game
+          to be fully compatible just yet. However, games that use no PulpScript
+          (i.e. only use the default dialog options for sprites and items),
+          should already be working!
+        </p>
+        <p>
+          Support for sound and music are not yet implemented, and inputs like
+          the crank and accelerometer will probably be out of scope for the
+          first release.
+        </p>
+      </section>
+
+      <footer>
+        <strong>NOTE:</strong> This project is an independent, unofficial
+        runtime and is not affiliated with, endorsed by, or supported by Panic
+        Inc. <br /><br />
+        Made with ❤ in Amsterdam
+      </footer>
     </main>
   </body>
 </html>
