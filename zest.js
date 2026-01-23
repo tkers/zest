@@ -40,41 +40,39 @@ class ButtonState {
   constructor() {
     this.isPressed = false
     this.heldTime = 0
-    this.justChanged = false
+    this.justPressed = false
     this.isRepeating = false
   }
   press() {
     if (this.isPressed) return
     this.isPressed = true
-    this.justChanged = true
+    this.justPressed = true
     this.isRepeating = false
   }
   release() {
     if (!this.isPressed) return
     this.isPressed = false
-    this.justChanged = true
     this.heldTime = 0
   }
   check(repeat, repeatDelay, repeatBetween) {
-    if (repeat && this.isPressed) {
+    // allows press-release within single frame
+    if (this.justPressed) {
+      this.justPressed = false
+      return true
+    }
+
+    // otherwise it has to be a repeat
+    if (this.isPressed && repeat) {
       this.heldTime += FRAME_DURATION
-      if (this.isRepeating) {
-        if (this.heldTime > repeatBetween) {
-          this.heldTime -= repeatBetween
-          return true
-        }
-      } else if (this.heldTime > repeatDelay) {
-        this.heldTime -= repeatDelay
+      const wait = this.isRepeating ? repeatBetween : repeatDelay
+      if (this.heldTime >= wait) {
         this.isRepeating = true
-        return true
-      } else if (this.justChanged) {
-        this.justChanged = false
+        this.heldTime -= wait
         return true
       }
     }
-    const justChanged = this.justChanged
-    this.justChanged = false
-    return this.isPressed && justChanged
+
+    return false
   }
 }
 
