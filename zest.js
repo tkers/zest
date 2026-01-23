@@ -749,7 +749,7 @@ class Zest {
   }
 
   goto(x, y, room) {
-    if (room) {
+    if (isDefined(room)) {
       // EXIT event
       this.runScript(this.gameScript, 'exit')
       this.runScript(this.room.script, 'exit')
