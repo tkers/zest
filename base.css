@@ -105,18 +105,23 @@ small a:hover {
   text-decoration: underline;
 }
 
-#lcd {
-  background-color: #312f28;
+.lcd-bg {
+  clear: both;
   border: 8px #000000 solid;
   border-radius: 8px;
-  aspect-ratio: auto 200/120;
-  image-rendering: pixelated;
-  /* width: 400px; */
   width: 100%;
-  margin-bottom: 8px;
   margin-left: -8px;
+  margin-bottom: 8px;
+}
+
+#lcd {
+  background-color: #312f28;
+  aspect-ratio: auto 200/120;
+  width: 100%;
+  image-rendering: pixelated;
   mix-blend-mode: hard-light;
   touch-action: none;
+  display: block;
 }
 
 #lcd.paused {
