@@ -27,7 +27,7 @@ const getDateTimePart = (part) => {
   else if (part === 'year99') return now.getFullYear() % 100
   else if (part === 'month') return now.getMonth() + 1
   else if (part === 'day') return now.getDate()
-  else if (part === 'weekday') return now.getDay()
+  else if (part === 'weekday') return (now.getDay() + 6) % 7
   else if (part === 'hour') return now.getHours()
   else if (part === 'hour12') return now.getHours() % 12
   else if (part === 'minute') return now.getMinutes()
