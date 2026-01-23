@@ -448,7 +448,7 @@ class Zest {
     console.log(`[PLAY] ${snd.name}`) // @TODO implement
   }
 
-  runExpression(expr, blocks = []) {
+  runExpression(expr, blocks = [], context) {
     if (this.calledDone) return
 
     //  pass through literals
@@ -496,7 +496,7 @@ class Zest {
     const updateValueOf = (name, update) =>
       setValueOf(name, update(getValueOf(name)))
 
-    const run = (e) => this.runExpression(e, blocks)
+    const run = (e) => this.runExpression(e, blocks, context)
     const [op, ...args] = expr
 
     if (op === '_') {
@@ -548,6 +548,13 @@ class Zest {
       this.log(run(args[0]))
     } else if (op === 'dump') {
       this.dump()
+    } else if (op === 'swap') {
+      this.room.tiles[coordToIndex(context.x, context.y)] = this.getTile(
+        run(args[0])
+      )
+    } else if (op === 'call') {
+      const script = this.room.tiles[coordToIndex(context.x, context.y)].script
+      this.runScript(script, run(args[0]), context)
     } else if (op === 'act') {
       this.act()
     } else if (op === 'goto') {
@@ -614,11 +621,11 @@ class Zest {
     }
   }
 
-  runScript(script, eventName) {
+  runScript(script, eventName, context) {
     if (!script) return
     const expr = script[eventName]
     if (!expr) return
-    this.runExpression(expr, script.__blocks)
+    this.runExpression(expr, script.__blocks, context)
     this.calledDone = false
   }
 
@@ -634,7 +641,11 @@ class Zest {
 
   #actOn(target, tx, ty) {
     if (target.script) {
-      this.runScript(target.script, 'interact')
+      this.runScript(target.script, 'interact', {
+        ...this.event,
+        x: tx,
+        y: ty,
+      })
     } else {
       // noscript handler
       if (typeof target.sound !== 'undefined') {
@@ -648,7 +659,11 @@ class Zest {
 
   #collect(target, tx, ty) {
     if (target.script) {
-      this.runScript(target.script, 'collect')
+      this.runScript(target.script, 'collect', {
+        ...this.event,
+        x: tx,
+        y: ty,
+      })
     } else {
       // noscript handler
       const keyName = `${target.name}s`
