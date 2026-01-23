@@ -334,13 +334,14 @@ class Zest {
   }
 
   #tick() {
+    this.frameIx++
+    this.event.frame = this.frameIx
+
     if (this.roomTransition) {
       this.#enter(this.roomTransition)
       this.roomTransition = null
     }
 
-    this.frameIx++
-    this.event.frame = this.frameIx
     this.runScript(this.gameScript, 'loop')
   }
 
@@ -359,13 +360,12 @@ class Zest {
     // START
     this.runScript(this.gameScript, 'start')
 
-    // ENTER starting room
-    this.#enter(this.start)
+    // ENTER starting room in next frame
+    this.roomTransition = this.start
 
     // loop at 20 FPS (50ms per tick)
     this.loopTimer = setInterval(() => {
       if (this.isPaused) return
-      this.#updateInput()
       if (!this.dialogActive) {
         this.#tick()
       } else {
@@ -381,6 +381,7 @@ class Zest {
           this.dialogFrameIx++
         }
       }
+      this.#updateInput()
       this.runScript(this.playerScript, 'draw')
       this.render()
     }, 1000 / FPS)
