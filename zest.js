@@ -257,6 +257,8 @@ class Zest {
     resolveTiles(data.rooms, data.tiles)
     data.player.tile = data.tiles[data.player.id]
 
+    this.playerScript = data.player.tile.script
+
     // create a lookup table for room and tile names
     this.namedRooms = byName(data.rooms)
     this.namedTiles = byName(data.tiles)
@@ -808,6 +810,8 @@ class Zest {
 
     let dx = 0
     let dy = 0
+    let confirmPressed = false
+    let cancelPressed = false
     let anythingPressed = false
 
     if (
@@ -859,6 +863,7 @@ class Zest {
       )
     ) {
       anythingPressed = true
+      confirmPressed = true
     }
     if (
       this.input[Button.B].check(
@@ -868,13 +873,20 @@ class Zest {
       )
     ) {
       anythingPressed = true
+      cancelPressed = true
     }
 
     if (!this.isRunning || this.isPaused) return
     if (!anythingPressed) return
 
-    if (!this.advanceSay()) {
+    if (this.advanceSay()) return
+
+    if (dx !== 0 || dy !== 0) {
       this.#movePlayer(dx, dy)
+    } else if (confirmPressed) {
+      this.runScript(this.playerScript, 'confirm', this.event)
+    } else if (cancelPressed) {
+      this.runScript(this.playerScript, 'cancel', this.event)
     }
   }
 
