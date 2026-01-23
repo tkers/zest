@@ -114,6 +114,11 @@ small a:hover {
   margin-bottom: 8px;
 }
 
+body.lemon .lcd-bg {
+  /* effectively cancels out blend mode */
+  background-color: #808080;
+}
+
 #lcd {
   background-color: #312f28;
   aspect-ratio: auto 200/120;
