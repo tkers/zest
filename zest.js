@@ -408,6 +408,7 @@ class Zest {
   }
 
   fin(message) {
+    this.store()
     this.room = {
       tiles: Array(15 * 25).fill(this.namedTiles.black),
     }
@@ -684,6 +685,7 @@ class Zest {
     if (room) {
       this.room = this.getRoom(room)
       this.player.room = this.room.id
+      this.store() // @TODO this should happen between exit and enter
     }
 
     this.player.x = x
