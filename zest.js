@@ -355,7 +355,9 @@ class Zest {
     // LOAD event
     this.runScript(this.gameScript, 'load')
     this.cart.rooms.forEach((room) => this.runScript(room.script, 'load'))
-    this.cart.tiles.forEach((tile) => this.runScript(tile.script, 'load'))
+    this.cart.tiles.forEach((tile) =>
+      this.runScript(tile.script, 'load', { tile: tile.name })
+    )
 
     // START
     this.runScript(this.gameScript, 'start')
@@ -680,6 +682,13 @@ class Zest {
     }
   }
 
+  runScriptOnAllRoomTiles(name, ctx = {}) {
+    this.room.tiles.forEach((tile, ix) => {
+      const [x, y] = indexToCoord(ix)
+      this.runScript(tile.script, name, { ...ctx, x, y, tile: tile.name })
+    })
+  }
+
   act() {
     const { px, py, dx, dy } = this.event
     const tx = px + dx
@@ -693,6 +702,7 @@ class Zest {
   #actOn(target, tx, ty) {
     if (target.script) {
       this.runScript(target.script, 'interact', {
+        tile: target.name,
         x: tx,
         y: ty,
       })
@@ -710,6 +720,7 @@ class Zest {
   #collect(target, tx, ty) {
     if (target.script) {
       this.runScript(target.script, 'collect', {
+        tile: target.name,
         x: tx,
         y: ty,
       })
@@ -735,7 +746,7 @@ class Zest {
     // ENTER event
     this.runScript(this.gameScript, 'enter')
     this.runScript(this.room.script, 'enter')
-    this.room.tiles.forEach((tile) => this.runScript(tile.script, 'enter'))
+    this.runScriptOnAllRoomTiles('enter')
     this.runScript(this.playerScript, 'enter')
   }
 
@@ -744,7 +755,7 @@ class Zest {
       // EXIT event
       this.runScript(this.gameScript, 'exit')
       this.runScript(this.room.script, 'exit')
-      this.room.tiles.forEach((tile) => this.runScript(tile.script, 'exit'))
+      this.runScriptOnAllRoomTiles('exit')
       this.runScript(this.playerScript, 'exit')
 
       this.store()
