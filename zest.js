@@ -79,6 +79,7 @@ class ButtonState {
 }
 
 const noop = () => {}
+const isDefined = (x) => typeof x !== 'undefined'
 
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
@@ -136,7 +137,7 @@ const resolveFrames = (tiles, frameData) => {
 
 const resolveTileScripts = (tiles, scriptData) => {
   tiles
-    .filter((t) => typeof t.script !== 'undefined')
+    .filter((t) => isDefined(t.script))
     .forEach((tile) => {
       tile.script = scriptData[tile.script].data
     })
@@ -648,7 +649,7 @@ class Zest {
       })
     } else {
       // noscript handler
-      if (typeof target.sound !== 'undefined') {
+      if (isDefined(target.sound)) {
         this.playSound(target.sound)
       }
       if (target.says) {
@@ -670,7 +671,7 @@ class Zest {
       const counter = this.globals[keyName] ?? 0
       this.globals[keyName] = counter + 1
       this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
-      if (typeof target.sound !== 'undefined') {
+      if (isDefined(target.sound)) {
         this.playSound(target.sound)
       }
       if (target.says) {
@@ -753,7 +754,7 @@ class Zest {
 
     // check for exits
     this.room.exits.forEach((exit) => {
-      if (typeof exit.edge !== 'undefined') {
+      if (isDefined(exit.edge)) {
         if (exit.edge == EdgeDirection.UP) {
           if (prevY == exit.y && dy < 0) {
             this.goto(prevX, exit.ty, exit.room)
