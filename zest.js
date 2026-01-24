@@ -78,6 +78,7 @@ class ButtonState {
 
 const noop = () => {}
 const isDefined = (x) => typeof x !== 'undefined'
+const isXY = (obj) => isDefined(obj.x) && isDefined(obj.y)
 
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
@@ -593,15 +594,22 @@ class Zest {
       this.room.tiles[coordToIndex(context.x, context.y)] = this.getTile(
         run(args[0])
       )
+    } else if (op === 'xy') {
+      const [x, y] = args
+      return { x: run(x), y: run(y) }
     } else if (op === 'call') {
-      const script = this.room.tiles[coordToIndex(context.x, context.y)].script
-      this.runScript(script, run(args[0]), context)
+      if (isXY(context)) {
+        const { x, y } = context
+        const tile = this.getTileAt(x, y)
+        this.runScript(tile.script, run(args[0]), { ...context, x, y, tile })
+      } else {
+        this.runScript(context.tile.script, run(args[0]), context)
+      }
     } else if (op === 'act') {
       this.act()
     } else if (op === 'goto') {
-      const [_xy, _x, _y] = args[0]
-      if (_xy !== 'xy') return warn(`Unknown goto: ${_xy}`)
-      this.goto(run(_x), run(_y), run(args[1]))
+      const { x, y } = run(args[0])
+      this.goto(x, y, run(args[1]))
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'get') {
