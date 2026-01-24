@@ -78,7 +78,7 @@ class ButtonState {
 
 const noop = () => {}
 const isDefined = (x) => typeof x !== 'undefined'
-const isXY = (obj) => Number.isFinite(obj.x) && Number.isFinite(obj.y)
+const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
 
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
@@ -591,9 +591,9 @@ class Zest {
     } else if (op === 'dump') {
       this.dump(context)
     } else if (op === 'swap') {
-      this.room.tiles[coordToIndex(context.x, context.y)] = this.getTile(
-        run(args[0])
-      )
+      const where = args[1] && run(args[1])
+      const { x, y } = isXY(where) ? where : context
+      this.room.tiles[coordToIndex(x, y)] = this.getTile(run(args[0]))
     } else if (op === 'xy') {
       const [x, y] = args
       return { x: run(x), y: run(y) }
