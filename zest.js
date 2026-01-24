@@ -78,7 +78,7 @@ class ButtonState {
 
 const noop = () => {}
 const isDefined = (x) => typeof x !== 'undefined'
-const isXY = (obj) => isDefined(obj.x) && isDefined(obj.y)
+const isXY = (obj) => Number.isFinite(obj.x) && Number.isFinite(obj.y)
 
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
@@ -597,6 +597,25 @@ class Zest {
     } else if (op === 'xy') {
       const [x, y] = args
       return { x: run(x), y: run(y) }
+    } else if (op === 'tell') {
+      const who = run(args[0])
+      if (isXY(who)) {
+        const tile = this.getTileAt(who.x, who.y)
+        return this.runExpression(args[1], blocks, {
+          ...context,
+          x: who.x,
+          y: who.y,
+          tile,
+        })
+      } else {
+        const tile = this.getTile(who)
+        return this.runExpression(args[1], blocks, {
+          ...context,
+          x: undefined,
+          y: undefined,
+          tile,
+        })
+      }
     } else if (op === 'call') {
       if (isXY(context)) {
         const { x, y } = context
