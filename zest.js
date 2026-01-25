@@ -16,6 +16,8 @@ COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6 }
 
+const TileTypes = { 0: 'world', 1: 'player', 2: 'sprite', 3: 'item' }
+
 function warn(message) {
   console.warn(`[WARN] ${message}`)
 }
@@ -638,6 +640,22 @@ class Zest {
       this.log(run(args[0]))
     } else if (op === 'dump') {
       this.dump(context)
+    } else if (op === 'type') {
+      const who = run(args[0])
+      const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
+      return TileTypes[tile.type]
+    } else if (op === 'solid') {
+      const who = run(args[0])
+      const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
+      return tile.solid ? 1 : 0
+    } else if (op === 'id') {
+      const who = run(args[0])
+      const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
+      return tile.id
+    } else if (op === 'name') {
+      const who = run(args[0])
+      const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
+      return tile.name
     } else if (op === 'swap') {
       const where = args[1] && run(args[1])
       const { x, y } = isXY(where) ? where : context
