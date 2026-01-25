@@ -21,6 +21,9 @@ const TileTypes = { 0: 'world', 1: 'player', 2: 'sprite', 3: 'item' }
 function warn(message) {
   console.warn(`[WARN] ${message}`)
 }
+function fail(message) {
+  console.error(`[FAIL] ${message}`)
+}
 
 const Y2K = 946684800
 const getDateTimePart = (part) => {
@@ -291,6 +294,7 @@ class Zest {
 
     // current room to render
     this.player = data.player
+    this.player.visual = this.player.tile
     this.room = this.card
     this.roomTransition = null
 
@@ -395,7 +399,7 @@ class Zest {
         }
       }
       this.#updateInput()
-      this.runScript(this.playerScript, 'draw')
+      this.#runPlayerScript('draw')
       this.render()
     }, 1000 / FPS)
   }
@@ -426,6 +430,11 @@ class Zest {
   getTileAt(x, y) {
     const ix = coordToIndex(x, y)
     return this.room.tiles[ix]
+  }
+
+  swapTileAt(x, y, tile) {
+    const ix = coordToIndex(x, y)
+    this.room.tiles[ix] = tile
   }
 
   say(message, cb) {
@@ -567,6 +576,7 @@ class Zest {
         return this.globals[name] ?? 0
       } else if (parts.length === 2) {
         if (parts[0] === 'event') {
+          if (name == 'event.tile') return context.tile.name ?? 0
           return context[parts[1]] ?? 0 // extended from this.event
         } else if (parts[0] === 'config') {
           return this.config[parts[1]] ?? 0
@@ -678,13 +688,22 @@ class Zest {
       const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
       return tile.name
     } else if (op === 'swap') {
+      const newTile = this.getTile(run(args[0]))
       const where = args[1] && run(args[1])
-      const { x, y } = isXY(where) ? where : context
-      this.room.tiles[coordToIndex(x, y)] = this.getTile(run(args[0]))
+      if (isXY(where)) {
+        this.swapTileAt(where.x, where.y, newTile)
+      } else if (context.tile == this.player.tile) {
+        this.player.visual = newTile
+      } else if (isXY(context)) {
+        this.swapTileAt(context.x, context.y, newTile)
+      } else {
+        fail('Can only call SWAP on a tile instance')
+      }
     } else if (op === 'xy') {
       const [x, y] = args
       return { x: run(x), y: run(y) }
     } else if (op === 'tell') {
+      // @TODO handle event.room, event.game
       const who = run(args[0])
       if (isXY(who)) {
         const tile = this.getTileAt(who.x, who.y)
@@ -695,6 +714,7 @@ class Zest {
           tile,
         })
       } else {
+        // @TODO handle event.player better (this relies on name matching)
         const tile = this.getTile(who)
         return this.runExpression(args[1], blocks, {
           ...context,
@@ -704,7 +724,9 @@ class Zest {
         })
       }
     } else if (op === 'call') {
-      if (isXY(context)) {
+      if (context.tile == this.player.tile) {
+        this.#runPlayerScript(run(args[0]))
+      } else if (isXY(context)) {
         const { x, y } = context
         const tile = this.getTileAt(x, y)
         this.runScript(tile.script, run(args[0]), { ...context, x, y, tile })
@@ -807,6 +829,15 @@ class Zest {
     }
   }
 
+  #runPlayerScript(name, ctx) {
+    this.runScript(this.playerScript, name, {
+      ...ctx,
+      x: this.player.x,
+      y: this.player.y,
+      tile: this.player.tile,
+    })
+  }
+
   emit(name, ctx = {}) {
     this.runScript(this.gameScript, name)
     this.runScript(this.room.script, name)
@@ -814,7 +845,7 @@ class Zest {
       const [x, y] = indexToCoord(ix)
       this.runScript(tile.script, name, { ...ctx, x, y, tile: tile.name })
     })
-    this.runScript(this.playerScript, name, ctx)
+    this.#runPlayerScript(name, ctx)
   }
 
   act() {
@@ -939,7 +970,7 @@ class Zest {
       this.event.py = this.player.y
     }
 
-    this.runScript(this.playerScript, 'update')
+    this.#runPlayerScript('update')
 
     // sprite type
     if (target.type == 2) {
@@ -949,7 +980,7 @@ class Zest {
     } else if (target.type == 3) {
       this.#collect(target, tx, ty)
     } else if (!canMove) {
-      this.runScript(this.playerScript, 'bump')
+      this.#runPlayerScript('bump')
     }
 
     this.event.tx = this.player.x + dx
@@ -1085,9 +1116,9 @@ class Zest {
     if (dx !== 0 || dy !== 0) {
       this.#movePlayer(dx, dy)
     } else if (confirmPressed) {
-      this.runScript(this.playerScript, 'confirm')
+      this.#runPlayerScript('confirm')
     } else if (cancelPressed) {
-      this.runScript(this.playerScript, 'cancel')
+      this.#runPlayerScript('cancel')
     }
   }
 
