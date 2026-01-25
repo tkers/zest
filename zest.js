@@ -277,6 +277,7 @@ class Zest {
 
     // some sort of context?
     this.globals = {}
+    this.timers = {}
 
     // lookup the rooms for the Wrapper, Card and player starting location
     this.wrap = data.wrap !== -1 ? data.rooms[data.wrap] : null
@@ -369,6 +370,7 @@ class Zest {
       if (this.isPaused) return
       if (!this.dialogActive) {
         this.#tick()
+        this.#runFrameTimers()
       } else {
         this.dialogLock--
         if (this.dialogTextIx < this.dialogText.length) {
@@ -452,6 +454,22 @@ class Zest {
     this.say(message, () => {
       this.restart()
     })
+  }
+
+  #scheduleFrameTimer(cb, frameDelay) {
+    const atFrame = this.frameIx + (frameDelay <= 1 ? 1 : Math.ceil(frameDelay))
+    let list = this.timers[atFrame]
+    if (!list) {
+      list = []
+      this.timers[atFrame] = list
+    }
+    list.push(cb)
+  }
+
+  #runFrameTimers() {
+    let list = this.timers[this.frameIx]
+    if (!list) return
+    list.forEach((cb) => cb())
   }
 
   log(message) {
@@ -624,11 +642,16 @@ class Zest {
       } else {
         this.runScript(context.tile.script, run(args[0]), context)
       }
+    } else if (op === 'emit') {
+      this.runScriptOnAllRoomTiles(run(args[0]))
     } else if (op === 'act') {
       this.act()
     } else if (op === 'goto') {
       const { x, y } = run(args[0])
       this.goto(x, y, run(args[1]))
+    } else if (op === 'wait') {
+      const delay = run(args[0]) * FPS
+      this.#scheduleFrameTimer(() => run(args[1]), delay)
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'get') {
