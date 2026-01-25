@@ -257,6 +257,7 @@ class Zest {
       [Button.A]: new ButtonState(),
       [Button.B]: new ButtonState(),
     }
+    this.isIgnored = false
 
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
@@ -412,6 +413,14 @@ class Zest {
   pauseResume() {
     this.isPaused = !this.isPaused
     return this.isPaused
+  }
+
+  ignore() {
+    this.isIgnored = true
+  }
+
+  listen() {
+    this.isIgnored = false
   }
 
   getTileAt(x, y) {
@@ -642,6 +651,10 @@ class Zest {
       this.log(run(args[0]))
     } else if (op === 'dump') {
       this.dump(context)
+    } else if (op === 'ignore') {
+      this.ignore()
+    } else if (op === 'listen') {
+      this.listen()
     } else if (op === 'type') {
       const who = run(args[0])
       const tile = isXY(who) ? this.getTileAt(who.x, who.y) : this.getTile(who)
@@ -1060,6 +1073,8 @@ class Zest {
     if (!anythingPressed) return
 
     if (this.advanceSay()) return
+
+    if (this.isIgnored) return
 
     if (dx !== 0 || dy !== 0) {
       this.#movePlayer(dx, dy)
