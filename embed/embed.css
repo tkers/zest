@@ -1,0 +1,26 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #808080;
+}
+
+canvas#lcd {
+  background-color: #312f28;
+  mix-blend-mode: hard-light;
+  image-rendering: pixelated;
+
+  display: block;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto 200/120;
+
+  touch-action: none;
+}
+
+canvas#lcd.paused {
+  filter: brightness(0.5);
+  mix-blend-mode: unset;
+}
