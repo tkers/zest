@@ -625,6 +625,12 @@ class Zest {
           }
         }
       }
+    } else if (op === 'while') {
+      const [condition, body] = args
+      while (run(condition)) {
+        if (this.calledDone) return
+        run(body)
+      }
     } else if (op === 'eq') {
       return getValueOf(args[0]) == run(args[1])
     } else if (op === 'neq') {
