@@ -361,6 +361,7 @@ class Zest {
     )
 
     // START
+    this.#changeLoop(this.cart.song)
     this.runScript(this.gameScript, 'start')
 
     // ENTER starting room in next frame
@@ -526,6 +527,12 @@ class Zest {
   }
   stopMusic() {
     console.log(`[AUDIO] stop`) // @TODO implement
+  }
+
+  #changeLoop(ref) {
+    if (!isDefined(ref) || ref === -1) return
+    else if (ref === -2) this.stopMusic()
+    else this.loopMusic(ref)
   }
 
   runExpression(expr, blocks = [], context) {
@@ -826,6 +833,7 @@ class Zest {
     this.player.room = this.room.id
 
     // ENTER event
+    this.#changeLoop(this.room.song)
     this.emit('enter')
   }
 
@@ -925,7 +933,7 @@ class Zest {
         }
       } else if (tx == exit.x && ty == exit.y) {
         if (exit.fin) {
-          // @TODO use exit.song to play/stop music
+          this.#changeLoop(exit.song)
           this.fin(exit.fin)
         } else {
           this.goto(exit.tx, exit.ty, exit.room)
