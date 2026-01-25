@@ -25,6 +25,13 @@ footer {
   box-shadow: 0 -1px 0 #00000010;
 }
 
+footer a {
+  color: #312f28d0;
+}
+footer a:hover {
+  color: #000000;
+}
+
 body.lemon,
 #btn-lemon {
   background-color: #f4ba53;
