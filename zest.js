@@ -299,6 +299,8 @@ class Zest {
     this.event = {
       px: this.player.x,
       py: this.player.y,
+      tx: this.player.x,
+      ty: this.player.y,
       player: this.player.tile.name,
       room: this.room.name,
       game: this.meta.name,
@@ -872,6 +874,8 @@ class Zest {
       room: this.room.name,
       px: x,
       py: y,
+      tx: x,
+      ty: y,
     }
   }
 
@@ -928,6 +932,9 @@ class Zest {
     } else if (!canMove) {
       this.runScript(this.playerScript, 'bump')
     }
+
+    this.event.tx = this.player.x + dx
+    this.event.ty = this.player.y + dy
 
     // check for exits
     this.room.exits.forEach((exit) => {
