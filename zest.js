@@ -363,6 +363,9 @@ class Zest {
     this.runScript(this.gameScript, 'start')
 
     // ENTER starting room in next frame
+    this.room = {
+      tiles: Array(15 * 25).fill(this.namedTiles.black),
+    }
     this.roomTransition = this.start
 
     // loop at 20 FPS (50ms per tick)
