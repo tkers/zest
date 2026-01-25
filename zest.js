@@ -646,7 +646,7 @@ class Zest {
         this.runScript(context.tile.script, run(args[0]), context)
       }
     } else if (op === 'emit') {
-      this.runScriptOnAllRoomTiles(run(args[0]))
+      this.emit(run(args[0]))
     } else if (op === 'act') {
       this.act()
     } else if (op === 'goto') {
@@ -733,11 +733,14 @@ class Zest {
     }
   }
 
-  runScriptOnAllRoomTiles(name, ctx = {}) {
+  emit(name, ctx = {}) {
+    this.runScript(this.gameScript, name)
+    this.runScript(this.room.script, name)
     this.room.tiles.forEach((tile, ix) => {
       const [x, y] = indexToCoord(ix)
       this.runScript(tile.script, name, { ...ctx, x, y, tile: tile.name })
     })
+    this.runScript(this.playerScript, name, ctx)
   }
 
   act() {
@@ -795,19 +798,13 @@ class Zest {
     this.player.room = this.room.id
 
     // ENTER event
-    this.runScript(this.gameScript, 'enter')
-    this.runScript(this.room.script, 'enter')
-    this.runScriptOnAllRoomTiles('enter')
-    this.runScript(this.playerScript, 'enter')
+    this.emit('enter')
   }
 
   goto(x, y, room) {
     if (isDefined(room)) {
       // EXIT event
-      this.runScript(this.gameScript, 'exit')
-      this.runScript(this.room.script, 'exit')
-      this.runScriptOnAllRoomTiles('exit')
-      this.runScript(this.playerScript, 'exit')
+      this.emit('exit')
 
       this.store()
       this.roomTransition = this.getRoom(room)
