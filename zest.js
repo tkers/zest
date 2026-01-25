@@ -272,6 +272,7 @@ class Zest {
     this.namedRooms = byName(data.rooms)
     this.namedTiles = byName(data.tiles)
     this.namedSounds = byName(data.sounds)
+    this.namedSongs = byName(data.songs)
     this.backgroundTile =
       this.namedTiles[data.background == 1 ? 'black' : 'white']
 
@@ -503,9 +504,28 @@ class Zest {
     else return this.cart.sounds[ref]
   }
 
+  getSong(ref) {
+    if (typeof ref === 'string') return this.namedSongs[ref]
+    else return this.cart.songs[ref]
+  }
+
   playSound(ref) {
-    const snd = this.getSound(ref)
-    console.log(`[PLAY] ${snd.name}`) // @TODO implement
+    const sound = this.getSound(ref)
+    console.log(`[AUDIO] play ${sound.name}`) // @TODO implement
+  }
+  bpm(tempo) {
+    console.log(`[AUDIO] bpm ${tempo}`) // @TODO implement
+  }
+  loopMusic(ref) {
+    const song = this.getSong(ref)
+    console.log(`[AUDIO] loop ${song.name}`) // @TODO implement
+  }
+  onceMusic(ref) {
+    const song = this.getSong(ref)
+    console.log(`[AUDIO] once ${song.name}`) // @TODO implement
+  }
+  stopMusic() {
+    console.log(`[AUDIO] stop`) // @TODO implement
   }
 
   runExpression(expr, blocks = [], context) {
@@ -655,8 +675,16 @@ class Zest {
     } else if (op === 'wait') {
       const delay = run(args[0]) * FPS
       this.#scheduleFrameTimer(() => run(args[1]), delay)
+    } else if (op === 'bpm') {
+      this.bpm(run(args[0]))
+    } else if (op === 'loop') {
+      this.loopMusic(run(args[0]))
+    } else if (op === 'once') {
+      this.onceMusic(run(args[0]))
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
+    } else if (op === 'stop') {
+      this.stopMusic(run(args[0]))
     } else if (op === 'get') {
       return getValueOf(args[0])
     } else if (op === 'set') {
