@@ -134,6 +134,14 @@ const indexToCoord = (ix) => {
   return [x, y]
 }
 
+const findSpecialGetter = (expr) => {
+  if (!Array.isArray(expr)) return
+  if (expr[0] !== 'get') return
+  const parts = expr[1].split('.')
+  if (parts.length !== 2 || parts[0] !== 'event') return
+  return parts[1]
+}
+
 // 'inline' frames into tiles for easier access
 const resolveFrames = (tiles, frameData) => {
   tiles.forEach((tile) => {
@@ -578,7 +586,7 @@ class Zest {
         return this.globals[name] ?? 0
       } else if (parts.length === 2) {
         if (parts[0] === 'event') {
-          if (name == 'event.tile') return context.tile.name ?? 0
+          if (name == 'event.self') return 0 // internal variable
           return context[parts[1]] ?? 0 // extended from this.event
         } else if (parts[0] === 'config') {
           return this.config[parts[1]] ?? 0
@@ -694,7 +702,7 @@ class Zest {
       const where = args[1] && run(args[1])
       if (isXY(where)) {
         this.swapTileAt(where.x, where.y, newTile)
-      } else if (context.tile == this.player.tile) {
+      } else if (context.self == this.playerScript) {
         this.player.visual = newTile
       } else if (isXY(context)) {
         this.swapTileAt(context.x, context.y, newTile)
@@ -705,7 +713,34 @@ class Zest {
       const [x, y] = args
       return { x: run(x), y: run(y) }
     } else if (op === 'tell') {
-      // @TODO handle event.room, event.game
+      // parse manually because run() would return the name as string
+      const magic = findSpecialGetter(args[0])
+      if (magic === 'player') {
+        return this.runExpression(args[1], blocks, {
+          ...context,
+          x: this.player.x,
+          y: this.player.y,
+          tile: this.player.tile.name,
+          self: this.playerScript,
+        })
+      } else if (magic === 'room') {
+        return this.runExpression(args[1], blocks, {
+          ...context,
+          x: undefined,
+          y: undefined,
+          tile: undefined,
+          self: this.room.script,
+        })
+      } else if (magic === 'game') {
+        return this.runExpression(args[1], blocks, {
+          ...context,
+          x: undefined,
+          y: undefined,
+          tile: undefined,
+          self: this.gameScript,
+        })
+      }
+
       const who = run(args[0])
       if (isXY(who)) {
         const tile = this.getTileAt(who.x, who.y)
@@ -714,26 +749,27 @@ class Zest {
           x: who.x,
           y: who.y,
           tile,
+          self: tile.script,
         })
       } else {
-        // @TODO handle event.player better (this relies on name matching)
         const tile = this.getTile(who)
         return this.runExpression(args[1], blocks, {
           ...context,
           x: undefined,
           y: undefined,
           tile,
+          self: tile.script,
         })
       }
     } else if (op === 'call') {
-      if (context.tile == this.player.tile) {
+      if (context.self == this.playerScript) {
         this.#runPlayerScript(run(args[0]))
       } else if (isXY(context)) {
         const { x, y } = context
         const tile = this.getTileAt(x, y)
         this.runScript(tile.script, run(args[0]), { ...context, x, y, tile })
       } else {
-        this.runScript(context.tile.script, run(args[0]), context)
+        this.runScript(context.self, run(args[0]), context)
       }
     } else if (op === 'emit') {
       this.emit(run(args[0]))
@@ -818,7 +854,8 @@ class Zest {
   runScript(script, name, ctx = {}) {
     if (!script) return
 
-    const context = { ...this.event, ...ctx, name }
+    // ctx can override 'self'
+    const context = { ...this.event, self: script, ...ctx, name }
 
     const anyExpr = script.any
     if (anyExpr) {
@@ -838,7 +875,7 @@ class Zest {
       ...ctx,
       x: this.player.x,
       y: this.player.y,
-      tile: this.player.tile,
+      tile: this.player.tile.name,
     })
   }
 
