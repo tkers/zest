@@ -963,7 +963,7 @@ class Zest {
       const keyName = `${target.name}s`
       const counter = this.globals[keyName] ?? 0
       this.globals[keyName] = counter + 1
-      this.room.tiles[coordToIndex(tx, ty)] = this.backgroundTile
+      this.room.tiles[coordToIndex(x, y)] = this.backgroundTile
       if (isDefined(target.sound)) {
         this.playSound(target.sound)
       }
