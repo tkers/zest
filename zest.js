@@ -974,8 +974,6 @@ class Zest {
     let ty = this.player.y + dy
     let canMove = true
 
-    this.event = { ...this.event, dx, dy, tx, ty }
-
     if (tx < 0) {
       tx = 0
       canMove = false
@@ -992,6 +990,8 @@ class Zest {
       ty = ROOM_HEIGHT - 1
       canMove = false
     }
+
+    this.event = { ...this.event, dx, dy, tx, ty, x: tx, y: ty }
 
     const target = this.getTileAt(tx, ty)
     if (target.solid) {
@@ -1010,6 +1010,7 @@ class Zest {
     this.#runPlayerScript('update')
 
     // sprite type
+    let shouldBump = false
     if (target.type == 2) {
       if (this.config.autoAct) {
         this.#actOn(target, tx, ty)
@@ -1017,7 +1018,7 @@ class Zest {
     } else if (target.type == 3) {
       this.#collect(target, tx, ty)
     } else if (!canMove) {
-      this.#runPlayerScript('bump')
+      shouldBump = true // unless there is an exit edge
     }
 
     this.event.tx = this.player.x + dx
@@ -1052,6 +1053,10 @@ class Zest {
         }
       }
     })
+
+    if (shouldBump && !this.roomTransition) {
+      this.#runPlayerScript('bump')
+    }
   }
 
   pressKey(key) {
