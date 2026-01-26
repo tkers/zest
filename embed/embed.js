@@ -21,11 +21,11 @@ window.addEventListener('load', () => {
 
   // setup key bindings
   window.addEventListener('keydown', (e) => {
-    if (e.repeat) return
-
     if (e.key.startsWith('Arrow')) {
       e.preventDefault()
     }
+
+    if (e.repeat) return
 
     if (e.key == 'ArrowUp') game.pressKey(Button.UP)
     if (e.key == 'ArrowDown') game.pressKey(Button.DOWN)
