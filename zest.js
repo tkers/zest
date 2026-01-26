@@ -937,6 +937,7 @@ class Zest {
   #enter(room) {
     this.room = room
     this.player.room = this.room.id
+    this.event.room = this.room.name
 
     // ENTER event
     this.#changeLoop(this.room.song)
