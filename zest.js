@@ -177,9 +177,8 @@ const resolveTiles = (rooms, tileData) => {
 const getCurrentFrameForTile = (tile, frameIx) =>
   tile.frames[Math.floor((tile.fps / FPS) * frameIx) % tile.frames.length]
 
-// get the current snapshot of a room, as an array of frames
-const roomToStill = (room, frameIx) =>
-  room.tiles.map((tile) => getCurrentFrameForTile(tile, frameIx))
+const getCurrentFrameIndexForTile = (tile, frameIx) =>
+  Math.floor((tile.fps / FPS) * frameIx) % tile.frames.length
 
 // extract key meta information from the game data
 const getMetaInfo = (data) => ({
@@ -282,6 +281,12 @@ class Zest {
     resolveTiles(data.rooms, data.tiles)
     data.player.tile = data.tiles[data.player.id]
 
+    // lookup the rooms for the Wrapper, Card and player starting location
+    this.wrap = data.wrap !== -1 ? data.rooms[data.wrap] : null
+    this.card = data.card !== -1 ? data.rooms[data.card] : null
+    this.icon = data.card !== -1 ? data.rooms[data.icon] : null
+    this.start = data.rooms[data.player.room]
+
     this.gameScript = data.scripts[data.script]?.data
     this.playerScript = data.player.tile.script
 
@@ -297,17 +302,12 @@ class Zest {
     this.globals = {}
     this.timers = {}
 
-    // lookup the rooms for the Wrapper, Card and player starting location
-    this.wrap = data.wrap !== -1 ? data.rooms[data.wrap] : null
-    this.card = data.card !== -1 ? data.rooms[data.card] : null
-    this.icon = data.card !== -1 ? data.rooms[data.icon] : null
-    this.start = data.rooms[data.player.room]
-
     // current room to render
     this.player = data.player
     this.player.visual = this.player.tile
     this.room = this.card
     this.roomTransition = null
+    this.frameOverrides = {}
 
     this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
     this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
@@ -445,7 +445,22 @@ class Zest {
 
   swapTileAt(x, y, tile) {
     const ix = coordToIndex(x, y)
+    delete this.frameOverrides[ix]
     this.room.tiles[ix] = tile
+  }
+
+  #setFrameAt(x, y, frameIx) {
+    const tile = this.getTileAt(x, y)
+    const ix = coordToIndex(x, y)
+    this.frameOverrides[ix] = frameIx
+  }
+
+  #getFrameAt(x, y) {
+    const tile = this.getTileAt(x, y)
+    const ix = coordToIndex(x, y)
+    return (
+      this.frameOverrides[ix] ?? getCurrentFrameIndexForTile(tile, this.frameIx)
+    )
   }
 
   say(message, cb, ctx) {
@@ -705,6 +720,7 @@ class Zest {
       if (isXY(where)) {
         this.swapTileAt(where.x, where.y, newTile)
       } else if (context.self == this.playerScript) {
+        this.player.frameIx = undefined
         this.player.visual = newTile
       } else if (isXY(context)) {
         this.swapTileAt(context.x, context.y, newTile)
@@ -803,6 +819,28 @@ class Zest {
       this.restore(args[0])
     } else if (op === 'toss') {
       this.toss()
+    } else if (op === 'frame') {
+      if (isDefined(args[0])) {
+        const frameIx = run(args[0])
+        if (context.self == this.playerScript) {
+          this.player.frameIx = frameIx
+        } else if (isXY(context)) {
+          this.#setFrameAt(context.x, context.y, frameIx)
+        } else {
+          fail('Can only set FRAME on a tile instance')
+        }
+      } else {
+        if (context.self == this.playerScript) {
+          return (
+            this.player.frameIx ??
+            getCurrentFrameIndexForTile(this.player.tile, this.frameIx)
+          )
+        } else if (isXY(context)) {
+          return this.#getFrameAt(context.x, context.y)
+        } else {
+          fail('Can only get FRAME on a tile instance')
+        }
+      }
     } else if (op === 'random') {
       const range = Math.abs(args[1] - args[0] + 1)
       return Math.floor(Math.random() * range) + Math.min(args[0], args[1])
@@ -937,6 +975,8 @@ class Zest {
 
   #enter(room) {
     this.room = room
+    this.frameOverrides = {}
+
     this.player.room = this.room.id
     this.event.room = this.room.name
 
@@ -1188,11 +1228,21 @@ class Zest {
 
   render() {
     // get all room frames
-    const tilemap = roomToStill(this.room, this.frameIx)
+
+    // get the current snapshot of a room, as an array of frames
+    const tilemap = this.room.tiles.map(
+      (tile, ix) =>
+        tile.frames[
+          this.frameOverrides[ix] ??
+            getCurrentFrameIndexForTile(tile, this.frameIx)
+        ]
+    )
 
     // display player
     if (this.room == this.cart.rooms[this.player.room]) {
-      const playerFrame = getCurrentFrameForTile(this.player.tile, this.frameIx)
+      const playerFrame = isDefined(this.player.frameIx)
+        ? this.player.visual.frames[this.player.frameIx]
+        : getCurrentFrameForTile(this.player.visual, this.frameIx)
       const ti = coordToIndex(this.player.x, this.player.y)
       // add background tile to transparent areas
       tilemap[ti] = playerFrame.map((fg, pi) =>
