@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Zest Bundler</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="bundler.css" />
+    <script type="text/javascript" src="../zest.js"></script>
+    <script type="text/javascript" src="template.js"></script>
+  </head>
+  <body class="lemon">
+    <main>
+      <h1>Zest Bundler</h1>
+      <h2>
+        export your
+        <a href="https://play.date/pulp/about" target="_blank">Pulp</a> game to
+        web
+      </h2>
+      <section id="dropzone">
+        <h3 id="drop-label" class="hint">Drop your source JSON file</h3>
+        <input type="file" id="data-in" accept="application/json"/ >
+        <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
+      </section>
+      <section>
+        <div class="row">
+          <div class="col">
+            <h3>Page title</h3>
+            <input type="text" id="title-in" />
+          </div>
+          <div class="col">
+            <h3>Theme color</h3>
+            <div id="color-wrap">
+              <input type="color" id="color-in" value="#808080" />
+            </div>
+          </div>
+        </div>
+      </section>
+      <section style="margin-top: 64px">
+        <a href="#" id="download-link" class="disabled">Download bundle</a>
+      </section>
+      <footer>
+        Made with ❤ in Amsterdam. If you like this project,
+        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
+        maybe?<br /><br />
+        <a href="https://tkers.dev/zest" target="_blank">Zest</a> is an
+        independent, unofficial runtime and is not affiliated with, endorsed by,
+        or supported by Panic Inc.
+      </footer>
+    </main>
+    <script type="text/javascript" src="bundler.js"></script>
+  </body>
+</html>
