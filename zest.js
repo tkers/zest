@@ -447,9 +447,9 @@ class Zest {
     this.room.tiles[ix] = tile
   }
 
-  say(message, cb) {
+  say(message, cb, ctx) {
     this.#clearInput()
-    message = this.runExpression(message)
+    message = this.runExpression(message, null, { ...this.event, ...ctx })
     this.dialogActive = true
     this.dialogPages = wrapText(message, 17, 4)
     this.dialogText = this.dialogPages.shift()
@@ -664,12 +664,13 @@ class Zest {
     } else if (op === 'lte') {
       return getValueOf(args[0]) <= run(args[1])
     } else if (op === 'say') {
+      const msg = run(args[0])
       if (args[1]) {
-        this.say(args[0], () => {
+        this.say(msg, () => {
           run(args[1])
         })
       } else {
-        this.say(args[0])
+        this.say(msg)
       }
     } else if (op === 'fin') {
       this.fin(args[0])
@@ -899,31 +900,25 @@ class Zest {
     }
   }
 
-  #actOn(target, tx, ty) {
+  #actOn(target, x, y) {
+    const ctx = { tile: target.name, x, y }
     if (target.script) {
-      this.runScript(target.script, 'interact', {
-        tile: target.name,
-        x: tx,
-        y: ty,
-      })
+      this.runScript(target.script, 'interact', ctx)
     } else {
       // noscript handler
       if (isDefined(target.sound)) {
         this.playSound(target.sound)
       }
       if (target.says) {
-        this.say(target.says)
+        this.say(target.says, null, ctx)
       }
     }
   }
 
-  #collect(target, tx, ty) {
+  #collect(target, x, y) {
+    const ctx = { tile: target.name, x, y }
     if (target.script) {
-      this.runScript(target.script, 'collect', {
-        tile: target.name,
-        x: tx,
-        y: ty,
-      })
+      this.runScript(target.script, 'collect', ctx)
     } else {
       // noscript handler
       const keyName = `${target.name}s`
@@ -934,7 +929,7 @@ class Zest {
         this.playSound(target.sound)
       }
       if (target.says) {
-        this.say(target.says)
+        this.say(target.says, null, ctx)
       }
     }
   }
