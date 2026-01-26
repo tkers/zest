@@ -1,4 +1,5 @@
 const FPS = 20
+const CELL_SIZE = 8
 const ROOM_WIDTH = 25
 const ROOM_HEIGHT = 15
 const PIXEL_WIDTH = 200
@@ -385,7 +386,7 @@ class Zest {
 
     // ENTER starting room in next frame
     this.room = {
-      tiles: Array(15 * 25).fill(this.namedTiles.black),
+      tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
     }
     this.roomTransition = this.start
 
@@ -486,7 +487,7 @@ class Zest {
     this.store()
     this.runScript(this.gameScript, 'finish')
     this.room = {
-      tiles: Array(15 * 25).fill(this.namedTiles.black),
+      tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
     }
     this.say(message, () => {
       this.restart()
@@ -1257,14 +1258,14 @@ class Zest {
     const pixels = imgData.data
 
     for (let y = 0; y < PIXEL_HEIGHT; y++) {
-      const ty = Math.floor(y / 8)
-      const py = y % 8
+      const ty = Math.floor(y / CELL_SIZE)
+      const py = y % CELL_SIZE
       for (let x = 0; x < PIXEL_WIDTH; x++) {
-        const tx = Math.floor(x / 8)
-        const px = x % 8
+        const tx = Math.floor(x / CELL_SIZE)
+        const px = x % CELL_SIZE
 
-        const ti = tx + 25 * ty
-        const pi = px + 8 * py
+        const ti = tx + ROOM_WIDTH * ty
+        const pi = px + CELL_SIZE * py
 
         const arr = tilemap[ti]
         const col = arr[pi]
