@@ -567,14 +567,14 @@ class Zest {
   }
   loopMusic(ref) {
     const song = this.getSong(ref)
-    console.log(`[AUDIO] loop ${song.name}`) // @TODO implement
+    ZestAudio.playSong(song, true)
   }
-  onceMusic(ref) {
+  onceMusic(ref, cb) {
     const song = this.getSong(ref)
-    console.log(`[AUDIO] once ${song.name}`) // @TODO implement
+    ZestAudio.playSong(song, false, cb)
   }
   stopMusic() {
-    console.log(`[AUDIO] stop`) // @TODO implement
+    ZestAudio.stopSong()
   }
 
   #changeLoop(ref) {
@@ -804,7 +804,7 @@ class Zest {
     } else if (op === 'loop') {
       this.loopMusic(run(args[0]))
     } else if (op === 'once') {
-      this.onceMusic(run(args[0]))
+      this.onceMusic(run(args[0]), () => run(args[1]))
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'stop') {
