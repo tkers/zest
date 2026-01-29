@@ -64,11 +64,11 @@ const createVoice = (typeIx, envelope = {}) => {
   }
 
   const type = VOICE_TYPES[typeIx]
-  const volume = envelope.volume ?? 1
-  const attack = envelope.attack ?? DEFAULT_ENVELOPE.attack
-  const decay = envelope.decay ?? DEFAULT_ENVELOPE.decay
-  const sustain = envelope.sustain ?? DEFAULT_ENVELOPE.sustain
-  const release = envelope.release ?? DEFAULT_ENVELOPE.release
+  const volume = envelope?.volume ?? 1
+  const attack = envelope?.attack ?? DEFAULT_ENVELOPE.attack
+  const decay = envelope?.decay ?? DEFAULT_ENVELOPE.decay
+  const sustain = envelope?.sustain ?? DEFAULT_ENVELOPE.sustain
+  const release = envelope?.release ?? DEFAULT_ENVELOPE.release
 
   const playNote = (note, oct, hold) => {
     if (!audioCtx) return
@@ -142,7 +142,47 @@ const playSound = (sound) => {
   nextTick()
 }
 
+const playSong = (song, loop, onEnd) => {
+  const voices = [
+    createVoice(0, song.voices?.[0]),
+    createVoice(1, song.voices?.[1]),
+    createVoice(2, song.voices?.[2]),
+    createVoice(3, song.voices?.[3]),
+    // createVoice(4, song.voices?.[4]), // @TODO implement noise
+  ]
+
+  const BPM = song.bpm ?? 120
+  const tickLength = (1 / 4) * (60 / BPM)
+  let pos = -1
+
+  // @TODO use audioCtx.currentTime and schedule notes ahead of time
+  const nextTick = () => {
+    if (++pos >= song.ticks) {
+      if (loop) {
+        pos = song.loopFrom ?? 0
+      } else {
+        return onEnd && onEnd()
+      }
+    }
+
+    for (let v = 0; v < voices.length; v++) {
+      const note = song.notes[v][pos * 3]
+      const oct = song.notes[v][pos * 3 + 1]
+      const hold = song.notes[v][pos * 3 + 2]
+
+      if (note > 0) {
+        voices[v].playNote(note, oct, hold * tickLength)
+      }
+    }
+
+    setTimeout(nextTick, tickLength * 1000)
+  }
+
+  nextTick()
+}
+
 ZestAudio = {
   enable: enableAudio,
   playSound: playSound,
+  playSong: playSong,
 }
