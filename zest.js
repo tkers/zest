@@ -354,6 +354,29 @@ class Zest {
     localStorage.removeItem(this.storeKey)
   }
 
+  #loop() {
+    if (this.isPaused) return
+    if (!this.dialogActive) {
+      this.#tick()
+      this.#runFrameTimers()
+    } else {
+      this.dialogLock--
+      if (this.dialogTextIx < this.dialogText.length) {
+        do {
+          this.dialogTextIx += this.config.textSpeed / FPS
+        } while (
+          this.dialogText[this.dialogTextIx]?.trim() == '' &&
+          this.dialogTextIx < this.dialogText.length
+        )
+      } else {
+        this.dialogFrameIx++
+      }
+    }
+    this.#updateInput()
+    this.#runPlayerScript('draw')
+    this.render()
+  }
+
   #tick() {
     this.frameIx++
     this.event.frame = this.frameIx
@@ -364,6 +387,15 @@ class Zest {
     }
 
     this.runScript(this.gameScript, 'loop')
+  }
+
+  playCard() {
+    if (this.isRunning) {
+      warn('Already running')
+      return
+    }
+    this.isRunning = true
+    this.loopTimer = setInterval(() => this.#loop(), 1000 / FPS)
   }
 
   play() {
@@ -391,28 +423,7 @@ class Zest {
     this.roomTransition = this.start
 
     // loop at 20 FPS (50ms per tick)
-    this.loopTimer = setInterval(() => {
-      if (this.isPaused) return
-      if (!this.dialogActive) {
-        this.#tick()
-        this.#runFrameTimers()
-      } else {
-        this.dialogLock--
-        if (this.dialogTextIx < this.dialogText.length) {
-          do {
-            this.dialogTextIx += this.config.textSpeed / FPS
-          } while (
-            this.dialogText[this.dialogTextIx]?.trim() == '' &&
-            this.dialogTextIx < this.dialogText.length
-          )
-        } else {
-          this.dialogFrameIx++
-        }
-      }
-      this.#updateInput()
-      this.#runPlayerScript('draw')
-      this.render()
-    }, 1000 / FPS)
+    this.loopTimer = setInterval(() => this.#loop(), 1000 / FPS)
   }
 
   stop() {

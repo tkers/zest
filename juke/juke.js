@@ -56,6 +56,7 @@ function handleProjectDataLoaded(e) {
   rawGameData = e.target.result
   const data = JSON.parse(rawGameData)
   cardViewer.load(data)
+  cardViewer.playCard()
   dropzone.className = 'loaded'
 
   const allButtons = []
