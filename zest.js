@@ -560,7 +560,7 @@ class Zest {
 
   playSound(ref) {
     const sound = this.getSound(ref)
-    console.log(`[AUDIO] play ${sound.name}`) // @TODO implement
+    ZestAudio.playSound(sound)
   }
   bpm(tempo) {
     console.log(`[AUDIO] bpm ${tempo}`) // @TODO implement
