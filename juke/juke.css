@@ -1,16 +1,20 @@
 html,
 body {
   margin: 0;
-  height: 100%;
+  height: fit-content;
 }
 
 body {
-  color: #312f28;
-  /* background-color: #f8f0e7; */
-  background-color: #8a60be;
+  color: #ffffffa0;
   font-family: monospace;
   font-size: 16px;
   padding: 0 8px;
+  background-color: #8a60be;
+  background-blend-mode: soft-light;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-attachment: fixed;
+  backdrop-filter: blur(8px);
 }
 
 main {
@@ -26,7 +30,7 @@ h2 {
 }
 
 h1 {
-  color: #000000;
+  color: #ffffff;
 }
 
 @keyframes wiggle {
@@ -76,7 +80,7 @@ h2 {
 }
 
 h2 a {
-  color: #000000;
+  color: #ffffffc0;
   text-decoration: none;
 }
 h2 a:hover {
@@ -89,11 +93,11 @@ footer {
 }
 
 section {
-  text-align: center;
+  max-width: 400px;
 }
 
 footer {
-  color: #312f2880;
+  color: #ffffff60;
   font-size: small;
   padding-top: 32px;
   margin-top: 64px;
@@ -102,10 +106,10 @@ footer {
 }
 
 footer a {
-  color: #312f28d0;
+  color: #ffffff80;
 }
 footer a:hover {
-  color: #000000;
+  color: #ffffffa0;
 }
 
 section#dropzone {
@@ -153,9 +157,10 @@ canvas#card-view {
 
 section#dropzone.loaded {
   background-color: #7300ff;
-  border: 8px solid #000000;
+  box-shadow: 0 8px 16px #00000060;
   padding: 0;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
 }
 section#dropzone.loaded h3 {
   display: none;
@@ -164,28 +169,120 @@ section#dropzone.loaded canvas#card-view {
   display: block;
 }
 
-section#playlist a {
-  border-radius: 32px;
-  padding: 8px 16px;
-  background-color: #312f28;
-  color: #ffffffdd;
+section.hidden {
+  display: none;
+}
+
+section#controls {
+  margin: 0 auto;
+}
+
+section#controls h3 {
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+section#controls h4 {
+  color: #ffffffa0;
+  margin-top: 0;
+}
+
+section#controls a {
+  border-radius: 64px;
+  width: 64px;
+  height: 64px;
+  font-size: 24px;
+  line-height: 62px;
+  color: #ffffffa0;
+  border: 4px solid #ffffffa0;
   text-decoration: none;
   cursor: pointer;
-  position: relative;
-  margin-bottom: 16px;
-  margin-top: 0;
-  border-bottom: 4px solid #000000;
   display: inline-block;
+  vertical-align: middle;
+  margin: 0 8px 32px;
+}
+
+section#controls a#btn-play {
+  background-color: #ffffffa0;
+  border: 0;
+  color: #6b4c92;
+}
+section#controls a#btn-play:hover {
+  background-color: #ffffff;
+}
+
+section#controls a#btn-prev,
+section#controls a#btn-next {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  line-height: 37px;
+}
+
+section#controls a:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+section#controls a:active {
+  border-color: #ffffffa0;
+}
+
+section#controls #progress-wrap {
+  max-width: 400px;
+  margin: 0 auto 32px;
+  color: #ffffff80;
+}
+section#controls #progress-wrap small#time-now {
+  float: left;
+  margin: 4px 4px;
+}
+section#controls #progress-wrap small#time-max {
+  float: right;
+  margin: 4px -2px;
+}
+section#controls #progress-bar {
+  background-color: #ffffff60;
+  width: 100%;
+  height: 8px;
+  margin: 14px 2px 0;
+  box-sizing: border-box;
+}
+section#controls #progress-fill {
+  height: 100%;
+  background-color: #e8d0ff;
+  margin: 0;
+  max-width: 100%;
+}
+
+section#playlist {
+  margin: 0 auto;
+}
+
+section#playlist a {
+  color: #ffffffa0;
+  text-decoration: none;
+  display: block;
+  padding: 16px 16px;
+  border-radius: 64px;
+  margin: 0 -8px 8px;
+  position: relative;
 }
 section#playlist a:hover {
   color: #ffffff;
+  background-color: #00000020;
 }
-section#playlist a:active,
-section#playlist a.playing {
-  margin-top: 3px;
-  border-bottom: 1px solid #000000;
+section#playlist a:active {
+  background-color: #00000030;
 }
 section#playlist a.playing {
-  color: #9a76c6 !important;
+  background-color: #ffffffa0;
+  color: #2c0352;
   pointer-events: none;
+}
+
+section#playlist a small {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  opacity: 0.8;
 }

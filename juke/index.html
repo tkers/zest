@@ -20,7 +20,26 @@
         <input type="file" id="data-in" accept="application/json"/ >
         <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
       </section>
-      <section id="playlist">
+      <section id="controls" class="hidden">
+        <h3 id="song-label">Theme</h3>
+        <h4 id="game-label">Pulp Game</h4>
+
+        <div id="progress-wrap">
+          <div id="progress-bar">
+          <div id="progress-fill" style="width:40%"></div>
+          </div>
+            <small id="time-now">0:21</small>
+            <small id="time-max">2:31</small>
+        </div>
+
+        <center>
+          <a href="#" id="btn-prev">⏮&#xFE0E;</a>
+          <a href="#" id="btn-play">▶&#xFE0E;</a>
+          <a href="#" id="btn-next">⏭&#xFE0E;</a>
+        </center>     
+
+      </section>
+      <section id="playlist" class="hidden">
       </section>
       <footer>
         Made with ❤ in Amsterdam. If you like this project,
