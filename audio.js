@@ -70,14 +70,15 @@ const createVoice = (typeIx, envelope = {}) => {
   const sustain = envelope?.sustain ?? DEFAULT_ENVELOPE.sustain
   const release = envelope?.release ?? DEFAULT_ENVELOPE.release
 
+  let oscNode, gainNode
   const playNote = (note, oct, hold) => {
     if (!audioCtx) return
     const tone = freqForNote(note, oct)
 
-    const oscNode = audioCtx.createOscillator()
+    oscNode = audioCtx.createOscillator()
     oscNode.type = type
 
-    const gainNode = audioCtx.createGain()
+    gainNode = audioCtx.createGain()
     gainNode.gain.value = 0
     oscNode.connect(gainNode)
     gainNode.connect(audioCtx.destination)
@@ -114,7 +115,14 @@ const createVoice = (typeIx, envelope = {}) => {
     gainNode.gain.linearRampToValueAtTime(0, tr)
     oscNode.stop(tr)
   }
-  return { playNote }
+
+  const stop = () => {
+    gainNode?.gain.cancelScheduledValues(0)
+    gainNode?.gain.setValueAtTime(0, 0)
+    oscNode?.stop()
+  }
+
+  return { playNote, stop }
 }
 
 const playSound = (sound) => {
@@ -167,7 +175,12 @@ const playSong = (song, loop, onEnd) => {
 
   // @TODO use audioCtx.currentTime and schedule notes ahead of time
   const nextTick = () => {
-    if (signal.stop) return
+    if (signal.stop) {
+      for (let v = 0; v < voices.length; v++) {
+        voices[v].stop()
+      }
+      return
+    }
 
     if (++pos >= song.ticks) {
       if (loop) {
