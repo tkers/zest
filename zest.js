@@ -94,9 +94,17 @@ function wrapText(str, maxWidth, maxLines) {
 
   while (from < str.length) {
     let breakAt = from + maxWidth
-
+    const ff = str.indexOf('\f', from)
     const nl = str.indexOf('\n', from)
-    if (nl >= from && nl <= breakAt) {
+
+    if (ff >= from && ff <= breakAt) {
+      lines.push(str.slice(from, ff))
+      const nf = 4 - (lines.length % maxLines) // kind of ugly but it works
+      for (let i = 0; i < nf % maxLines; i++) {
+        lines.push('')
+      }
+      from = ff + 1
+    } else if (nl >= from && nl <= breakAt) {
       lines.push(str.slice(from, nl))
       from = nl + 1
     } else if (breakAt >= str.length) {
@@ -1370,9 +1378,9 @@ class Zest {
       }
       if (glyph == 10) continue // space
       this.tileBuffer[coordToIndex(xx, yy)] =
-        glyph > 128
+        (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
-          : this.cart.font.chars[glyph - 32]
+          : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
       xx++
     }
   }
