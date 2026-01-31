@@ -460,6 +460,7 @@ class Zest {
   }
 
   swapTileAt(x, y, tile) {
+    // @TODO should stop frametimer from PLAY?
     const ix = coordToIndex(x, y)
     delete this.frameOverrides[ix]
     this.room.tiles[ix] = tile
@@ -869,6 +870,37 @@ class Zest {
         } else {
           fail('Can only get FRAME on a tile instance')
         }
+      }
+    } else if (op === 'play') {
+      const newTile = this.getTile(run(args[0]))
+      const delay = FPS / newTile.fps
+      newTile.fps = 0
+
+      if (context.self == this.playerScript) {
+        this.player.visual = newTile
+        this.player.frameIx = 0
+        newTile.frames.forEach((frame, ix) => {
+          this.#scheduleFrameTimer(() => {
+            this.player.frameIx = ix
+          }, ix * delay)
+        })
+      } else if (isXY(context)) {
+        this.swapTileAt(context.x, context.y, newTile)
+        this.#setFrameAt(context.x, context.y, 0)
+        newTile.frames.forEach((frame, ix) => {
+          this.#scheduleFrameTimer(() => {
+            this.#setFrameAt(context.x, context.y, ix)
+          }, ix * delay)
+        })
+      } else {
+        fail('Can only call PLAY on a tile instance')
+        return
+      }
+
+      if (args[1]) {
+        this.#scheduleFrameTimer(() => {
+          run(args[1])
+        }, newTile.frames.length * delay)
       }
     } else if (op === 'random') {
       const range = Math.abs(args[1] - args[0] + 1)
