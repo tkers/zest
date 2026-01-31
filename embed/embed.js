@@ -1,4 +1,5 @@
 window.addEventListener('load', () => {
+  const main = document.getElementsByTagName('main')[0]
   const lcd = document.getElementById('lcd')
 
   if (typeof attachTouchGestures != 'undefined') {
@@ -8,16 +9,12 @@ window.addEventListener('load', () => {
   // load and start the game
   const game = Zest.load(gameData, lcd)
 
-  let isStarted = false
   const clickStart = () => {
-    lcd.removeEventListener('click', clickStart)
-    if (isStarted) return
-    isStarted = true
+    main.removeEventListener('click', clickStart)
+    main.className = 'clicked'
     game.play()
   }
-
-  setTimeout(clickStart, 3200)
-  lcd.addEventListener('click', clickStart)
+  main.addEventListener('click', clickStart)
 
   // setup key bindings
   window.addEventListener('keydown', (e) => {
