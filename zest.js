@@ -125,6 +125,11 @@ function wrapText(str, maxWidth, maxLines) {
   }
 }
 
+const randomInt = (lo, hi) => {
+  const range = Math.abs(hi - lo + 1)
+  return Math.floor(Math.random() * range) + Math.min(lo, hi)
+}
+
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
 
@@ -303,6 +308,7 @@ class Zest {
     this.globals = {}
     this.timers = {}
     this.isInverted = 0
+    this.isShaking = false
 
     // current room to render
     this.player = data.player
@@ -862,6 +868,13 @@ class Zest {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
       return this.isInverted
+    } else if (op === 'shake') {
+      this.isShaking = true
+      const delay = run(args[0]) * FPS
+      this.#scheduleFrameTimer(() => {
+        this.isShaking = false
+        if (args[1]) run(args[1])
+      }, delay)
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])
@@ -916,8 +929,7 @@ class Zest {
         }, newTile.frames.length * delay)
       }
     } else if (op === 'random') {
-      const range = Math.abs(args[1] - args[0] + 1)
-      return Math.floor(Math.random() * range) + Math.min(args[0], args[1])
+      return randomInt(run(args[0]), run(args[1]))
     } else if (op === 'sine') {
       return Math.sin(run(args[0]))
     } else if (op === 'cosine') {
@@ -1429,6 +1441,11 @@ class Zest {
         pixels[ix * 4 + 3] = a
       }
     }
-    this.ctx2d.putImageData(imgData, 0, 0)
+    let [shakeX, shakeY] = [0, 0]
+    if (this.isShaking) {
+      ;[shakeX, shakeY] = [randomInt(-2, 2), randomInt(-2, 2)]
+    }
+    this.ctx2d.clearRect(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
+    this.ctx2d.putImageData(imgData, shakeX, shakeY)
   }
 }
