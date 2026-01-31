@@ -33,7 +33,7 @@ main::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  content: '▶';
+  content: '\25B6';
   font-size: 20vmin;
   color: #ffffffff;
   text-shadow: 0 0 32px #000000;

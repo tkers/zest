@@ -12,6 +12,7 @@ window.addEventListener('load', () => {
   const clickStart = () => {
     main.removeEventListener('click', clickStart)
     main.className = 'clicked'
+    ZestAudio.enable()
     game.play()
   }
   main.addEventListener('click', clickStart)
