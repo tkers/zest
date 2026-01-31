@@ -424,6 +424,7 @@ class Zest {
 
     // loop at 20 FPS (50ms per tick)
     this.loopTimer = setInterval(() => this.#loop(), 1000 / FPS)
+    this.#loop()
   }
 
   stop() {
@@ -437,6 +438,7 @@ class Zest {
   }
 
   pauseResume() {
+    if (!this.isRunning) return
     this.isPaused = !this.isPaused
     return this.isPaused
   }
