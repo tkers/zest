@@ -745,6 +745,7 @@ class Zest {
         this.player.frameIx = undefined
         this.player.visual = newTile
       } else if (isXY(context)) {
+        context.self = newTile.script
         this.swapTileAt(context.x, context.y, newTile)
       } else {
         fail('Can only call SWAP on a tile instance')
@@ -807,10 +808,6 @@ class Zest {
     } else if (op === 'call') {
       if (context.self == this.playerScript) {
         this.#runPlayerScript(run(args[0]))
-      } else if (isXY(context)) {
-        const { x, y } = context
-        const tile = this.getTileAt(x, y)
-        this.runScript(tile.script, run(args[0]), { ...context, x, y, tile })
       } else {
         this.runScript(context.self, run(args[0]), context)
       }
@@ -818,6 +815,10 @@ class Zest {
       this.emit(run(args[0]))
     } else if (op === 'act') {
       this.act()
+    } else if (op === 'mimic') {
+      const who = run(args[0])
+      const tile = this.getTile(who)
+      this.runScript(tile.script, context.name, { context, self: tile.script })
     } else if (op === 'goto') {
       const { x, y } = run(args[0])
       this.goto(x, y, run(args[1]))
