@@ -302,6 +302,7 @@ class Zest {
     // some sort of context?
     this.globals = {}
     this.timers = {}
+    this.isInverted = 0
 
     // current room to render
     this.player = data.player
@@ -850,6 +851,10 @@ class Zest {
     } else if (op === 'window') {
       const { x, y, w, h } = run(args[0])
       this.#renderWindow(x, y, w, h)
+    } else if (op === 'invert') {
+      this.isInverted = 1 - this.isInverted
+      ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
+      return this.isInverted
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])
