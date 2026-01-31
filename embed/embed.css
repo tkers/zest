@@ -19,8 +19,3 @@ canvas#lcd {
 
   touch-action: none;
 }
-
-canvas#lcd.paused {
-  filter: brightness(0.5);
-  mix-blend-mode: unset;
-}

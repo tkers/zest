@@ -33,10 +33,6 @@ window.addEventListener('load', () => {
     if (e.key == 'ArrowRight') game.pressKey(Button.RIGHT)
     if (e.key == 'a') game.pressKey(Button.B)
     if (e.key == 's') game.pressKey(Button.A)
-    if (e.key == ' ') {
-      const isPaused = game.pauseResume()
-      lcd.className = isPaused ? 'paused' : ''
-    }
   })
 
   window.addEventListener('keyup', (e) => {
