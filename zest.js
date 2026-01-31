@@ -246,6 +246,7 @@ class Zest {
 
     this.dialogFrameIx = 0
     this.dialogActive = false
+    this.tileBuffer = []
 
     this.config = {
       sayAdvanceDelay: 0.2,
@@ -373,7 +374,6 @@ class Zest {
       }
     }
     this.#updateInput()
-    this.#runPlayerScript('draw')
     this.render()
   }
 
@@ -474,11 +474,20 @@ class Zest {
     )
   }
 
-  say(message, cb, ctx) {
+  say(message, cb, rect = {}) {
     this.#clearInput()
-    message = this.runExpression(message, null, { ...this.event, ...ctx })
     this.dialogActive = true
-    this.dialogPages = wrapText(message, 17, 4)
+    this.dialogWindowSize = [
+      rect.x ?? 3,
+      rect.y ?? 3,
+      rect.w ?? 17,
+      rect.h ?? 4,
+    ]
+    this.dialogPages = wrapText(
+      message,
+      this.dialogWindowSize[2],
+      this.dialogWindowSize[3]
+    )
     this.dialogText = this.dialogPages.shift()
     this.dialogTextIx = 0
     this.dialogLock = this.config.sayAdvanceDelay * FPS
@@ -692,13 +701,9 @@ class Zest {
       return getValueOf(args[0]) <= run(args[1])
     } else if (op === 'say') {
       const msg = run(args[0])
-      if (args[1]) {
-        this.say(msg, () => {
-          run(args[1])
-        })
-      } else {
-        this.say(msg)
-      }
+      const cb = args[1] && (() => run(args[1]))
+      const pos = args[2] && run(args[2])
+      this.say(msg, cb, pos)
     } else if (op === 'fin') {
       this.fin(args[0])
     } else if (op === 'log') {
@@ -741,6 +746,9 @@ class Zest {
     } else if (op === 'xy') {
       const [x, y] = args
       return { x: run(x), y: run(y) }
+    } else if (op === 'rect') {
+      const [x, y, w, h] = args
+      return { x: run(x), y: run(y), w: run(w), h: run(h) }
     } else if (op === 'tell') {
       // parse manually because run() would return the name as string
       const magic = findSpecialGetter(args[0])
@@ -960,7 +968,11 @@ class Zest {
         this.playSound(target.sound)
       }
       if (target.says) {
-        this.say(target.says, null, ctx)
+        const message = this.runExpression(target.says, null, {
+          ...this.event,
+          ...ctx,
+        })
+        this.say(message)
       }
     }
   }
@@ -979,7 +991,11 @@ class Zest {
         this.playSound(target.sound)
       }
       if (target.says) {
-        this.say(target.says, null, ctx)
+        const message = this.runExpression(target.says, null, {
+          ...this.event,
+          ...ctx,
+        })
+        this.say(message)
       }
     }
   }
@@ -1237,11 +1253,66 @@ class Zest {
   //   }
   // }
 
-  render() {
-    // get all room frames
+  #renderWindow(x, y, w, h) {
+    const tilemap = this.tileBuffer
+    const left = x
+    const right = x + w - 1
+    const top = y
+    const bottom = y + h - 1
 
+    tilemap[coordToIndex(left, top)] = this.cart.font.pipe[0] // top left corner
+    tilemap[coordToIndex(right, top)] = this.cart.font.pipe[2] // top right corner
+
+    // horizontal border
+    for (let dx = 1; dx < w - 1; dx++) {
+      tilemap[coordToIndex(left + dx, top)] = this.cart.font.pipe[1]
+      tilemap[coordToIndex(left + dx, bottom)] = this.cart.font.pipe[7]
+    }
+
+    // vertical border
+    for (let dy = 1; dy < h; dy++) {
+      tilemap[coordToIndex(left, top + dy)] = this.cart.font.pipe[3]
+      tilemap[coordToIndex(right, top + dy)] = this.cart.font.pipe[5]
+    }
+
+    tilemap[coordToIndex(left, bottom)] = this.cart.font.pipe[6] // bottom left corner
+    tilemap[coordToIndex(right, bottom)] = this.cart.font.pipe[8] // bottom right corner
+
+    if (this.dialogTextIx >= this.dialogText.length) {
+      const arrowIx = 9 + (Math.floor(this.dialogFrameIx / 10) % 2)
+      tilemap[coordToIndex(right - 1, bottom)] = this.cart.font.pipe[arrowIx] // arrow
+    }
+
+    for (let yy = top + 1; yy < bottom; yy++) {
+      for (let xx = left + 1; xx < right; xx++) {
+        tilemap[coordToIndex(xx, yy)] = this.cart.font.pipe[4]
+      }
+    }
+  }
+
+  #renderSayText(x, y, w, h) {
+    let xx = x
+    let yy = y
+    let text = this.dialogText.substring(0, this.dialogTextIx)
+
+    for (let i = 0; i < text.length; i++) {
+      let glyph = text.charCodeAt(i)
+      if (xx > x + w || glyph == 10) {
+        xx = x
+        yy++
+      }
+      if (glyph == 10) continue // space
+      this.tileBuffer[coordToIndex(xx, yy)] =
+        glyph > 128
+          ? this.cart.tiles[glyph - 128].frames[0]
+          : this.cart.font.chars[glyph - 32]
+      xx++
+    }
+  }
+
+  render() {
     // get the current snapshot of a room, as an array of frames
-    const tilemap = this.room.tiles.map(
+    this.tileBuffer = this.room.tiles.map(
       (tile, ix) =>
         tile.frames[
           this.frameOverrides[ix] ??
@@ -1250,71 +1321,30 @@ class Zest {
     )
 
     // display player
-    if (this.room == this.cart.rooms[this.player.room]) {
+    if (this.isRunning && this.room.id == this.player.room) {
+      this.#runPlayerScript('draw')
       const playerFrame = isDefined(this.player.frameIx)
         ? this.player.visual.frames[this.player.frameIx]
         : getCurrentFrameForTile(this.player.visual, this.frameIx)
       const ti = coordToIndex(this.player.x, this.player.y)
       // add background tile to transparent areas
-      tilemap[ti] = playerFrame.map((fg, pi) =>
-        fg == 2 ? tilemap[ti][pi] : fg
+      this.tileBuffer[ti] = playerFrame.map((fg, pi) =>
+        fg == 2 ? this.tileBuffer[ti][pi] : fg
       )
     }
 
     // draw window
     if (this.dialogActive) {
-      tilemap[coordToIndex(3, 3)] = this.cart.font.pipe[0] // top left corner
-      tilemap[coordToIndex(21, 3)] = this.cart.font.pipe[2] // top right corner
-
-      // horizontal border
-      for (let x = 4; x < 21; x++) {
-        tilemap[coordToIndex(x, 3)] = this.cart.font.pipe[1]
-        tilemap[coordToIndex(x, 8)] = this.cart.font.pipe[7]
-      }
-
-      // vertical border
-      for (let y = 4; y < 8; y++) {
-        tilemap[coordToIndex(3, y)] = this.cart.font.pipe[3]
-        tilemap[coordToIndex(21, y)] = this.cart.font.pipe[5]
-      }
-
-      tilemap[coordToIndex(3, 8)] = this.cart.font.pipe[6] // bottom left corner
-      tilemap[coordToIndex(21, 8)] = this.cart.font.pipe[8] // bottom right corner
-
-      if (this.dialogTextIx >= this.dialogText.length) {
-        const arrowIx = 9 + (Math.floor(this.dialogFrameIx / 10) % 2)
-        tilemap[coordToIndex(20, 8)] = this.cart.font.pipe[arrowIx] // arrow
-      }
-
-      for (let y = 4; y < 8; y++) {
-        for (let x = 4; x < 21; x++) {
-          tilemap[coordToIndex(x, y)] = this.cart.font.pipe[4]
-        }
-      }
-
-      let xx = 4
-      let yy = 4
-      let text = this.dialogText.substring(0, this.dialogTextIx)
-
-      for (let i = 0; i < text.length; i++) {
-        let glyph = text.charCodeAt(i)
-        if (xx > 20 || glyph == 10) {
-          xx = 4
-          yy++
-        }
-        if (glyph == 10) continue // space
-        tilemap[coordToIndex(xx, yy)] =
-          glyph > 128
-            ? this.cart.tiles[glyph - 128].frames[0]
-            : this.cart.font.chars[glyph - 32]
-        xx++
-      }
+      const [wx, wy, ww, wh] = this.dialogWindowSize
+      this.#renderWindow(wx, wy, ww + 2, wh + 2)
+      this.#renderSayText(wx + 1, wy + 1, ww, wh)
     }
 
-    this.#drawToCanvas(tilemap)
+    this.#drawToCanvas()
   }
 
-  #drawToCanvas(tilemap) {
+  #drawToCanvas() {
+    const tilemap = this.tileBuffer
     const imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
     const pixels = imgData.data
 
