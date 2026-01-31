@@ -851,6 +851,13 @@ class Zest {
     } else if (op === 'window') {
       const { x, y, w, h } = run(args[0])
       this.#renderWindow(x, y, w, h)
+    } else if (op === 'draw') {
+      const who = run(args[0])
+      const tile = this.getTile(who)
+      const frame = getCurrentFrameForTile(tile, this.frameIx)
+      const where = run(args[1])
+      const ix = coordToIndex(where.x, where.y)
+      this.tileBuffer[ix] = frame
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
