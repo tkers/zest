@@ -399,6 +399,9 @@ class Zest {
   }
 
   play() {
+    // always allow this to capture user gestures
+    ZestAudio.enable()
+
     if (this.isRunning) {
       warn('Already running')
       return
