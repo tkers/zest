@@ -680,6 +680,8 @@ class Zest {
       // ignore, identation maybe?
     } else if (op == '#') {
       // ignore, probably comments
+    } else if (op == '#$') {
+      // ignore, not sure
     } else if (op === 'block') {
       blocks[args[0]].forEach((e) => {
         if (this.calledDone) return
