@@ -843,6 +843,11 @@ class Zest {
       this.restore(args[0])
     } else if (op === 'toss') {
       this.toss()
+    } else if (op === 'hide') {
+      this.isHidden = true
+    } else if (op === 'window') {
+      const { x, y, w, h } = run(args[0])
+      this.#renderWindow(x, y, w, h)
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])
@@ -1258,7 +1263,7 @@ class Zest {
   //   }
   // }
 
-  #renderWindow(x, y, w, h) {
+  #renderWindow(x, y, w, h, showArrow) {
     const tilemap = this.tileBuffer
     const left = x
     const right = x + w - 1
@@ -1283,7 +1288,7 @@ class Zest {
     tilemap[coordToIndex(left, bottom)] = this.cart.font.pipe[6] // bottom left corner
     tilemap[coordToIndex(right, bottom)] = this.cart.font.pipe[8] // bottom right corner
 
-    if (this.dialogTextIx >= this.dialogText.length) {
+    if (showArrow) {
       const arrowIx = 9 + (Math.floor(this.dialogFrameIx / 10) % 2)
       tilemap[coordToIndex(right - 1, bottom)] = this.cart.font.pipe[arrowIx] // arrow
     }
@@ -1327,21 +1332,25 @@ class Zest {
 
     // display player
     if (this.isRunning && this.room.id == this.player.room) {
+      this.isHidden = false
       this.#runPlayerScript('draw')
-      const playerFrame = isDefined(this.player.frameIx)
-        ? this.player.visual.frames[this.player.frameIx]
-        : getCurrentFrameForTile(this.player.visual, this.frameIx)
-      const ti = coordToIndex(this.player.x, this.player.y)
-      // add background tile to transparent areas
-      this.tileBuffer[ti] = playerFrame.map((fg, pi) =>
-        fg == 2 ? this.tileBuffer[ti][pi] : fg
-      )
+      if (!this.isHidden) {
+        const playerFrame = isDefined(this.player.frameIx)
+          ? this.player.visual.frames[this.player.frameIx]
+          : getCurrentFrameForTile(this.player.visual, this.frameIx)
+        const ti = coordToIndex(this.player.x, this.player.y)
+        // add background tile to transparent areas
+        this.tileBuffer[ti] = playerFrame.map((fg, pi) =>
+          fg == 2 ? this.tileBuffer[ti][pi] : fg
+        )
+      }
     }
 
     // draw window
     if (this.dialogActive) {
       const [wx, wy, ww, wh] = this.dialogWindowSize
-      this.#renderWindow(wx, wy, ww + 2, wh + 2)
+      const showArrow = this.dialogTextIx >= this.dialogText.length
+      this.#renderWindow(wx, wy, ww + 2, wh + 2, showArrow)
       this.#renderSayText(wx + 1, wy + 1, ww, wh)
     }
 
