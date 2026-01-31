@@ -156,6 +156,11 @@ const stopSong = () => {
   delete ZestAudio.__currentSong
 }
 
+const setTempo = (bpm) => {
+  if (!ZestAudio.__currentSong) return
+  ZestAudio.__currentSong.tickLength = (1 / 4) * (60 / bpm)
+}
+
 const playSong = (song, loop, onEnd) => {
   const voices = [
     createVoice(0, song.voices?.[0]),
@@ -170,7 +175,7 @@ const playSong = (song, loop, onEnd) => {
   let pos = -1
 
   stopSong()
-  const signal = { stop: false }
+  const signal = { stop: false, tickLength }
   ZestAudio.__currentSong = signal
 
   // @TODO use audioCtx.currentTime and schedule notes ahead of time
@@ -196,11 +201,11 @@ const playSong = (song, loop, onEnd) => {
       const hold = song.notes[v][pos * 3 + 2]
 
       if (note > 0) {
-        voices[v].playNote(note, oct, hold * tickLength)
+        voices[v].playNote(note, oct, hold * signal.tickLength)
       }
     }
 
-    setTimeout(nextTick, tickLength * 1000)
+    setTimeout(nextTick, signal.tickLength * 1000)
   }
 
   nextTick()
@@ -211,4 +216,5 @@ ZestAudio = {
   playSound: playSound,
   playSong: playSong,
   stopSong: stopSong,
+  setTempo: setTempo,
 }
