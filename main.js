@@ -17,13 +17,15 @@ window.addEventListener('load', () => {
   // load and start the demo game
   const game = Zest.load(gameData, lcd)
   let isRunning = false
-  lcd.addEventListener('click', () => {
+  const startGame = () => {
     ZestAudio.enable()
     if (!isRunning) {
       isRunning = true
       game.play()
     }
-  })
+  }
+  lcd.addEventListener('click', startGame)
+  setTimeout(startGame, 2400)
 
   // update cartridge info
   titleLabel.innerText = game.meta.name || 'untitled'
