@@ -910,6 +910,10 @@ class Zest {
     } else if (op === 'window') {
       const { x, y, w, h } = run(args[0])
       this.#renderWindow(x, y, w, h)
+    } else if (op === 'label') {
+      const text = run(args[0])
+      const pos = run(args[1])
+      this.#drawText(text, pos.x, pos.y)
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
