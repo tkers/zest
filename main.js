@@ -32,7 +32,7 @@ window.addEventListener('load', () => {
   authorLabel.innerText = game.meta.author || 'anonymous'
 
   window.addEventListener('keydown', (e) => {
-    if (e.key.startsWith('Arrow')) {
+    if (e.key.startsWith('Arrow') || e.key == ' ') {
       e.preventDefault()
     }
 

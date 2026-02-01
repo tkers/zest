@@ -76,6 +76,10 @@ class ButtonState {
     this.isPressed = false
     this.heldTime = 0
   }
+  clear() {
+    this.isPressed = false
+    this.justPressed = false
+  }
   check(repeat, repeatDelay, repeatBetween) {
     // allows press-release within single frame
     if (this.justPressed) {
@@ -478,6 +482,7 @@ class Zest {
   pauseResume() {
     if (!this.isRunning) return
     this.isPaused = !this.isPaused
+    this.#clearInput()
     return this.isPaused
   }
 
@@ -1282,12 +1287,12 @@ class Zest {
   }
 
   #clearInput() {
-    this.input[Button.UP].release()
-    this.input[Button.RIGHT].release()
-    this.input[Button.DOWN].release()
-    this.input[Button.LEFT].release()
-    this.input[Button.A].release()
-    this.input[Button.B].release()
+    this.input[Button.UP].clear()
+    this.input[Button.RIGHT].clear()
+    this.input[Button.DOWN].clear()
+    this.input[Button.LEFT].clear()
+    this.input[Button.A].clear()
+    this.input[Button.B].clear()
   }
 
   #updateInput() {
