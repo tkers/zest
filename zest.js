@@ -231,7 +231,7 @@ const getMetaInfo = (data) => ({
 // }
 
 // library namespace
-class Zest {
+class Zest extends EventTarget {
   static run(data, canvas) {
     const game = new Zest(canvas)
     game.#loadCart(data)
@@ -247,6 +247,7 @@ class Zest {
   }
 
   constructor(canvas) {
+    super()
     this.canvas = canvas
     this.ctx2d = canvas.getContext('2d')
     this.isRunning = false
@@ -963,6 +964,13 @@ class Zest {
         this.isShaking = false
         if (args[1]) run(args[1])
       }, frames)
+      this.dispatchEvent(
+        new CustomEvent('shake', {
+          detail: {
+            duration: frames / FPS,
+          },
+        })
+      )
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])

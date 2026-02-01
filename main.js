@@ -15,7 +15,7 @@ window.addEventListener('load', () => {
   attachTouchGestures(lcd)
 
   // load and start the demo game
-  const game = Zest.load(gameData, lcd)
+  game = Zest.load(gameData, lcd)
   let isRunning = false
   const startGame = () => {
     ZestAudio.enable()

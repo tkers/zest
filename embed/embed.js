@@ -7,7 +7,7 @@ window.addEventListener('load', () => {
   }
 
   // load and start the game
-  const game = Zest.load(gameData, lcd)
+  game = Zest.load(gameData, lcd)
 
   const clickStart = () => {
     main.removeEventListener('click', clickStart)
