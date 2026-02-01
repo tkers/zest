@@ -396,6 +396,8 @@ class Zest {
 
   #loop() {
     if (this.isPaused) return
+
+    // keep world suspended while a window is open
     if (!this.menuActive && !this.dialogActive) {
       this.#tick()
       this.#runFrameTimers()
@@ -412,6 +414,8 @@ class Zest {
         this.dialogFrameIx++
       }
     }
+
+    // these should always run
     this.#updateInput()
     this.render()
   }
@@ -953,12 +957,12 @@ class Zest {
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
       return this.isInverted
     } else if (op === 'shake') {
+      const frames = Math.ceil(run(args[0]) * FPS)
       this.isShaking = true
-      const delay = run(args[0]) * FPS
       this.#scheduleFrameTimer(() => {
         this.isShaking = false
         if (args[1]) run(args[1])
-      }, delay)
+      }, frames)
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])
@@ -1593,7 +1597,7 @@ class Zest {
       }
     }
     let [shakeX, shakeY] = [0, 0]
-    if (this.isShaking) {
+    if (this.isShaking && !this.menuActive && !this.dialogActive) {
       ;[shakeX, shakeY] = [randomInt(-2, 2), randomInt(-2, 2)]
     }
     this.ctx2d.clearRect(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
