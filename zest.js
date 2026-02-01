@@ -18,6 +18,13 @@ const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6 }
 
 const TileTypes = { 0: 'world', 1: 'player', 2: 'sprite', 3: 'item' }
+const PipeIndex = {
+  PROMPT: 9,
+  PROMPT_DOWN: 10,
+  CURSOR: 11,
+  CURSOR_INACTIVE: 12,
+  PAGES: 13,
+}
 
 function warn(message) {
   console.warn(`[WARN] ${message}`)
@@ -86,7 +93,16 @@ class ButtonState {
 
 const noop = () => {}
 const isDefined = (x) => typeof x !== 'undefined'
+const chunkify = (elements, chunkSize) => {
+  const res = []
+  for (let i = 0; i < elements.length; i += chunkSize) {
+    res.push(elements.slice(i, i + chunkSize))
+  }
+  return res
+}
+
 const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
+const isOption = (x) => x && isDefined(x.label) && isDefined(x.action)
 
 function wrapText(str, maxWidth, maxLines) {
   const lines = []
@@ -123,11 +139,7 @@ function wrapText(str, maxWidth, maxLines) {
   }
 
   if (maxLines) {
-    const result = []
-    for (let l = 0; l < lines.length; l += maxLines) {
-      result.push(lines.slice(l, l + maxLines).join('\n'))
-    }
-    return result
+    return chunkify(lines, maxLines).map((page) => page.join('\n'))
   } else {
     return lines.join('\n')
   }
@@ -259,6 +271,7 @@ class Zest {
 
     this.dialogFrameIx = 0
     this.dialogActive = false
+    this.menuActive = false
     this.tileBuffer = []
 
     this.config = {
@@ -269,11 +282,11 @@ class Zest {
       inputRepeatDelay: 0.4,
       inputRepeatBetween: 0.2,
       autoAct: 1,
+      allowDismissRootMenu: 0,
       // follow: false,
       // followCenterX: 12,
       // followCenterY: 7,
       // followOverflowTile: 'black',
-      // allowDismissRootMenu: false,
     }
 
     this.input = {
@@ -372,10 +385,10 @@ class Zest {
 
   #loop() {
     if (this.isPaused) return
-    if (!this.dialogActive) {
+    if (!this.menuActive && !this.dialogActive) {
       this.#tick()
       this.#runFrameTimers()
-    } else {
+    } else if (this.dialogActive) {
       this.dialogLock--
       if (this.dialogTextIx < this.dialogText.length) {
         do {
@@ -384,7 +397,7 @@ class Zest {
           this.dialogText[this.dialogTextIx]?.trim() == '' &&
           this.dialogTextIx < this.dialogText.length
         )
-      } else {
+      } else if (!this.menuActive) {
         this.dialogFrameIx++
       }
     }
@@ -493,6 +506,20 @@ class Zest {
     return (
       this.frameOverrides[ix] ?? getCurrentFrameIndexForTile(tile, this.frameIx)
     )
+  }
+
+  menu(options, rect = {}) {
+    this.#clearInput()
+    this.menuActive = true
+    this.menuWindowSize = [
+      rect.x ?? 0,
+      rect.y ?? 0,
+      rect.w ?? Math.max(...options.map((o) => o.label.length)),
+      rect.h ?? options.length,
+    ]
+    this.menuPages = chunkify(options, this.menuWindowSize[3])
+    this.menuCursorIx = 0
+    this.menuPageIx = 0
   }
 
   say(message, cb, rect = {}) {
@@ -683,10 +710,13 @@ class Zest {
     } else if (op == '#$') {
       // ignore, not sure
     } else if (op === 'block') {
-      blocks[args[0]].forEach((e) => {
+      const body = blocks[args[0]]
+      const res = []
+      for (let i = 0; i < body.length; i++) {
         if (this.calledDone) return
-        run(e)
-      })
+        res.push(run(body[i]))
+      }
+      return res
     } else if (op === 'if') {
       const [condition, iftrue, ...elses] = args
       const res = run(condition)
@@ -727,6 +757,19 @@ class Zest {
       const cb = args[1] && (() => run(args[1]))
       const pos = args[2] && run(args[2])
       this.say(msg, cb, pos)
+    } else if (op === 'menu') {
+      const rect = run(args[0])
+      const opts = run(args[1])
+      if (Array.isArray(opts)) {
+        this.menu(opts.filter(isOption), rect)
+      } else {
+        warn('Ignored menu call with invalid options block')
+      }
+    } else if (op === 'option') {
+      return {
+        label: run(args[0]),
+        action: () => run(args[2]),
+      }
     } else if (op === 'fin') {
       this.fin(args[0])
     } else if (op === 'log') {
@@ -870,10 +913,8 @@ class Zest {
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
-      const frame = getCurrentFrameForTile(tile, this.frameIx)
       const where = run(args[1])
-      const ix = coordToIndex(where.x, where.y)
-      this.tileBuffer[ix] = frame
+      this.#drawTile(tile, where.x, where.y)
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
@@ -915,6 +956,7 @@ class Zest {
       if (context.self == this.playerScript) {
         this.player.visual = newTile
         this.player.frameIx = 0
+        // @TODO cancel previous timer
         newTile.frames.forEach((frame, ix) => {
           this.#scheduleFrameTimer(() => {
             this.player.frameIx = ix
@@ -1296,6 +1338,11 @@ class Zest {
     if (!this.isRunning || this.isPaused) return
     if (!anythingPressed) return
 
+    if (this.menuActive) {
+      this.#handleMenuInput(dx, dy, confirmPressed, cancelPressed)
+      return
+    }
+
     if (this.advanceSay()) return
 
     if (this.isIgnored) return
@@ -1330,7 +1377,39 @@ class Zest {
   //   }
   // }
 
-  #renderWindow(x, y, w, h, showArrow) {
+  #handleMenuInput(dx, dy, aPress, bPress) {
+    const page = this.menuPages[this.menuPageIx]
+    if (aPress) {
+      this.menuActive = false
+      page[this.menuCursorIx].action()
+    } else if (bPress) {
+      if (this.config.allowDismissRootMenu == 1) {
+        this.menuActive = false
+      }
+    } else if (dx > 0) {
+      this.menuPageIx = (this.menuPageIx + 1) % this.menuPages.length
+    } else if (dx < 0) {
+      this.menuPageIx =
+        (this.menuPageIx - 1 + this.menuPages.length) % this.menuPages.length
+    } else if (dy > 0) {
+      this.menuCursorIx = (this.menuCursorIx + 1) % page.length
+    } else if (dy < 0) {
+      this.menuCursorIx = (this.menuCursorIx - 1 + page.length) % page.length
+    }
+  }
+
+  #drawTile(tile, x, y) {
+    const ix = coordToIndex(x, y)
+    const frame = getCurrentFrameForTile(tile, this.frameIx)
+    this.tileBuffer[ix] = frame
+  }
+
+  #drawFrame(frame, x, y) {
+    const ix = coordToIndex(x, y)
+    this.tileBuffer[ix] = frame
+  }
+
+  #renderWindow(x, y, w, h, arrowIx) {
     const tilemap = this.tileBuffer
     const left = x
     const right = x + w - 1
@@ -1355,8 +1434,7 @@ class Zest {
     tilemap[coordToIndex(left, bottom)] = this.cart.font.pipe[6] // bottom left corner
     tilemap[coordToIndex(right, bottom)] = this.cart.font.pipe[8] // bottom right corner
 
-    if (showArrow) {
-      const arrowIx = 9 + (Math.floor(this.dialogFrameIx / 10) % 2)
+    if (arrowIx) {
       tilemap[coordToIndex(right - 1, bottom)] = this.cart.font.pipe[arrowIx] // arrow
     }
 
@@ -1378,12 +1456,24 @@ class Zest {
         xx = x
         yy++
       }
-      if (glyph == 10) continue // space
+      if (glyph == 10) continue // ignore nl (prewrapped text)
       this.tileBuffer[coordToIndex(xx, yy)] =
         (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
       xx++
+    }
+  }
+
+  #drawText(text, x, y, w) {
+    const limit = w ? Math.min(text.length, w) : text.length
+    for (let i = 0; i < limit; i++) {
+      let glyph = text.charCodeAt(i)
+      if (glyph == 10 || glyph == 12) continue // skip nl and ff
+      this.tileBuffer[coordToIndex(x + i, y)] =
+        (glyph > 128
+          ? this.cart.tiles[glyph - 128].frames[0]
+          : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
     }
   }
 
@@ -1417,8 +1507,26 @@ class Zest {
     if (this.dialogActive) {
       const [wx, wy, ww, wh] = this.dialogWindowSize
       const showArrow = this.dialogTextIx >= this.dialogText.length
-      this.#renderWindow(wx, wy, ww + 2, wh + 2, showArrow)
+      const arrowIx =
+        PipeIndex.PROMPT + (Math.floor(this.dialogFrameIx / 10) % 2)
+      this.#renderWindow(wx, wy, ww + 2, wh + 2, showArrow && arrowIx)
       this.#renderSayText(wx + 1, wy + 1, ww, wh)
+    }
+
+    if (this.menuActive) {
+      // @TODO menus can stack!
+      const [wx, wy, ww, wh] = this.menuWindowSize
+      const showArrow = this.menuPages.length > 1
+      this.#renderWindow(wx, wy, ww + 3, wh + 2, showArrow && PipeIndex.PAGES)
+      const lines = this.menuPages[this.menuPageIx]
+      for (let i = 0; i < lines.length; i++) {
+        this.#drawText(lines[i].label, wx + 2, wy + 1 + i, ww)
+      }
+      this.#drawFrame(
+        this.cart.font.pipe[PipeIndex.CURSOR],
+        wx + 1,
+        wy + 1 + this.menuCursorIx
+      )
     }
 
     this.#drawToCanvas()
