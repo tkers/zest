@@ -26,6 +26,13 @@ const PipeIndex = {
   PAGES: 13,
 }
 
+const makeWindowRect = (rect = {}) => [
+  rect.x ?? 3,
+  rect.y ?? 3,
+  rect.w ?? 17,
+  rect.h ?? 4,
+]
+
 function warn(message) {
   console.warn(`[WARN] ${message}`)
 }
@@ -508,6 +515,19 @@ class Zest {
     )
   }
 
+  ask(message, options, rect) {
+    this.say(
+      message,
+      () => {
+        const [sx, sy, sw, sh] = makeWindowRect(rect)
+        const x = sx + sw - 8
+        const y = sy + sh
+        this.menu(options, { x, y })
+      },
+      rect
+    )
+  }
+
   menu(options, rect = {}) {
     this.#clearInput()
     this.menuActive = true
@@ -522,15 +542,10 @@ class Zest {
     this.menuPageIx = 0
   }
 
-  say(message, cb, rect = {}) {
+  say(message, cb, rect) {
     this.#clearInput()
     this.dialogActive = true
-    this.dialogWindowSize = [
-      rect.x ?? 3,
-      rect.y ?? 3,
-      rect.w ?? 17,
-      rect.h ?? 4,
-    ]
+    this.dialogWindowSize = makeWindowRect(rect)
     this.dialogPages = wrapText(
       message,
       this.dialogWindowSize[2],
@@ -762,6 +777,15 @@ class Zest {
       const opts = run(args[1])
       if (Array.isArray(opts)) {
         this.menu(opts.filter(isOption), rect)
+      } else {
+        warn('Ignored menu call with invalid options block')
+      }
+    } else if (op === 'ask') {
+      const msg = run(args[0])
+      const opts = run(args[1])
+      const rect = args[2] && run(args[2])
+      if (Array.isArray(opts)) {
+        this.ask(msg, opts.filter(isOption), rect)
       } else {
         warn('Ignored menu call with invalid options block')
       }
