@@ -110,9 +110,10 @@ downloadLink.addEventListener('click', (e) => {
   }
 
   const src = zest_template
-    .replace('#808080', inColor.value)
+    .replace('{{COLOR}}', inColor.value)
     .replace('{{TITLE}}', inTitle.value)
     .replace('{{GAME}}', rawGameData)
+  // .replace('{{GAME}}', `"${btoa(rawGameData)}"`)
 
   const blob = new Blob([src], { type: 'text/html' })
   const url = URL.createObjectURL(blob)
