@@ -49,8 +49,9 @@ dropzone.addEventListener('click', () => {
 })
 
 function handleProjectDataLoaded(e) {
-  rawGameData = e.target.result
-  const data = JSON.parse(rawGameData)
+  const data = JSON.parse(e.target.result)
+  rawGameData = JSON.stringify(Zest.minify(data))
+
   cardViewer.load(data)
   inTitle.value = data.name
   dropzone.className = 'loaded'
