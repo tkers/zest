@@ -588,6 +588,9 @@ class Zest extends EventTarget {
     this.menuPages = chunkify(options, this.menuWindowSize[3])
     this.menuCursorIx = 0
     this.menuPageIx = 0
+    this.runScript(this.gameScript, 'change', {
+      option: options[0].label,
+    })
   }
 
   say(message, cb, rect) {
@@ -1478,11 +1481,18 @@ class Zest extends EventTarget {
   #handleMenuInput(dx, dy, aPress, bPress) {
     const page = this.menuPages[this.menuPageIx]
     if (aPress) {
+      this.runScript(this.gameScript, 'select', {
+        option: page[this.menuCursorIx].label,
+      })
       this.menuActive = false
       page[this.menuCursorIx].action()
     } else if (bPress) {
       if (this.config.allowDismissRootMenu == 1) {
+        this.runScript(this.gameScript, 'dismiss')
         this.menuActive = false
+      } else {
+        // @TODO this should only be called for ASK?
+        this.runScript(this.gameScript, 'invalid')
       }
     } else if (dx > 0) {
       this.menuPageIx = (this.menuPageIx + 1) % this.menuPages.length
@@ -1493,6 +1503,12 @@ class Zest extends EventTarget {
       this.menuCursorIx = (this.menuCursorIx + 1) % page.length
     } else if (dy < 0) {
       this.menuCursorIx = (this.menuCursorIx - 1 + page.length) % page.length
+    }
+
+    if (dx !== 0 || dy !== 0) {
+      this.runScript(this.gameScript, 'change', {
+        option: page[this.menuCursorIx].label,
+      })
     }
   }
 
