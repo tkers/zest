@@ -1,5 +1,7 @@
 Zest.register((game) => {
   const ANALOG_TRESHOLD = 0.3
+  const DOCK_TRESHOLD = 0.5
+  const CRANK_TRESHOLD = 0.02
   const GamepadButton = {
     B: 0,
     A: 1,
@@ -67,6 +69,39 @@ Zest.register((game) => {
     }
   }
 
+  const PI_2 = Math.PI * 2
+  const normalizeAngle = (angle) => {
+    if (angle > Math.PI) return angle - PI_2
+    else if (angle < -Math.PI) return angle + PI_2
+    else return angle
+  }
+
+  const radToDeg = (angle) => (angle * 180) / Math.PI
+
+  let wasDocked = true
+  let prevAngle = 0
+  const simulateCrank = (x, y) => {
+    const r = Math.hypot(x, y)
+    if (r < DOCK_TRESHOLD) {
+      if (!wasDocked) {
+        game.dockCrank()
+      }
+      wasDocked = true
+    } else {
+      const absAngle = Math.PI + Math.atan2(y, x)
+      if (wasDocked) {
+        game.undockCrank(absAngle)
+        wasDocked = false
+      } else {
+        let relAngle = normalizeAngle(absAngle - prevAngle)
+        if (Math.abs(relAngle) > CRANK_TRESHOLD) {
+          game.turnCrank(radToDeg(absAngle), radToDeg(relAngle))
+        }
+      }
+      prevAngle = absAngle
+    }
+  }
+
   function updateGamepadInput() {
     const gamepad = navigator.getGamepads()?.[0]
     if (gamepad) {
@@ -82,6 +117,8 @@ Zest.register((game) => {
 
       mapAxis(gpAxes[1], Button.UP, Button.DOWN)
       mapAxis(gpAxes[0], Button.LEFT, Button.RIGHT)
+
+      simulateCrank(gpAxes[2], gpAxes[3])
 
       const startState = gpButtons[GamepadButton.START]?.pressed
       if (prevBtns['start'] !== startState) {

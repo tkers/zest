@@ -315,6 +315,7 @@ class Zest extends EventTarget {
       [Button.A]: new ButtonState(),
       [Button.B]: new ButtonState(),
     }
+    this.isCrankDocked = true
     this.isIgnored = false
 
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
@@ -456,6 +457,7 @@ class Zest extends EventTarget {
     // these should always run
     this.#updateInput()
     this.render()
+    this.event.ra = 0
   }
 
   #tick() {
@@ -1352,6 +1354,28 @@ class Zest extends EventTarget {
   }
   releaseKey(key) {
     this.input[key].release()
+  }
+  dockCrank() {
+    if (this.isCrankDocked) return
+    this.isCrankDocked = true
+    this.event.aa = 0
+    this.event.ra = 0
+    this.#runPlayerScript('dock')
+  }
+  undockCrank(aa = 0) {
+    if (!this.isCrankDocked) return
+    this.isCrankDocked = false
+    this.event.aa = aa
+    this.event.ra = 0
+    this.#runPlayerScript('undock')
+  }
+  turnCrank(aa, ra) {
+    if (this.isCrankDocked) return
+    this.event.aa = aa
+    this.event.ra = ra
+    if (ra !== 0) {
+      this.#runPlayerScript('crank')
+    }
   }
 
   #clearInput() {
