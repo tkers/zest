@@ -12,10 +12,8 @@ window.addEventListener('load', () => {
   const titleLabel = document.getElementById('label-title')
   const authorLabel = document.getElementById('label-author')
 
-  attachTouchGestures(lcd)
-
   // load and start the demo game
-  game = Zest.load(gameData, lcd)
+  const game = Zest.load(gameData, lcd)
   let isRunning = false
   const startGame = () => {
     ZestAudio.enable()
@@ -31,32 +29,16 @@ window.addEventListener('load', () => {
   titleLabel.innerText = game.meta.name || 'untitled'
   authorLabel.innerText = game.meta.author || 'anonymous'
 
+  game.attachKeyboard({ z: Button.B, x: Button.A })
+  attachTouchGestures(lcd)
+
+  game.addEventListener('pause', () => (lcd.className = 'paused'))
+  game.addEventListener('resume', () => (lcd.className = ''))
   window.addEventListener('keydown', (e) => {
-    if (e.key.startsWith('Arrow') || e.key == ' ') {
+    if (e.key === ' ') {
       e.preventDefault()
+      game.pauseResume()
     }
-
-    if (e.repeat) return
-
-    if (e.key == 'ArrowUp') game.pressKey(Button.UP)
-    if (e.key == 'ArrowDown') game.pressKey(Button.DOWN)
-    if (e.key == 'ArrowLeft') game.pressKey(Button.LEFT)
-    if (e.key == 'ArrowRight') game.pressKey(Button.RIGHT)
-    if (e.key == 'a') game.pressKey(Button.B)
-    if (e.key == 's') game.pressKey(Button.A)
-    if (e.key == ' ') {
-      const isPaused = game.pauseResume()
-      lcd.className = isPaused ? 'paused' : ''
-    }
-  })
-
-  window.addEventListener('keyup', (e) => {
-    if (e.key == 'ArrowUp') game.releaseKey(Button.UP)
-    if (e.key == 'ArrowDown') game.releaseKey(Button.DOWN)
-    if (e.key == 'ArrowLeft') game.releaseKey(Button.LEFT)
-    if (e.key == 'ArrowRight') game.releaseKey(Button.RIGHT)
-    if (e.key == 'a') game.releaseKey(Button.B)
-    if (e.key == 's') game.releaseKey(Button.A)
   })
 
   Object.entries({

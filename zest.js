@@ -246,6 +246,11 @@ class Zest extends EventTarget {
     return game
   }
 
+  static #plugins = []
+  static register(plugin) {
+    this.#plugins.push(plugin)
+  }
+
   constructor(canvas) {
     super()
     this.canvas = canvas
@@ -255,6 +260,7 @@ class Zest extends EventTarget {
     window.dump = () => {
       this.dump()
     }
+    Zest.#plugins.forEach((init) => init(this))
   }
 
   restart() {
@@ -369,6 +375,36 @@ class Zest extends EventTarget {
       az: 0,
       orientation: 'standing up',
     }
+  }
+
+  attachKeyboard(bindings = {}) {
+    const DEFAULT_KEY_BINDINGS = {
+      ArrowUp: Button.UP,
+      ArrowDown: Button.DOWN,
+      ArrowLeft: Button.LEFT,
+      ArrowRight: Button.RIGHT,
+      a: Button.B,
+      s: Button.A,
+    }
+
+    const bound = new Set(Object.values(bindings))
+    const missing = Object.fromEntries(
+      Object.entries(DEFAULT_KEY_BINDINGS).filter(([k, v]) => !bound.has(v))
+    )
+    const keymap = { ...missing, ...bindings }
+
+    window.addEventListener('keydown', (e) => {
+      if (!(e.key in keymap)) return
+      e.preventDefault()
+      if (e.repeat) return
+      this.pressKey(keymap[e.key])
+    })
+
+    window.addEventListener('keyup', (e) => {
+      if (!(e.key in keymap)) return
+      e.preventDefault()
+      this.releaseKey(keymap[e.key])
+    })
   }
 
   store(name) {
@@ -486,8 +522,9 @@ class Zest extends EventTarget {
 
   pauseResume() {
     if (!this.isRunning) return
-    this.isPaused = !this.isPaused
     this.#clearInput()
+    this.isPaused = !this.isPaused
+    this.#emitEvent(this.isPaused ? 'pause' : 'resume')
     return this.isPaused
   }
 
@@ -616,6 +653,14 @@ class Zest extends EventTarget {
     let list = this.timers[this.frameIx]
     if (!list) return
     list.forEach((cb) => cb())
+  }
+
+  #emitEvent(name, detail) {
+    this.dispatchEvent(
+      new CustomEvent(name, {
+        detail,
+      })
+    )
   }
 
   log(message) {
@@ -964,13 +1009,7 @@ class Zest extends EventTarget {
         this.isShaking = false
         if (args[1]) run(args[1])
       }, frames)
-      this.dispatchEvent(
-        new CustomEvent('shake', {
-          detail: {
-            duration: frames / FPS,
-          },
-        })
-      )
+      this.#emitEvent('shake', { duration: frames / FPS })
     } else if (op === 'frame') {
       if (isDefined(args[0])) {
         const frameIx = run(args[0])
