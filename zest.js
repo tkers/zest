@@ -348,6 +348,7 @@ class Zest extends EventTarget {
     this.timers = {}
     this.isInverted = 0
     this.isShaking = false
+    this.currentSong = null
 
     // current room to render
     this.player = data.player
@@ -705,13 +706,21 @@ class Zest extends EventTarget {
   }
   loopMusic(ref) {
     const song = this.getSong(ref)
+    if (this.currentSong == song) return
+    this.currentSong = song
     ZestAudio.playSong(song, true)
   }
   onceMusic(ref, cb) {
     const song = this.getSong(ref)
-    ZestAudio.playSong(song, false, cb)
+    if (this.currentSong == song) return
+    this.currentSong = song
+    ZestAudio.playSong(song, false, () => {
+      this.currentSong = null
+      cb && cb()
+    })
   }
   stopMusic() {
+    this.currentSong = null
     ZestAudio.stopSong()
   }
 
