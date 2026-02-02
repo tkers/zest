@@ -1256,6 +1256,11 @@ class Zest extends EventTarget {
     this.event.tx = this.player.x + dx
     this.event.ty = this.player.y + dy
 
+    // exit on solid world tile should trigger, but sprite should block
+    if (target.type == 2) {
+      return
+    }
+
     // check for exits
     this.room.exits.forEach((exit) => {
       if (isDefined(exit.edge)) {
