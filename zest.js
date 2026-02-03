@@ -519,6 +519,7 @@ class Zest extends EventTarget {
       return
     }
     this.isRunning = false
+    this.stopMusic()
     clearInterval(this.loopTimer)
     this.loopTimer = null
   }
