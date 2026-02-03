@@ -672,6 +672,7 @@ class Zest extends EventTarget {
 
   log(message) {
     console.log(`[GAME] ${message}`)
+    this.#emitEvent('log', { message })
   }
 
   dump(context) {
