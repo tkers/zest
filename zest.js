@@ -290,6 +290,7 @@ class Zest extends EventTarget {
     this.dialogFrameIx = 0
     this.dialogActive = false
     this.menuActive = false
+    this.menuStack = []
     this.tileBuffer = []
 
     this.config = {
@@ -581,19 +582,36 @@ class Zest extends EventTarget {
 
   menu(options, rect = {}) {
     this.#clearInput()
-    this.menuActive = true
-    this.menuWindowSize = [
+
+    const windowSize = [
       rect.x ?? 0,
       rect.y ?? 0,
       rect.w ?? Math.max(...options.map((o) => o.label.length)),
       rect.h ?? options.length,
     ]
-    this.menuPages = chunkify(options, this.menuWindowSize[3])
-    this.menuCursorIx = 0
-    this.menuPageIx = 0
+    const pages = chunkify(options, windowSize[3])
+
+    this.menuActive = true
+    this.menuStack.push({
+      windowSize,
+      pages,
+      cursorIx: 0,
+      pageIx: 0,
+    })
+
     this.runScript(this.gameScript, 'change', {
       option: options[0].label,
     })
+  }
+
+  #dismissMenu() {
+    this.menuStack.pop()
+    this.menuActive = this.menuStack.length > 0
+  }
+
+  #dismissAllMenus() {
+    this.menuStack = []
+    this.menuActive = false
   }
 
   say(message, cb, rect) {
@@ -1506,35 +1524,38 @@ class Zest extends EventTarget {
   // }
 
   #handleMenuInput(dx, dy, aPress, bPress) {
-    const page = this.menuPages[this.menuPageIx]
+    const menuDepth = this.menuStack.length
+    const menu = this.menuStack[menuDepth - 1]
+    const page = menu.pages[menu.pageIx]
     if (aPress) {
       this.runScript(this.gameScript, 'select', {
-        option: page[this.menuCursorIx].label,
+        option: page[menu.cursorIx].label,
       })
-      this.menuActive = false
-      page[this.menuCursorIx].action()
+      page[menu.cursorIx].action()
+      if (this.menuStack.length == menuDepth) {
+        this.#dismissAllMenus()
+      }
     } else if (bPress) {
-      if (this.config.allowDismissRootMenu == 1) {
+      if (menuDepth > 1 || this.config.allowDismissRootMenu == 1) {
+        this.#dismissMenu()
         this.runScript(this.gameScript, 'dismiss')
-        this.menuActive = false
       } else {
         // @TODO this should only be called for ASK?
         this.runScript(this.gameScript, 'invalid')
       }
     } else if (dx > 0) {
-      this.menuPageIx = (this.menuPageIx + 1) % this.menuPages.length
+      menu.pageIx = (menu.pageIx + 1) % menu.pages.length
     } else if (dx < 0) {
-      this.menuPageIx =
-        (this.menuPageIx - 1 + this.menuPages.length) % this.menuPages.length
+      menu.pageIx = (menu.pageIx - 1 + menu.pages.length) % menu.pages.length
     } else if (dy > 0) {
-      this.menuCursorIx = (this.menuCursorIx + 1) % page.length
+      menu.cursorIx = (menu.cursorIx + 1) % page.length
     } else if (dy < 0) {
-      this.menuCursorIx = (this.menuCursorIx - 1 + page.length) % page.length
+      menu.cursorIx = (menu.cursorIx - 1 + page.length) % page.length
     }
 
     if (dx !== 0 || dy !== 0) {
       this.runScript(this.gameScript, 'change', {
-        option: page[this.menuCursorIx].label,
+        option: page[menu.cursorIx].label,
       })
     }
   }
@@ -1656,18 +1677,23 @@ class Zest extends EventTarget {
 
     if (this.menuActive) {
       // @TODO menus can stack!
-      const [wx, wy, ww, wh] = this.menuWindowSize
-      const showArrow = this.menuPages.length > 1
-      this.#renderWindow(wx, wy, ww + 3, wh + 2, showArrow && PipeIndex.PAGES)
-      const lines = this.menuPages[this.menuPageIx]
-      for (let i = 0; i < lines.length; i++) {
-        this.#drawText(lines[i].label, wx + 2, wy + 1 + i, ww)
-      }
-      this.#drawFrame(
-        this.cart.font.pipe[PipeIndex.CURSOR],
-        wx + 1,
-        wy + 1 + this.menuCursorIx
-      )
+      const lastIx = this.menuStack.length - 1
+      this.menuStack.forEach((menu, ix) => {
+        const [wx, wy, ww, wh] = menu.windowSize
+        const showArrow = menu.pages.length > 1
+        this.#renderWindow(wx, wy, ww + 3, wh + 2, showArrow && PipeIndex.PAGES)
+        const lines = menu.pages[menu.pageIx]
+        for (let i = 0; i < lines.length; i++) {
+          this.#drawText(lines[i].label, wx + 2, wy + 1 + i, ww)
+        }
+        this.#drawFrame(
+          this.cart.font.pipe[
+            ix == lastIx ? PipeIndex.CURSOR : PipeIndex.CURSOR_INACTIVE
+          ],
+          wx + 1,
+          wy + 1 + menu.cursorIx
+        )
+      })
     }
 
     this.#drawToCanvas()
