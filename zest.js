@@ -831,30 +831,30 @@ class Zest extends EventTarget {
         if (this.calledDone) return
         res.push(run(body[i]))
       }
-      return res
+      return res.flat()
     } else if (op === 'if') {
       const [condition, iftrue, ...elses] = args
       const res = run(condition)
       if (res) {
-        run(iftrue)
+        return run(iftrue)
       } else {
         for (let i = 0; i < elses.length; i++) {
           const branch = elses[i]
           if (branch[0] === 'else') {
-            run(branch[1])
-            return
+            return run(branch[1])
           } else if (branch[0] === 'elseif' && run(branch[1])) {
-            run(branch[2])
-            return
+            return run(branch[2])
           }
         }
       }
     } else if (op === 'while') {
       const [condition, body] = args
+      const res = []
       while (run(condition)) {
         if (this.calledDone) return
-        run(body)
+        res.push(run(body))
       }
+      return res.flat()
     } else if (op === 'eq') {
       return getValueOf(args[0]) == run(args[1])
     } else if (op === 'neq') {
