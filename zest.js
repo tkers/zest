@@ -571,10 +571,13 @@ class Zest extends EventTarget {
     this.say(
       message,
       () => {
+        this.dialogLinkedToMenu = true
         const [sx, sy, sw, sh] = makeWindowRect(rect)
-        const x = sx + sw - 8
+        const w = Math.min(8, Math.max(...options.map((o) => o.label.length)))
+        const h = options.length < 6 ? options.length : 4
+        const x = sx + sw - w - 2
         const y = sy + sh
-        this.menu(options, { x, y })
+        this.menu(options, { x, y, w, h })
       },
       rect
     )
@@ -612,11 +615,15 @@ class Zest extends EventTarget {
   #dismissAllMenus() {
     this.menuStack = []
     this.menuActive = false
+    if (this.dialogLinkedToMenu) {
+      this.dialogActive = false
+    }
   }
 
   say(message, cb, rect) {
     this.#clearInput()
     this.dialogActive = true
+    this.dialogLinkedToMenu = false
     this.dialogWindowSize = makeWindowRect(rect)
     this.dialogPages = wrapText(
       message,
@@ -649,6 +656,9 @@ class Zest extends EventTarget {
     } else {
       this.dialogActive = false
       this.dialogCb()
+      if (this.dialogLinkedToMenu) {
+        this.dialogActive = true
+      }
     }
     return true
   }
