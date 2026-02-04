@@ -778,6 +778,7 @@ class Zest extends EventTarget {
         this.globals[name] = val
       } else if (parts[0] == 'config') {
         this.config[parts[1]] = val
+        this.#emitEvent('config', { key: parts[1], value: val })
       } else {
         warn(`Not allowed to set: ${name}`)
       }
