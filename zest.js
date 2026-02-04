@@ -571,6 +571,10 @@ class Zest extends EventTarget {
     this.say(
       message,
       () => {
+        if (options.length == 0) {
+          warn('No options available for ask')
+          return
+        }
         this.dialogLinkedToMenu = true
         const [sx, sy, sw, sh] = makeWindowRect(rect)
         const w = Math.min(8, Math.max(...options.map((o) => o.label.length)))
@@ -584,6 +588,11 @@ class Zest extends EventTarget {
   }
 
   menu(options, rect = {}) {
+    if (options.length == 0) {
+      warn('Menu called without any options')
+      return
+    }
+
     this.#clearInput()
 
     const windowSize = [
