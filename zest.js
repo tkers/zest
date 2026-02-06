@@ -1088,7 +1088,9 @@ class Zest extends EventTarget {
       }
     } else if (op === 'play') {
       const newTile = this.getTile(run(args[0]))
-      const delay = FPS / newTile.fps
+      const fpsOriginal = newTile.fpsOriginal ?? newTile.fps
+      const delay = FPS / fpsOriginal
+      newTile.fpsOriginal = fpsOriginal
       newTile.fps = 0
 
       if (context.self == this.playerScript) {
