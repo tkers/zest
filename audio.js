@@ -54,16 +54,56 @@ const enableAudio = () => {
   }
 }
 
-const warnNoise = () =>
-  console.log("[ZestAudio] Voice type 'noise' not yet supported")
+const createNoiseOscillator = () => {
+  let isPlaying = false
+  let freq = 0
+  let current = 0
+  let left = 0
 
-const createVoice = (typeIx, envelope = {}) => {
-  if (typeIx == 4) {
-    // @TODO support Noise
-    return { playNote: warnNoise }
+  const buzzNode = audioCtx.createScriptProcessor(0, 1, 1)
+  const noise = {
+    connect: (n) => buzzNode.connect(n),
+    start: () => {
+      isPlaying = true
+    },
+    stop: (t) => {
+      setTimeout(
+        () => {
+          isPlaying = false
+          buzzNode.disconnect()
+        },
+        1000 * (t - audioCtx.currentTime)
+      )
+    },
+    frequency: {
+      setValueAtTime: (f) => {
+        freq = f
+      },
+    },
   }
 
-  const type = VOICE_TYPES[typeIx]
+  buzzNode.onaudioprocess = (e) => {
+    const out = e.outputBuffer.getChannelData(0)
+    if (!isPlaying) {
+      out.fill(0)
+      return
+    }
+
+    const length = audioCtx.sampleRate / 16 / freq
+    for (let i = 0; i < out.length; i++) {
+      if (left <= 0) {
+        current = Math.random() * 2 - 1
+        left = length
+      }
+      out[i] = current
+      left--
+    }
+  }
+
+  return noise
+}
+
+const createVoice = (typeIx, envelope = {}) => {
   const volume = envelope?.volume ?? 1
   const attack = envelope?.attack ?? DEFAULT_ENVELOPE.attack
   const decay = envelope?.decay ?? DEFAULT_ENVELOPE.decay
@@ -75,8 +115,12 @@ const createVoice = (typeIx, envelope = {}) => {
     if (!audioCtx) return
     const tone = freqForNote(note, oct)
 
-    oscNode = audioCtx.createOscillator()
-    oscNode.type = type
+    if (typeIx < 4) {
+      oscNode = audioCtx.createOscillator()
+      oscNode.type = VOICE_TYPES[typeIx]
+    } else {
+      oscNode = createNoiseOscillator()
+    }
 
     gainNode = audioCtx.createGain()
     gainNode.gain.value = 0
@@ -167,7 +211,7 @@ const playSong = (song, loop, onEnd) => {
     createVoice(1, song.voices?.[1]),
     createVoice(2, song.voices?.[2]),
     createVoice(3, song.voices?.[3]),
-    // createVoice(4, song.voices?.[4]), // @TODO implement noise
+    createVoice(4, song.voices?.[4]),
   ]
 
   const BPM = song.bpm ?? 120
