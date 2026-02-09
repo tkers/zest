@@ -111,7 +111,7 @@ const createVoice = (typeIx, envelope = {}) => {
   const release = envelope?.release ?? DEFAULT_ENVELOPE.release
 
   let oscNode, gainNode
-  const playNote = (note, oct, hold) => {
+  const playNote = (note, oct, hold, time) => {
     if (!audioCtx) return
     const tone = freqForNote(note, oct)
 
@@ -127,7 +127,7 @@ const createVoice = (typeIx, envelope = {}) => {
     oscNode.connect(gainNode)
     gainNode.connect(audioCtx.destination)
 
-    const t0 = audioCtx.currentTime
+    const t0 = time ?? audioCtx.currentTime
     let ta = t0 + attack
     let td = ta + decay
     const ts = t0 + hold
@@ -205,6 +205,9 @@ const setTempo = (bpm) => {
   ZestAudio.__currentSong.tickLength = (1 / 4) * (60 / bpm)
 }
 
+const SCHEDULE_INTERVAL = 50 // 20 FPS (1000ms / 20)
+const SCHEDULE_WINDOW = 0.1 // 100ms ahead, should be >interval
+
 const playSong = (song, loop, onEnd) => {
   const voices = [
     createVoice(0, song.voices?.[0]),
@@ -217,6 +220,7 @@ const playSong = (song, loop, onEnd) => {
   const BPM = song.bpm ?? 120
   const tickLength = (1 / 4) * (60 / BPM)
   let pos = -1
+  let now = audioCtx.currentTime
 
   stopSong()
   const signal = { stop: false, tickLength }
@@ -231,25 +235,30 @@ const playSong = (song, loop, onEnd) => {
       return
     }
 
-    if (++pos >= song.ticks) {
-      if (loop) {
-        pos = song.loopFrom ?? 0
-      } else {
-        return onEnd && onEnd()
+    while (now < audioCtx.currentTime + SCHEDULE_WINDOW) {
+      pos++
+      now += signal.tickLength
+
+      if (pos >= song.ticks) {
+        if (loop) {
+          pos = song.loopFrom ?? 0
+        } else {
+          return onEnd && onEnd()
+        }
+      }
+
+      for (let v = 0; v < voices.length; v++) {
+        const note = song.notes[v][pos * 3]
+        const oct = song.notes[v][pos * 3 + 1]
+        const hold = song.notes[v][pos * 3 + 2]
+
+        if (note > 0) {
+          voices[v].playNote(note, oct, hold * signal.tickLength, now)
+        }
       }
     }
 
-    for (let v = 0; v < voices.length; v++) {
-      const note = song.notes[v][pos * 3]
-      const oct = song.notes[v][pos * 3 + 1]
-      const hold = song.notes[v][pos * 3 + 2]
-
-      if (note > 0) {
-        voices[v].playNote(note, oct, hold * signal.tickLength)
-      }
-    }
-
-    setTimeout(nextTick, signal.tickLength * 1000)
+    setTimeout(nextTick, SCHEDULE_INTERVAL)
   }
 
   nextTick()
