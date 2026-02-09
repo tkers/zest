@@ -92,7 +92,7 @@ const createNoiseOscillator = () => {
     const length = audioCtx.sampleRate / 16 / freq
     for (let i = 0; i < out.length; i++) {
       if (left <= 0) {
-        current = Math.random() * 2 - 1
+        current = Math.random() - 0.5
         left = length
       }
       out[i] = current
