@@ -175,20 +175,27 @@ const playSound = (sound) => {
   const BPM = sound.bpm ?? 120
   const tickLength = (1 / 4) * (60 / BPM)
   let pos = -1
+  let now = audioCtx.currentTime
 
-  // @TODO use audioCtx.currentTime and schedule notes ahead of time
   const nextTick = () => {
-    if (++pos >= sound.ticks) return
+    while (now < audioCtx.currentTime + SCHEDULE_WINDOW) {
+      pos++
+      now += tickLength
 
-    const note = sound.notes[pos * 3]
-    const oct = sound.notes[pos * 3 + 1]
-    const hold = sound.notes[pos * 3 + 2]
+      if (pos >= sound.ticks) {
+        return
+      }
 
-    if (note > 0) {
-      voice.playNote(note, oct, hold * tickLength)
+      const note = sound.notes[pos * 3]
+      const oct = sound.notes[pos * 3 + 1]
+      const hold = sound.notes[pos * 3 + 2]
+
+      if (note > 0) {
+        voice.playNote(note, oct, hold * tickLength, now)
+      }
     }
 
-    setTimeout(nextTick, tickLength * 1000)
+    setTimeout(nextTick, SCHEDULE_INTERVAL)
   }
 
   nextTick()
