@@ -1735,7 +1735,7 @@ class Zest extends EventTarget {
         const ti = tx + ROOM_WIDTH * ty
         const pi = px + CELL_SIZE * py
 
-        const arr = tilemap[ti]
+        const arr = tilemap[ti] ?? this.backgroundTile
         const col = arr[pi]
 
         const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
