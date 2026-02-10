@@ -6,6 +6,7 @@ const inData = document.getElementById('data-in')
 const wrapColor = document.getElementById('color-wrap')
 const inColor = document.getElementById('color-in')
 const inTitle = document.getElementById('title-in')
+const inAutoplay = document.getElementById('autoplay-in')
 const downloadLink = document.getElementById('download-link')
 
 const cardCanvas = document.getElementById('card-view')
@@ -110,6 +111,7 @@ downloadLink.addEventListener('click', (e) => {
   }
 
   const src = zest_template
+    .replace('{{AUTOPLAY}}', inAutoplay.checked ? 'clicked' : '')
     .replace('{{COLOR}}', inColor.value)
     .replace('{{TITLE}}', inTitle.value)
     .replace('{{GAME}}', rawGameData)

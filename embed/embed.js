@@ -1,17 +1,22 @@
 window.addEventListener('load', () => {
   const main = document.getElementsByTagName('main')[0]
   const lcd = document.getElementById('lcd')
+  const autoplay = main.className == 'clicked'
 
   // load and start the game
-  const game = Zest.load(gameData, lcd)
-
-  const clickStart = () => {
-    main.removeEventListener('click', clickStart)
-    main.className = 'clicked'
+  const game = autoplay ? Zest.run(gameData, lcd) : Zest.load(gameData, lcd)
+  main.addEventListener('click', () => {
     ZestAudio.enable()
-    game.play()
+  })
+
+  if (!autoplay) {
+    const clickStart = () => {
+      main.removeEventListener('click', clickStart)
+      main.className = 'clicked'
+      game.play()
+    }
+    main.addEventListener('click', clickStart)
   }
-  main.addEventListener('click', clickStart)
 
   game.attachKeyboard()
   if (typeof attachTouchGestures != 'undefined') {
