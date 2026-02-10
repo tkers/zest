@@ -1,3 +1,5 @@
+/*! Copyright (c) 2026 Tijn Kersjes - MIT License */
+
 const FPS = 20
 const CELL_SIZE = 8
 const ROOM_WIDTH = 25
