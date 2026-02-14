@@ -159,6 +159,8 @@ function wrapText(str, maxWidth, maxLines) {
 }
 
 const randomInt = (lo, hi) => {
+  lo = Math.floor(lo)
+  hi = Math.floor(hi)
   const range = Math.abs(hi - lo + 1)
   return Math.floor(Math.random() * range) + Math.min(lo, hi)
 }
