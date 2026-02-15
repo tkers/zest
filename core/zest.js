@@ -1506,23 +1506,11 @@ class Zest extends EventTarget {
       anythingPressed = true
     }
 
-    if (
-      this.input[Button.A].check(
-        inputRepeat,
-        inputRepeatDelay,
-        inputRepeatBetween
-      )
-    ) {
+    if (this.input[Button.A].check(0)) {
       anythingPressed = true
       confirmPressed = true
     }
-    if (
-      this.input[Button.B].check(
-        inputRepeat,
-        inputRepeatDelay,
-        inputRepeatBetween
-      )
-    ) {
+    if (this.input[Button.B].check(0)) {
       anythingPressed = true
       cancelPressed = true
     }
