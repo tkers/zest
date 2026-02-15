@@ -565,7 +565,7 @@ class Zest extends EventTarget {
   #setFrameAt(x, y, frameIx) {
     const tile = this.getTileAt(x, y)
     const ix = coordToIndex(x, y)
-    this.frameOverrides[ix] = frameIx
+    this.frameOverrides[ix] = clipInt(0, frameIx, tile.frames.length - 1)
   }
 
   #getFrameAt(x, y) {
@@ -1614,8 +1614,11 @@ class Zest extends EventTarget {
     return this.#renderFrame(getCurrentFrameForTile(tile, this.frameIx), x, y)
   }
 
-  #renderFrame(frame, x, y, halfWidth) {
-    if (!frame) return
+  #renderFrame(frame, x, y, halfWidth = 1) {
+    if (!frame) {
+      warn('Missing bitmap data in renderFrame')
+      return
+    }
     const data = this.imgData.data
     // assumes 8x8 frames in Array(64)
     for (let i = 0; i < 64; i++) {
