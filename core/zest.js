@@ -1532,6 +1532,7 @@ class Zest extends EventTarget {
 
     if (this.menuActive) {
       this.#handleMenuInput(dx, dy, confirmPressed, cancelPressed)
+      this.#clearInput()
       return
     }
 
