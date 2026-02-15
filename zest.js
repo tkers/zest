@@ -339,6 +339,8 @@ class Zest extends EventTarget {
     this.icon = data.card !== -1 ? data.rooms[data.icon] : null
     this.start = data.rooms[data.player.room]
 
+    this.charWidth = data.font.type === 0 ? 0.5 : 1
+
     this.gameScript = data.scripts[data.script]?.data
     this.playerScript = data.player.tile.script
 
@@ -641,7 +643,7 @@ class Zest extends EventTarget {
     this.dialogWindowSize = makeWindowRect(rect)
     this.dialogPages = wrapText(
       message,
-      this.dialogWindowSize[2],
+      this.dialogWindowSize[2] / this.charWidth,
       this.dialogWindowSize[3]
     )
     this.dialogText = this.dialogPages.shift()
@@ -1595,12 +1597,13 @@ class Zest extends EventTarget {
     return this.#renderFrame(getCurrentFrameForTile(tile, this.frameIx), x, y)
   }
 
-  #renderFrame(frame, x, y) {
+  #renderFrame(frame, x, y, halfWidth) {
     const data = this.imgData.data
     // assumes 8x8 frames in Array(64)
     for (let i = 0; i < 64; i++) {
       const col = frame[i]
       if (col == 2) continue // transparent
+      if (i % 8 >= halfWidth * 8) continue
       const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
 
       const px = 8 * x + (i % 8)
@@ -1669,8 +1672,8 @@ class Zest extends EventTarget {
         (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
-      this.#renderFrame(frame, xx, yy)
-      xx++
+      this.#renderFrame(frame, xx, yy, this.charWidth)
+      xx += this.charWidth
     }
   }
 
@@ -1683,7 +1686,7 @@ class Zest extends EventTarget {
         (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
-      this.#renderFrame(frame, x + i, y)
+      this.#renderFrame(frame, x + i * this.charWidth, y, this.charWidth)
     }
   }
 
