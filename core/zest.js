@@ -1429,6 +1429,11 @@ class Zest extends EventTarget {
     if (ra !== 0) {
       this.#runPlayerScript('crank')
     }
+    /*
+    crank event should not fire when dialog/menu is open I think?
+    but turning 180 deg or something should close the dialog?
+    maybe move this to inputhandler somehow
+    */
   }
 
   #clearInput() {
