@@ -1624,9 +1624,9 @@ class Zest extends EventTarget {
       if (i % 8 >= halfWidth * 8) continue
       const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
 
-      const px = 8 * x + (i % 8)
-      const py = 8 * y + ((i / 8) | 0)
-      const pi = 4 * ((px | 0) + (py | 0) * PIXEL_WIDTH)
+      const px = ((8 * x) | 0) + (i % 8)
+      const py = ((8 * y) | 0) + ((i / 8) | 0)
+      const pi = 4 * (px + py * PIXEL_WIDTH)
 
       data[pi] = r
       data[pi + 1] = g
