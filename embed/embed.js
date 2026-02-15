@@ -4,6 +4,7 @@ window.addEventListener('load', () => {
   const autoplay = main.className == 'clicked'
 
   // load and start the game
+  Zest.prototype.log = null
   const game = autoplay ? Zest.run(gameData, lcd) : Zest.load(gameData, lcd)
   main.addEventListener('click', () => {
     ZestAudio.enable()
