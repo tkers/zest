@@ -1057,6 +1057,10 @@ class Zest extends EventTarget {
       const tile = this.getTile(who)
       const where = run(args[1])
       this.#renderTile(tile, where.x, where.y)
+    } else if (op === 'fill') {
+      const col = run(args[0])
+      const { x, y, w, h } = run(args[1])
+      this.#fill(col, x, y, w, h)
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
@@ -1562,6 +1566,28 @@ class Zest extends EventTarget {
       this.runScript(this.gameScript, 'change', {
         option: page[menu.cursorIx].label,
       })
+    }
+  }
+
+  #fill(col, x, y, w, h) {
+    // if (col !== 'white' && col !== 'black') {
+    //   warn(`Unknown colour '${col}' passed to fill`)
+    //   return
+    // }
+
+    const [r, g, b, a] = col == 'white' ? COLOR_WHITE : COLOR_BLACK
+    const right = x + w
+    const bottom = y + h
+
+    const data = this.imgData.data
+    for (let py = y; py < bottom; py++) {
+      for (let px = x; px < w; px++) {
+        const pi = 4 * (px + py * PIXEL_WIDTH)
+        data[pi] = r
+        data[pi + 1] = g
+        data[pi + 2] = b
+        data[pi + 3] = a
+      }
     }
   }
 
