@@ -1615,6 +1615,7 @@ class Zest extends EventTarget {
   }
 
   #renderFrame(frame, x, y, halfWidth) {
+    if (!frame) return
     const data = this.imgData.data
     // assumes 8x8 frames in Array(64)
     for (let i = 0; i < 64; i++) {
@@ -1686,9 +1687,9 @@ class Zest extends EventTarget {
       }
       if (glyph == 10) continue // ignore nl (prewrapped text)
       const frame =
-        (glyph > 128
+        glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
-          : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
+          : this.cart.font.chars[glyph - 32]
       this.#renderFrame(frame, xx, yy, this.charWidth)
       xx += this.charWidth
     }
@@ -1700,9 +1701,9 @@ class Zest extends EventTarget {
       let glyph = text.charCodeAt(i)
       if (glyph == 10 || glyph == 12) continue // skip nl and ff
       const frame =
-        (glyph > 128
+        glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
-          : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
+          : this.cart.font.chars[glyph - 32]
       this.#renderFrame(frame, x + i * this.charWidth, y, this.charWidth)
     }
   }
