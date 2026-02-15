@@ -1540,12 +1540,14 @@ class Zest extends EventTarget {
 
     if (this.isIgnored) return
 
+    if (confirmPressed) {
+      this.#runPlayerScript('confirm')
+    }
+    if (cancelPressed) {
+      this.#runPlayerScript('cancel')
+    }
     if (dx !== 0 || dy !== 0) {
       this.#movePlayer(dx, dy)
-    } else if (confirmPressed) {
-      this.#runPlayerScript('confirm')
-    } else if (cancelPressed) {
-      this.#runPlayerScript('cancel')
     }
   }
 
