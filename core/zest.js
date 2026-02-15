@@ -309,9 +309,9 @@ class Zest extends EventTarget {
       inputRepeatBetween: 0.2,
       autoAct: 1,
       allowDismissRootMenu: 0,
-      // follow: false,
-      // followCenterX: 12,
-      // followCenterY: 7,
+      follow: 0,
+      followCenterX: 12,
+      followCenterY: 7,
       // followOverflowTile: 'black',
     }
 
@@ -1705,7 +1705,15 @@ class Zest extends EventTarget {
   }
 
   render() {
+    const inPlayerRoom = this.room.id == this.player.room
     const [cLeft, cTop, cRight, cBottom] = this.cropArea
+
+    let camX = 0
+    let camY = 0
+    if (this.config.follow === 1 && inPlayerRoom) {
+      camX = this.config.followCenterX - this.player.x
+      camY = this.config.followCenterY - this.player.y
+    }
 
     // room background
     this.room.tiles.forEach((tile, ix) => {
@@ -1716,18 +1724,23 @@ class Zest extends EventTarget {
           this.frameOverrides[ix] ??
             getCurrentFrameIndexForTile(tile, this.frameIx)
         ]
-      this.#renderFrame(frame, x, y)
+      this.#renderFrame(frame, x + camX, y + camY)
     })
 
     // display player
-    if (this.isRunning && this.room.id == this.player.room) {
+    if (this.isRunning && inPlayerRoom) {
       this.isHidden = false
       this.#runPlayerScript('draw')
       if (!this.isHidden) {
         const playerFrame = isDefined(this.player.frameIx)
           ? this.player.visual.frames[this.player.frameIx]
           : getCurrentFrameForTile(this.player.visual, this.frameIx)
-        this.#renderFrame(playerFrame, this.player.x, this.player.y)
+
+        this.#renderFrame(
+          playerFrame,
+          this.player.x + camX,
+          this.player.y + camY
+        )
       }
     }
 
