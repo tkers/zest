@@ -165,6 +165,8 @@ const randomInt = (lo, hi) => {
   return Math.floor(Math.random() * range) + Math.min(lo, hi)
 }
 
+const clipInt = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
+
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
 
@@ -295,7 +297,7 @@ class Zest extends EventTarget {
     this.dialogActive = false
     this.menuActive = false
     this.menuStack = []
-    this.tileBuffer = []
+    this.cropArea = [0, 0, 25, 15]
     this.imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
 
     this.config = {
@@ -1063,6 +1065,13 @@ class Zest extends EventTarget {
       const col = run(args[0])
       const { x, y, w, h } = run(args[1])
       this.#fill(col, x, y, w, h)
+    } else if (op === 'crop') {
+      const { x, y, w, h } = run(args[0])
+      // const cLeft = clipInt(0, x, ROOM_WIDTH)
+      // const cTop = clipInt(0, x, ROOM_HEIGHT)
+      // const cRight = clipInt(0, cLeft + w, ROOM_WIDTH)
+      // const cBottom = clipInt(0, cTop + h, ROOM_HEIGHT)
+      this.cropArea = [x, y, x + w, y + h]
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
@@ -1696,9 +1705,12 @@ class Zest extends EventTarget {
   }
 
   render() {
+    const [cLeft, cTop, cRight, cBottom] = this.cropArea
+
     // room background
     this.room.tiles.forEach((tile, ix) => {
       const [x, y] = indexToCoord(ix)
+      if (x < cLeft || x > cRight || y < cTop || y > cBottom) return
       const frame =
         tile.frames[
           this.frameOverrides[ix] ??
