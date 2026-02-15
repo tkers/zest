@@ -296,6 +296,7 @@ class Zest extends EventTarget {
     this.menuActive = false
     this.menuStack = []
     this.tileBuffer = []
+    this.imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
 
     this.config = {
       sayAdvanceDelay: 0.2,
@@ -1050,12 +1051,12 @@ class Zest extends EventTarget {
     } else if (op === 'label') {
       const text = run(args[0])
       const pos = run(args[1])
-      this.#drawText(text, pos.x, pos.y)
+      this.#renderText(text, pos.x, pos.y)
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
       const where = run(args[1])
-      this.#drawTile(tile, where.x, where.y)
+      this.#renderTile(tile, where.x, where.y)
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
@@ -1527,27 +1528,6 @@ class Zest extends EventTarget {
     }
   }
 
-  // drawFrame(frame, x, y, pixels) {
-  //   const tx = x * 8
-  //   const ty = y * 8
-
-  //   for (let y = 0; y < 8; y++) {
-  //     for (let x = 0; x < 8; x++) {
-  //       const col = frame[x + y * 8]
-
-  //       if (col == 2) continue // transparent
-  //       let [r, g, b, a] = COLOR_WHITE
-  //       if (col == 1) [r, g, b, a] = COLOR_BLACK
-
-  //       let ix = tx + x + (ty + y) * PIXEL_WIDTH
-  //       pixels[ix * 4] = r
-  //       pixels[ix * 4 + 1] = g
-  //       pixels[ix * 4 + 2] = b
-  //       pixels[ix * 4 + 3] = a
-  //     }
-  //   }
-  // }
-
   #handleMenuInput(dx, dy, aPress, bPress) {
     const menuDepth = this.menuStack.length
     const menu = this.menuStack[menuDepth - 1]
@@ -1585,49 +1565,64 @@ class Zest extends EventTarget {
     }
   }
 
-  #drawTile(tile, x, y) {
-    const ix = coordToIndex(x, y)
-    const frame = getCurrentFrameForTile(tile, this.frameIx)
-    this.tileBuffer[ix] = frame
+  #renderTile(tile, x, y) {
+    return this.#renderFrame(getCurrentFrameForTile(tile, this.frameIx), x, y)
   }
 
-  #drawFrame(frame, x, y) {
-    const ix = coordToIndex(x, y)
-    this.tileBuffer[ix] = frame
+  #renderFrame(frame, x, y) {
+    const data = this.imgData.data
+    // assumes 8x8 frames in Array(64)
+    for (let i = 0; i < 64; i++) {
+      const col = frame[i]
+      if (col == 2) continue // transparent
+      const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
+
+      const px = 8 * x + (i % 8)
+      const py = 8 * y + ((i / 8) | 0)
+      const pi = 4 * (px + py * PIXEL_WIDTH)
+
+      data[pi] = r
+      data[pi + 1] = g
+      data[pi + 2] = b
+      data[pi + 3] = a
+    }
   }
 
   #renderWindow(x, y, w, h, arrowIx) {
-    const tilemap = this.tileBuffer
     const left = x
     const right = x + w - 1
     const top = y
     const bottom = y + h - 1
 
-    tilemap[coordToIndex(left, top)] = this.cart.font.pipe[0] // top left corner
-    tilemap[coordToIndex(right, top)] = this.cart.font.pipe[2] // top right corner
+    // top left/right corner
+    this.#renderFrame(this.cart.font.pipe[0], left, top)
+    this.#renderFrame(this.cart.font.pipe[2], right, top)
 
     // horizontal border
     for (let dx = 1; dx < w - 1; dx++) {
-      tilemap[coordToIndex(left + dx, top)] = this.cart.font.pipe[1]
-      tilemap[coordToIndex(left + dx, bottom)] = this.cart.font.pipe[7]
+      this.#renderFrame(this.cart.font.pipe[1], left + dx, top)
+      this.#renderFrame(this.cart.font.pipe[7], left + dx, bottom)
     }
 
     // vertical border
     for (let dy = 1; dy < h; dy++) {
-      tilemap[coordToIndex(left, top + dy)] = this.cart.font.pipe[3]
-      tilemap[coordToIndex(right, top + dy)] = this.cart.font.pipe[5]
+      this.#renderFrame(this.cart.font.pipe[3], left, top + dy)
+      this.#renderFrame(this.cart.font.pipe[5], right, top + dy)
     }
 
-    tilemap[coordToIndex(left, bottom)] = this.cart.font.pipe[6] // bottom left corner
-    tilemap[coordToIndex(right, bottom)] = this.cart.font.pipe[8] // bottom right corner
+    // bottom left/right corner
+    this.#renderFrame(this.cart.font.pipe[6], left, bottom)
+    this.#renderFrame(this.cart.font.pipe[8], right, bottom)
 
+    // arrow or pagination glyph
     if (arrowIx) {
-      tilemap[coordToIndex(right - 1, bottom)] = this.cart.font.pipe[arrowIx] // arrow
+      this.#renderFrame(this.cart.font.pipe[arrowIx], right - 1, bottom)
     }
 
+    // background fill
     for (let yy = top + 1; yy < bottom; yy++) {
       for (let xx = left + 1; xx < right; xx++) {
-        tilemap[coordToIndex(xx, yy)] = this.cart.font.pipe[4]
+        this.#renderFrame(this.cart.font.pipe[4], xx, yy)
       }
     }
   }
@@ -1644,35 +1639,39 @@ class Zest extends EventTarget {
         yy++
       }
       if (glyph == 10) continue // ignore nl (prewrapped text)
-      this.tileBuffer[coordToIndex(xx, yy)] =
+      const frame =
         (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
+      this.#renderFrame(frame, xx, yy)
       xx++
     }
   }
 
-  #drawText(text, x, y, w) {
+  #renderText(text, x, y, w) {
     const limit = w ? Math.min(text.length, w) : text.length
     for (let i = 0; i < limit; i++) {
       let glyph = text.charCodeAt(i)
       if (glyph == 10 || glyph == 12) continue // skip nl and ff
-      this.tileBuffer[coordToIndex(x + i, y)] =
+      const frame =
         (glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]) ?? this.backgroundTile
+      this.#renderFrame(frame, x + i, y)
     }
   }
 
   render() {
-    // get the current snapshot of a room, as an array of frames
-    this.tileBuffer = this.room.tiles.map(
-      (tile, ix) =>
+    // room background
+    this.room.tiles.forEach((tile, ix) => {
+      const [x, y] = indexToCoord(ix)
+      const frame =
         tile.frames[
           this.frameOverrides[ix] ??
             getCurrentFrameIndexForTile(tile, this.frameIx)
         ]
-    )
+      this.#renderFrame(frame, x, y)
+    })
 
     // display player
     if (this.isRunning && this.room.id == this.player.room) {
@@ -1682,11 +1681,7 @@ class Zest extends EventTarget {
         const playerFrame = isDefined(this.player.frameIx)
           ? this.player.visual.frames[this.player.frameIx]
           : getCurrentFrameForTile(this.player.visual, this.frameIx)
-        const ti = coordToIndex(this.player.x, this.player.y)
-        // add background tile to transparent areas
-        this.tileBuffer[ti] = playerFrame.map((fg, pi) =>
-          fg == 2 ? this.tileBuffer[ti][pi] : fg
-        )
+        this.#renderFrame(playerFrame, this.player.x, this.player.y)
       }
     }
 
@@ -1700,8 +1695,8 @@ class Zest extends EventTarget {
       this.#renderSayText(wx + 1, wy + 1, ww, wh)
     }
 
+    // draw menu (stacking)
     if (this.menuActive) {
-      // @TODO menus can stack!
       const lastIx = this.menuStack.length - 1
       this.menuStack.forEach((menu, ix) => {
         const [wx, wy, ww, wh] = menu.windowSize
@@ -1709,9 +1704,9 @@ class Zest extends EventTarget {
         this.#renderWindow(wx, wy, ww + 3, wh + 2, showArrow && PipeIndex.PAGES)
         const lines = menu.pages[menu.pageIx]
         for (let i = 0; i < lines.length; i++) {
-          this.#drawText(lines[i].label, wx + 2, wy + 1 + i, ww)
+          this.#renderText(lines[i].label, wx + 2, wy + 1 + i, ww)
         }
-        this.#drawFrame(
+        this.#renderFrame(
           this.cart.font.pipe[
             ix == lastIx ? PipeIndex.CURSOR : PipeIndex.CURSOR_INACTIVE
           ],
@@ -1721,41 +1716,17 @@ class Zest extends EventTarget {
       })
     }
 
-    this.#drawToCanvas()
+    if (this.ctx2d) {
+      this.#renderToCanvas()
+    }
   }
 
-  #drawToCanvas() {
-    const tilemap = this.tileBuffer
-    const imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
-    const pixels = imgData.data
-
-    for (let y = 0; y < PIXEL_HEIGHT; y++) {
-      const ty = Math.floor(y / CELL_SIZE)
-      const py = y % CELL_SIZE
-      for (let x = 0; x < PIXEL_WIDTH; x++) {
-        const tx = Math.floor(x / CELL_SIZE)
-        const px = x % CELL_SIZE
-
-        const ti = tx + ROOM_WIDTH * ty
-        const pi = px + CELL_SIZE * py
-
-        const arr = tilemap[ti] ?? this.backgroundTile
-        const col = arr[pi]
-
-        const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
-
-        let ix = x + y * PIXEL_WIDTH
-        pixels[ix * 4] = r
-        pixels[ix * 4 + 1] = g
-        pixels[ix * 4 + 2] = b
-        pixels[ix * 4 + 3] = a
-      }
-    }
+  #renderToCanvas() {
     let [shakeX, shakeY] = [0, 0]
     if (this.isShaking && !this.menuActive && !this.dialogActive) {
       ;[shakeX, shakeY] = [randomInt(-2, 2), randomInt(-2, 2)]
     }
     this.ctx2d.clearRect(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
-    this.ctx2d.putImageData(imgData, shakeX, shakeY)
+    this.ctx2d.putImageData(this.imgData, shakeX, shakeY)
   }
 }
