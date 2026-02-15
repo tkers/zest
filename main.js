@@ -30,7 +30,6 @@ window.addEventListener('load', () => {
   authorLabel.innerText = game.meta.author || 'anonymous'
 
   game.attachKeyboard({ z: Button.B, x: Button.A })
-  attachTouchGestures(lcd)
 
   game.addEventListener('pause', () => (lcd.className = 'paused'))
   game.addEventListener('resume', () => (lcd.className = ''))

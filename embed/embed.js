@@ -20,7 +20,4 @@ window.addEventListener('load', () => {
   }
 
   game.attachKeyboard()
-  if (typeof attachTouchGestures != 'undefined') {
-    attachTouchGestures(lcd)
-  }
 })

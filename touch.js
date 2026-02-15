@@ -1,37 +1,54 @@
-let touchDownX = null
-let touchDownY = null
+Zest.register((game) => {
+  const SWIPE_DEADZONE = 16
 
-const handleTouchStart = (evt) => {
-  const firstTouch = evt.touches[0]
-  touchDownX = firstTouch.clientX
-  touchDownY = firstTouch.clientY
-}
-
-const handleTouchMove = (evt) => {
-  if (!touchDownX || !touchDownY) {
-    return
+  let touchDownX = null
+  let touchDownY = null
+  let touchDownC = -1
+  const handleTouchStart = (evt) => {
+    const firstTouch = evt.touches[0]
+    touchDownX = firstTouch.clientX
+    touchDownY = firstTouch.clientY
+    touchDownC = evt.touches.length
   }
 
-  const dx = touchDownX - evt.touches[0].clientX
-  const dy = touchDownY - evt.touches[0].clientY
-  if (Math.abs(dx) > Math.abs(dy)) {
-    emulateKeyPress(dx > 0 ? 'ArrowLeft' : 'ArrowRight')
-  } else {
-    emulateKeyPress(dy > 0 ? 'ArrowUp' : 'ArrowDown')
+  const handleTouchEnd = (evt) => {
+    if (touchDownX === null || touchDownY === null) {
+      return
+    }
+
+    const endTouch = evt.changedTouches[0]
+    const dx = touchDownX - endTouch.clientX
+    const dy = touchDownY - endTouch.clientY
+    const wasDouble = touchDownC >= 2
+
+    touchDownX = null
+    touchDownY = null
+    touchDownC = -1
+
+    if (wasDouble) {
+      emulateKeyPress(Button.B)
+      return
+    }
+
+    const adx = Math.abs(dx)
+    const ady = Math.abs(dy)
+    if (adx < SWIPE_DEADZONE && ady < SWIPE_DEADZONE) {
+      emulateKeyPress(Button.A)
+      return
+    }
+
+    if (adx > ady) {
+      emulateKeyPress(dx > 0 ? Button.LEFT : Button.RIGHT)
+    } else {
+      emulateKeyPress(dy > 0 ? Button.UP : Button.DOWN)
+    }
   }
 
-  touchDownX = null
-  touchDownY = null
-}
+  const emulateKeyPress = (key) => {
+    game.pressKey(key)
+    setTimeout(() => game.releaseKey(key), 1)
+  }
 
-const emulateKeyPress = (key) => {
-  window.dispatchEvent(new KeyboardEvent('keydown', { key }))
-  setTimeout(() => {
-    window.dispatchEvent(new KeyboardEvent('keyup', { key }))
-  }, 50)
-}
-
-function attachTouchGestures(elem) {
-  elem.addEventListener('touchstart', handleTouchStart, false)
-  elem.addEventListener('touchmove', handleTouchMove, false)
-}
+  game.canvas?.addEventListener('touchstart', handleTouchStart, false)
+  game.canvas?.addEventListener('touchend', handleTouchEnd, false)
+})
