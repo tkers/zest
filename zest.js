@@ -911,7 +911,7 @@ class Zest extends EventTarget {
         action: () => run(args[2]),
       }
     } else if (op === 'fin') {
-      this.fin(args[0])
+      this.fin(run(args[0]))
     } else if (op === 'log') {
       this.log?.(run(args[0]))
     } else if (op === 'dump') {
