@@ -1605,7 +1605,7 @@ class Zest extends EventTarget {
 
       const px = 8 * x + (i % 8)
       const py = 8 * y + ((i / 8) | 0)
-      const pi = 4 * (px + py * PIXEL_WIDTH)
+      const pi = 4 * ((px | 0) + (py | 0) * PIXEL_WIDTH)
 
       data[pi] = r
       data[pi + 1] = g
