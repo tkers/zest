@@ -54,6 +54,24 @@ const enableAudio = () => {
   }
 }
 
+let audioIntervalWorker
+const onAudioTick = (cb) => {
+  if (!audioIntervalWorker) {
+    const audioIntervalBlob = new Blob(
+      [`setInterval(() => postMessage('tick'), 50)`], // 1000ms / 20 FPS
+      { type: 'text/javascript' }
+    )
+    audioIntervalWorker = new Worker(URL.createObjectURL(audioIntervalBlob))
+  }
+  audioIntervalWorker.onmessage = cb
+}
+const stopAudioTicker = () => {
+  if (!audioIntervalWorker) return
+  audioIntervalWorker.onmessage = null
+  audioIntervalWorker.terminate()
+  audioIntervalWorker = null
+}
+
 const createNoiseOscillator = () => {
   let isPlaying = false
   let freq = 0
@@ -173,7 +191,7 @@ const playSound = (sound) => {
   const voice = createVoice(sound.type, sound.envelope)
 
   const BPM = sound.bpm ?? 120
-  const tickLength = (1 / 4) * (60 / BPM)
+  const tickLength = 15 / BPM // (1 / 4) * (60 / BPM)
   let pos = -1
   let now = audioCtx.currentTime
 
@@ -209,7 +227,7 @@ const stopSong = () => {
 
 const setTempo = (bpm) => {
   if (!ZestAudio.__currentSong) return
-  ZestAudio.__currentSong.tickLength = (1 / 4) * (60 / bpm)
+  ZestAudio.__currentSong.tickLength = 15 / bpm // (1 / 4) * (60 / bpm)
 }
 
 const SCHEDULE_INTERVAL = 50 // 20 FPS (1000ms / 20)
@@ -225,7 +243,7 @@ const playSong = (song, loop, onEnd) => {
   ]
 
   const BPM = song.bpm ?? 120
-  const tickLength = (1 / 4) * (60 / BPM)
+  const tickLength = 15 / BPM // (1 / 4) * (60 / BPM)
   let pos = -1
   let now = audioCtx.currentTime
 
@@ -233,12 +251,12 @@ const playSong = (song, loop, onEnd) => {
   const signal = { stop: false, tickLength }
   ZestAudio.__currentSong = signal
 
-  // @TODO use audioCtx.currentTime and schedule notes ahead of time
   const nextTick = () => {
     if (signal.stop) {
       for (let v = 0; v < voices.length; v++) {
         voices[v].stop()
       }
+      stopAudioTicker()
       return
     }
 
@@ -250,6 +268,7 @@ const playSong = (song, loop, onEnd) => {
         if (loop) {
           pos = song.loopFrom ?? 0
         } else {
+          stopAudioTicker()
           return onEnd && onEnd()
         }
       }
@@ -264,11 +283,9 @@ const playSong = (song, loop, onEnd) => {
         }
       }
     }
-
-    setTimeout(nextTick, SCHEDULE_INTERVAL)
   }
 
-  nextTick()
+  onAudioTick(nextTick)
 }
 
 ZestAudio = {
