@@ -477,9 +477,9 @@ class Zest extends EventTarget {
     if (this.roomTransition) {
       this.#enter(this.roomTransition)
       this.roomTransition = null
+    } else {
+      this.runScript(this.gameScript, 'loop')
     }
-
-    this.runScript(this.gameScript, 'loop')
   }
 
   playCard() {
