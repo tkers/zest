@@ -225,6 +225,16 @@ const stopSong = () => {
   delete ZestAudio.__currentSong
 }
 
+const pauseSong = () => {
+  if (!ZestAudio.__currentSong) return
+  ZestAudio.__currentSong.pause = true
+}
+
+const resumeSong = () => {
+  if (!ZestAudio.__currentSong) return
+  ZestAudio.__currentSong.pause = false
+}
+
 const setTempo = (bpm) => {
   if (!ZestAudio.__currentSong) return
   ZestAudio.__currentSong.tickLength = 15 / bpm // (1 / 4) * (60 / bpm)
@@ -248,10 +258,15 @@ const playSong = (song, loop, onEnd) => {
   let now = audioCtx.currentTime
 
   stopSong()
-  const signal = { stop: false, tickLength }
+  const signal = { stop: false, pause: false, tickLength }
   ZestAudio.__currentSong = signal
 
   const nextTick = () => {
+    if (signal.pause) {
+      now = audioCtx.currentTime
+      return
+    }
+
     if (signal.stop) {
       for (let v = 0; v < voices.length; v++) {
         voices[v].stop()
@@ -290,8 +305,10 @@ const playSong = (song, loop, onEnd) => {
 
 ZestAudio = {
   enable: enableAudio,
-  playSound: playSound,
-  playSong: playSong,
-  stopSong: stopSong,
-  setTempo: setTempo,
+  playSound,
+  playSong,
+  stopSong,
+  pauseSong,
+  resumeSong,
+  setTempo,
 }

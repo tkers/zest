@@ -538,6 +538,7 @@ class Zest extends EventTarget {
     if (!this.isRunning) return
     this.#clearInput()
     this.isPaused = !this.isPaused
+    ;(this.isPaused ? ZestAudio.pauseSong : ZestAudio.resumeSong)()
     this.#emitEvent(this.isPaused ? 'pause' : 'resume')
     return this.isPaused
   }
