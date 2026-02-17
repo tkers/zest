@@ -1072,7 +1072,7 @@ class Zest extends EventTarget {
       // const cTop = clipInt(0, x, ROOM_HEIGHT)
       // const cRight = clipInt(0, cLeft + w, ROOM_WIDTH)
       // const cBottom = clipInt(0, cTop + h, ROOM_HEIGHT)
-      this.cropArea = [x, y, x + w, y + h]
+      this.cropArea = [x, y, x + w - 1, y + h - 1]
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
       ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
@@ -1701,6 +1701,9 @@ class Zest extends EventTarget {
   }
 
   render() {
+    // clear first?
+    this.imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
+
     const inPlayerRoom = this.room.id == this.player.room
     const [cLeft, cTop, cRight, cBottom] = this.cropArea
 
