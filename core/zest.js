@@ -1589,7 +1589,7 @@ class Zest extends EventTarget {
 
     const data = this.imgData.data
     for (let py = y; py < bottom; py++) {
-      for (let px = x; px < w; px++) {
+      for (let px = x; px < right; px++) {
         const pi = 4 * (px + py * PIXEL_WIDTH)
         data[pi] = r
         data[pi + 1] = g
