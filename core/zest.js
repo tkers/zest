@@ -105,7 +105,8 @@ class ButtonState {
 }
 
 const noop = () => {}
-const isDefined = (x) => typeof x !== 'undefined'
+const isDefined = (x) => typeof x !== 'undefined' && x !== null
+
 const chunkify = (elements, chunkSize) => {
   const res = []
   for (let i = 0; i < elements.length; i += chunkSize) {
@@ -366,6 +367,8 @@ class Zest extends EventTarget {
     this.player.visual = this.player.tile
     this.room = this.card
     this.roomTransition = null
+    this.roomTransitionX = null
+    this.roomTransitionY = null
     this.frameOverrides = {}
 
     this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
@@ -475,8 +478,14 @@ class Zest extends EventTarget {
     this.event.frame = this.frameIx
 
     if (this.roomTransition) {
-      this.#enter(this.roomTransition)
+      this.#enter(
+        this.roomTransition,
+        this.roomTransitionX,
+        this.roomTransitionY
+      )
       this.roomTransition = null
+      this.roomTransitionX = null
+      this.roomTransitionY = null
     } else {
       this.runScript(this.gameScript, 'loop')
     }
@@ -1280,12 +1289,24 @@ class Zest extends EventTarget {
     }
   }
 
-  #enter(room) {
+  #enter(room, x, y) {
     this.room = room
     this.frameOverrides = {}
 
     this.player.room = this.room.id
     this.event.room = this.room.name
+
+    if (isDefined(x) && isDefined(y)) {
+      this.player.x = x
+      this.player.y = y
+      this.event = {
+        ...this.event,
+        px: x,
+        py: y,
+        tx: x,
+        ty: y,
+      }
+    }
 
     // ENTER event
     this.#changeLoop(this.room.song)
@@ -1299,18 +1320,18 @@ class Zest extends EventTarget {
 
       this.store()
       this.roomTransition = this.getRoom(room)
-    }
-
-    this.player.x = x
-    this.player.y = y
-
-    this.event = {
-      ...this.event,
-      room: this.room.name,
-      px: x,
-      py: y,
-      tx: x,
-      ty: y,
+      this.roomTransitionX = x
+      this.roomTransitionY = y
+    } else {
+      this.player.x = x
+      this.player.y = y
+      this.event = {
+        ...this.event,
+        px: x,
+        py: y,
+        tx: x,
+        ty: y,
+      }
     }
   }
 
