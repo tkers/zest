@@ -28,12 +28,13 @@ const PipeIndex = {
   PAGES: 13,
 }
 
-const makeWindowRect = (rect = {}) => [
-  rect.x ?? 3,
-  rect.y ?? 3,
-  rect.w ?? 17,
-  rect.h ?? 4,
-]
+const makeWindowRect = (rect = {}) => {
+  const x = clipInt(0, rect.x ?? 3, ROOM_WIDTH - 1)
+  const y = clipInt(0, rect.y ?? 3, ROOM_HEIGHT - 1)
+  const w = clipInt(0, rect.w ?? 17, ROOM_WIDTH - 2 - x)
+  const h = clipInt(0, rect.h ?? 4, ROOM_HEIGHT - 2 - y)
+  return [x, y, w, h]
+}
 
 function warn(message) {
   console.warn(`[WARN] ${message}`)
