@@ -987,25 +987,25 @@ class Zest extends EventTarget {
       if (magic === 'player') {
         return this.runExpression(args[1], blocks, {
           ...context,
-          x: this.player.x,
-          y: this.player.y,
+          // x: this.player.x,
+          // y: this.player.y,
           tile: this.player.tile.name,
           self: this.playerScript,
         })
       } else if (magic === 'room') {
         return this.runExpression(args[1], blocks, {
           ...context,
-          x: undefined,
-          y: undefined,
-          tile: undefined,
+          // x: undefined,
+          // y: undefined,
+          // tile: undefined,
           self: this.room.script,
         })
       } else if (magic === 'game') {
         return this.runExpression(args[1], blocks, {
           ...context,
-          x: undefined,
-          y: undefined,
-          tile: undefined,
+          // x: undefined,
+          // y: undefined,
+          // tile: undefined,
           self: this.gameScript,
         })
       }
@@ -1024,26 +1024,29 @@ class Zest extends EventTarget {
         const tile = this.getTile(who)
         return this.runExpression(args[1], blocks, {
           ...context,
-          x: undefined,
-          y: undefined,
+          // x: undefined,
+          // y: undefined,
           tile,
           self: tile.script,
         })
       }
     } else if (op === 'call') {
       if (context.self == this.playerScript) {
-        this.#runPlayerScript(run(args[0]))
+        this.#runPlayerScript(run(args[0]), context)
       } else {
         this.runScript(context.self, run(args[0]), context)
       }
     } else if (op === 'emit') {
-      this.emit(run(args[0]))
+      this.emit(run(args[0]), context)
     } else if (op === 'act') {
       this.act()
     } else if (op === 'mimic') {
       const who = run(args[0])
       const tile = this.getTile(who)
-      this.runScript(tile.script, context.name, { context, self: tile.script })
+      this.runScript(tile.script, context.name, {
+        ...context,
+        self: tile.script,
+      })
     } else if (op === 'goto') {
       const { x, y } = run(args[0])
       this.goto(x, y, run(args[1]))
