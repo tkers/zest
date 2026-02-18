@@ -967,8 +967,20 @@ class Zest extends EventTarget {
       const [x, y] = args
       return { x: run(x) | 0, y: run(y) | 0 }
     } else if (op === 'rect') {
-      const [x, y, w, h] = args
-      return { x: run(x), y: run(y), w: run(w), h: run(h) }
+      const [xx, yy, ww, hh] = args
+      let x = run(xx) | 0
+      let y = run(yy) | 0
+      let w = run(ww) | 0
+      let h = run(hh) | 0
+      if (w < 0) {
+        w *= -1
+        x -= w
+      }
+      if (h < 0) {
+        h *= -1
+        y -= h
+      }
+      return { x, y, w, h }
     } else if (op === 'tell') {
       // parse manually because run() would return the name as string
       const magic = findSpecialGetter(args[0])
