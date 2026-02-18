@@ -965,7 +965,7 @@ class Zest extends EventTarget {
       }
     } else if (op === 'xy') {
       const [x, y] = args
-      return { x: run(x), y: run(y) }
+      return { x: run(x) | 0, y: run(y) | 0 }
     } else if (op === 'rect') {
       const [x, y, w, h] = args
       return { x: run(x), y: run(y), w: run(w), h: run(h) }
