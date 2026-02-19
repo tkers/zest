@@ -470,6 +470,9 @@ class Zest extends EventTarget {
   #loop() {
     if (this.isPaused) return
 
+    // these should always run
+    this.#updateInput()
+
     // keep world suspended while a window is open
     if (!this.menuActive && !this.dialogActive) {
       this.#tick()
@@ -488,8 +491,6 @@ class Zest extends EventTarget {
       }
     }
 
-    // these should always run
-    this.#updateInput()
     this.render()
   }
 
@@ -741,13 +742,13 @@ class Zest extends EventTarget {
   }
 
   #scheduleFrameTimer(cb, frameDelay) {
-    const atFrame = this.frameIx + (frameDelay <= 1 ? 1 : Math.ceil(frameDelay))
+    const atFrame = this.frameIx + 1 + Math.floor(frameDelay)
     let list = this.timers[atFrame]
     if (!list) {
       list = []
       this.timers[atFrame] = list
     }
-    list.push(cb)
+    list.unshift(cb)
   }
 
   #runFrameTimers() {
