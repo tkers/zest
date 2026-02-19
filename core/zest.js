@@ -851,8 +851,6 @@ class Zest extends EventTarget {
       } else if (parts.length === 2) {
         if (parts[0] === 'event') {
           if (name == 'event.self') return 0 // internal variable
-          if (name == 'event.px') return this.player.x
-          if (name == 'event.py') return this.player.y
           return context[parts[1]] ?? 0 // extended from this.event
         } else if (parts[0] === 'config') {
           return this.config[parts[1]] ?? 0
@@ -884,6 +882,8 @@ class Zest extends EventTarget {
       setValueOf(name, update(getValueOf(name)))
 
     const run = (e) => this.runExpression(e, blocks, context)
+    const runLater = (e) =>
+      this.runExpression(e, blocks, { ...context, ...this.event })
     const [op, ...args] = expr
 
     if (op === '_') {
@@ -1093,13 +1093,13 @@ class Zest extends EventTarget {
       this.goto(x, y, args[1] && run(args[1]))
     } else if (op === 'wait') {
       const delay = run(args[0]) * FPS
-      this.#scheduleFrameTimer(() => run(args[1]), delay)
+      this.#scheduleFrameTimer(() => runLater(args[1]), delay)
     } else if (op === 'bpm') {
       this.bpm(run(args[0]))
     } else if (op === 'loop') {
       this.loopMusic(run(args[0]))
     } else if (op === 'once') {
-      this.onceMusic(run(args[0]), () => run(args[1]))
+      this.onceMusic(run(args[0]), () => runLater(args[1]))
     } else if (op === 'sound') {
       this.playSound(run(args[0]))
     } else if (op === 'stop') {
@@ -1204,7 +1204,7 @@ class Zest extends EventTarget {
 
       if (args[1]) {
         this.#scheduleFrameTimer(() => {
-          run(args[1])
+          runLater(args[1])
         }, newTile.frames.length * delay)
       }
     } else if (op === 'random') {
@@ -1442,7 +1442,7 @@ class Zest extends EventTarget {
       canMove = false
     }
 
-    this.event = { ...this.event, dx, dy, tx, ty, x: tx, y: ty }
+    this.event = { ...this.event, dx, dy, tx, ty }
 
     const target = this.getTileAt(tx, ty)
     if (target.solid) {
