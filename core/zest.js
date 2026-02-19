@@ -107,6 +107,11 @@ class ButtonState {
 
 const noop = () => {}
 const isDefined = (x) => typeof x !== 'undefined' && x !== null
+const fixAngleDeg = (a) => {
+  if (a > 180) return a - 360
+  else if (a < -180) return a + 360
+  else return a
+}
 
 const chunkify = (elements, chunkSize) => {
   const res = []
@@ -326,6 +331,8 @@ class Zest extends EventTarget {
       [Button.B]: new ButtonState(),
     }
     this.isCrankDocked = true
+    this.crankAngle = 0
+    this.uiCrankRotated = 0
     this.isIgnored = false
 
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
@@ -383,7 +390,7 @@ class Zest extends EventTarget {
       player: this.player.tile.name,
       room: this.room.name,
       game: this.meta.name,
-      aa: 0,
+      aa: this.crankAngle,
       ra: 0,
       frame: this.frameIx,
       ax: 0,
@@ -1467,21 +1474,17 @@ class Zest extends EventTarget {
     this.isCrankDocked = false
     this.event.aa = aa
     this.event.ra = 0
+    this.crankAngle = aa
+    this.uiCrankRotated = 0
     this.#runPlayerScript('undock')
   }
-  turnCrank(aa, ra) {
+  turnCrank(aa) {
     if (this.isCrankDocked) return
-    this.event.aa = aa
-    this.event.ra = ra
-    if (ra !== 0) {
-      this.#runPlayerScript('crank')
-    }
-    /*
-    crank event should not fire when dialog/menu is open I think?
-    but turning 180 deg or something should close the dialog?
-    maybe move this to inputhandler somehow
-    */
+    this.crankAngle = aa
   }
+  // turnCrankBy(ra) {
+  //   this.crankAngle += ra
+  // }
 
   #clearInput() {
     this.input[Button.UP].clear()
@@ -1554,6 +1557,35 @@ class Zest extends EventTarget {
     }
 
     if (!this.isRunning || this.isPaused) return
+
+    const aa = this.crankAngle
+    this.event.ra = fixAngleDeg(aa - this.event.aa)
+    this.event.aa = aa
+
+    if (!this.isCrankDocked) {
+      if (this.menuActive) {
+        this.uiCrankRotated += this.event.ra
+        if (this.uiCrankRotated >= 90) {
+          this.uiCrankRotated -= 90
+          dy = 1
+          anythingPressed = true
+        } else if (this.uiCrankRotated <= -90) {
+          this.uiCrankRotated += 90
+          dy = -1
+          anythingPressed = true
+        }
+      } else if (this.dialogActive) {
+        this.uiCrankRotated += this.event.ra
+        if (Math.abs(this.uiCrankRotated) >= 180) {
+          this.uiCrankRotated -= 180 * Math.sign(this.uiCrankRotated)
+          confirmPressed = true
+          anythingPressed = true
+        }
+      } else if (this.event.ra !== 0) {
+        this.#runPlayerScript('crank')
+      }
+    }
+
     if (!anythingPressed) return
 
     if (this.menuActive) {

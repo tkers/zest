@@ -1,7 +1,7 @@
 Zest.register((game) => {
-  const ANALOG_TRESHOLD = 0.3
-  const DOCK_TRESHOLD = 0.5
-  const CRANK_TRESHOLD = 0.02
+  const ANALOG_TRESHOLD = 0.4
+  const DOCK_TRESHOLD = 0.6
+  const CRANK_TRESHOLD = 0.03
   const GamepadButton = {
     B: 0,
     A: 1,
@@ -90,15 +90,16 @@ Zest.register((game) => {
     } else {
       const absAngle = Math.PI + Math.atan2(y, x)
       if (wasDocked) {
-        game.undockCrank(absAngle)
+        game.undockCrank(radToDeg(absAngle))
         wasDocked = false
+        prevAngle = absAngle
       } else {
         let relAngle = normalizeAngle(absAngle - prevAngle)
         if (Math.abs(relAngle) > CRANK_TRESHOLD) {
-          game.turnCrank(radToDeg(absAngle), radToDeg(relAngle))
+          game.turnCrank(radToDeg(absAngle))
+          prevAngle = absAngle
         }
       }
-      prevAngle = absAngle
     }
   }
 
