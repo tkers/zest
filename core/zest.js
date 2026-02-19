@@ -1828,13 +1828,17 @@ class Zest extends EventTarget {
 
   render() {
     const inPlayerRoom = this.room.id == this.player.room
-    const [cLeft, cTop, cRight, cBottom] = this.cropArea
+    let [cLeft, cTop, cRight, cBottom] = this.cropArea
 
     let camX = 0
     let camY = 0
     if (this.config.follow === 1 && inPlayerRoom) {
       camX = this.config.followCenterX - this.player.x
       camY = this.config.followCenterY - this.player.y
+      cLeft -= camX
+      cTop -= camY
+      cRight -= camX
+      cBottom -= camY
     }
 
     // room background
