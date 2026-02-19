@@ -1868,9 +1868,9 @@ class Zest extends EventTarget {
           frame = BLACK_FRAME
         } else if (
           x < camX ||
-          x > ROOM_WIDTH + camX ||
+          x >= ROOM_WIDTH + camX ||
           y < camY ||
-          y > ROOM_HEIGHT + camY
+          y >= ROOM_HEIGHT + camY
         ) {
           frame = overflowFrame
         } else {
