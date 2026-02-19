@@ -16,6 +16,8 @@ let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
 COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 
+const BLACK_FRAME = Array(ROOM_WIDTH * ROOM_HEIGHT).fill(1)
+
 const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6, DOCK: 7 }
 
@@ -1825,9 +1827,6 @@ class Zest extends EventTarget {
   }
 
   render() {
-    // clear first?
-    this.imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
-
     const inPlayerRoom = this.room.id == this.player.room
     const [cLeft, cTop, cRight, cBottom] = this.cropArea
 
@@ -1841,12 +1840,16 @@ class Zest extends EventTarget {
     // room background
     this.room.tiles.forEach((tile, ix) => {
       const [x, y] = indexToCoord(ix)
-      if (x < cLeft || x > cRight || y < cTop || y > cBottom) return
-      const frame =
-        tile.frames[
-          this.frameOverrides[ix] ??
-            getCurrentFrameIndexForTile(tile, this.frameIx)
-        ]
+      let frame
+      if (x < cLeft || x > cRight || y < cTop || y > cBottom) {
+        frame = BLACK_FRAME
+      } else {
+        frame =
+          tile.frames[
+            this.frameOverrides[ix] ??
+              getCurrentFrameIndexForTile(tile, this.frameIx)
+          ]
+      }
       this.#renderFrame(frame, x + camX, y + camY)
     })
 
