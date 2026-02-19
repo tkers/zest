@@ -321,7 +321,7 @@ class Zest extends EventTarget {
       follow: 0,
       followCenterX: 12,
       followCenterY: 7,
-      // followOverflowTile: 'black',
+      followOverflowTile: 'black',
     }
 
     this.input = {
@@ -1828,34 +1828,45 @@ class Zest extends EventTarget {
 
   render() {
     const inPlayerRoom = this.room.id == this.player.room
-    let [cLeft, cTop, cRight, cBottom] = this.cropArea
+    const [cLeft, cTop, cRight, cBottom] = this.cropArea
 
     let camX = 0
     let camY = 0
+    let overflowFrame
     if (this.config.follow === 1 && inPlayerRoom) {
       camX = this.config.followCenterX - this.player.x
       camY = this.config.followCenterY - this.player.y
-      cLeft -= camX
-      cTop -= camY
-      cRight -= camX
-      cBottom -= camY
+      overflowFrame = getCurrentFrameForTile(
+        this.namedTiles[this.config.followOverflowTile],
+        this.frameIx
+      )
     }
 
     // room background
-    this.room.tiles.forEach((tile, ix) => {
-      const [x, y] = indexToCoord(ix)
-      let frame
-      if (x < cLeft || x > cRight || y < cTop || y > cBottom) {
-        frame = BLACK_FRAME
-      } else {
-        frame =
-          tile.frames[
-            this.frameOverrides[ix] ??
-              getCurrentFrameIndexForTile(tile, this.frameIx)
-          ]
+    for (let y = 0; y < ROOM_HEIGHT; y++) {
+      for (let x = 0; x < ROOM_WIDTH; x++) {
+        let frame
+        if (x < cLeft || x > cRight || y < cTop || y > cBottom) {
+          frame = BLACK_FRAME
+        } else if (
+          x < camX ||
+          x > ROOM_WIDTH + camX ||
+          y < camY ||
+          y > ROOM_HEIGHT + camY
+        ) {
+          frame = overflowFrame
+        } else {
+          const ix = coordToIndex(x - camX, y - camY)
+          const tile = this.room.tiles[ix]
+          frame =
+            tile.frames[
+              this.frameOverrides[ix] ??
+                getCurrentFrameIndexForTile(tile, this.frameIx)
+            ]
+        }
+        this.#renderFrame(frame, x, y)
       }
-      this.#renderFrame(frame, x + camX, y + camY)
-    })
+    }
 
     // display player
     if (this.isRunning && inPlayerRoom) {
