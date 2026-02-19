@@ -17,7 +17,7 @@ COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
 COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
 
 const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
-const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6 }
+const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6, DOCK: 7 }
 
 const TileTypes = { 0: 'world', 1: 'player', 2: 'sprite', 3: 'item' }
 const PipeIndex = {
@@ -408,6 +408,7 @@ class Zest extends EventTarget {
       ArrowRight: Button.RIGHT,
       a: Button.B,
       s: Button.A,
+      d: Button.DOCK,
     }
 
     const bound = new Set(Object.values(bindings))
@@ -417,10 +418,19 @@ class Zest extends EventTarget {
     const keymap = { ...missing, ...bindings }
 
     window.addEventListener('keydown', (e) => {
-      if (!(e.key in keymap)) return
+      const btn = keymap[e.key]
+      if (!btn) return
       e.preventDefault()
       if (e.repeat) return
-      this.pressKey(keymap[e.key])
+      if (btn === Button.DOCK) {
+        if (this.isCrankDocked) {
+          this.undockCrank()
+        } else {
+          this.dockCrank()
+        }
+      } else {
+        this.pressKey(btn)
+      }
     })
 
     window.addEventListener('keyup', (e) => {
@@ -1471,10 +1481,14 @@ class Zest extends EventTarget {
   }
 
   pressKey(key) {
-    this.input[key].press()
+    if (key in this.input) {
+      this.input[key].press()
+    }
   }
   releaseKey(key) {
-    this.input[key].release()
+    if (key in this.input) {
+      this.input[key].release()
+    }
   }
   dockCrank() {
     if (this.isCrankDocked) return
@@ -1482,6 +1496,7 @@ class Zest extends EventTarget {
     this.event.aa = 0
     this.event.ra = 0
     this.#runPlayerScript('dock')
+    this.#emitEvent('dock')
   }
   undockCrank(aa = 0) {
     if (!this.isCrankDocked) return
@@ -1491,6 +1506,7 @@ class Zest extends EventTarget {
     this.crankAngle = aa
     this.uiCrankRotated = 0
     this.#runPlayerScript('undock')
+    this.#emitEvent('undock')
   }
   turnCrank(aa) {
     if (this.isCrankDocked) return
