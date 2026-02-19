@@ -334,6 +334,7 @@ class Zest extends EventTarget {
     this.crankAngle = 0
     this.uiCrankRotated = 0
     this.isIgnored = false
+    this.ignoreCount = 0
 
     console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
@@ -587,11 +588,13 @@ class Zest extends EventTarget {
   }
 
   ignore() {
+    this.ignoreCount++
     this.isIgnored = true
   }
 
   listen() {
-    this.isIgnored = false
+    this.ignoreCount = Math.max(0, this.ignoreCount - 1)
+    this.isIgnored = this.ignoreCount > 0
   }
 
   getTileAt(x, y) {
