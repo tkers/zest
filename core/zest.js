@@ -1001,7 +1001,9 @@ class Zest extends EventTarget {
       }
     } else if (op === 'xy') {
       const [x, y] = args
-      return { x: run(x) | 0, y: run(y) | 0 }
+      const xFloat = run(x)
+      const yFloat = run(y)
+      return { x: xFloat | 0, y: yFloat | 0, xFloat, yFloat }
     } else if (op === 'rect') {
       const [xx, yy, ww, hh] = args
       let x = run(xx) | 0
@@ -1117,7 +1119,7 @@ class Zest extends EventTarget {
     } else if (op === 'label') {
       const text = run(args[0])
       const pos = run(args[1])
-      this.#renderText(text, pos.x, pos.y)
+      this.#renderText(text, pos.xFloat, pos.yFloat)
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
@@ -1792,15 +1794,22 @@ class Zest extends EventTarget {
   }
 
   #renderText(text, x, y, w) {
+    let xx = x
+    let yy = y
     const limit = w ? Math.min(text.length, w) : text.length
     for (let i = 0; i < limit; i++) {
       let glyph = text.charCodeAt(i)
+      if (glyph == 10) {
+        xx = x
+        yy++
+      }
       if (glyph == 10 || glyph == 12) continue // skip nl and ff
       const frame =
         glyph > 128
           ? this.cart.tiles[glyph - 128].frames[0]
           : this.cart.font.chars[glyph - 32]
-      this.#renderFrame(frame, x + i * this.charWidth, y, this.charWidth)
+      this.#renderFrame(frame, xx, yy, this.charWidth)
+      xx += this.charWidth
     }
   }
 
