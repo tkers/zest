@@ -1264,14 +1264,14 @@ class Zest extends EventTarget {
 
     const anyExpr = script.any
     if (anyExpr) {
-      this.calledDone = false
       this.runExpression(anyExpr, script.__blocks, context)
+      this.calledDone = false
     }
 
     const expr = script[name]
     if (expr) {
-      this.calledDone = false
       this.runExpression(expr, script.__blocks, context)
+      this.calledDone = false
     }
   }
 
