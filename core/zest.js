@@ -998,7 +998,7 @@ class Zest extends EventTarget {
         this.player.frameIx = undefined
         this.player.visual = newTile
       } else if (isXY(context)) {
-        context.self = newTile.script
+        context.self = newTile?.script
         this.swapTileAt(context.x, context.y, newTile)
       } else {
         fail('Can only call SWAP on a tile instance')
@@ -1060,7 +1060,7 @@ class Zest extends EventTarget {
           x: who.x,
           y: who.y,
           tile,
-          self: tile.script,
+          self: tile?.script,
         })
       } else {
         const tile = this.getTile(who)
@@ -1069,7 +1069,7 @@ class Zest extends EventTarget {
           // x: undefined,
           // y: undefined,
           tile,
-          self: tile.script,
+          self: tile?.script,
         })
       }
     } else if (op === 'call') {
