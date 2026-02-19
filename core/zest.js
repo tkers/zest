@@ -1282,11 +1282,17 @@ class Zest extends EventTarget {
   }
 
   emit(name, ctx = {}) {
-    this.runScript(this.gameScript, name)
-    this.runScript(this.room.script, name)
+    this.runScript(this.gameScript, name, ctx)
+    this.runScript(this.room.script, name, ctx)
     this.room.tiles.slice().forEach((tile, ix) => {
       const [x, y] = indexToCoord(ix)
-      this.runScript(tile.script, name, { ...ctx, x, y, tile: tile.name })
+      this.runScript(tile.script, name, {
+        ...ctx,
+        x,
+        y,
+        tile: tile.name,
+        self: tile.script,
+      })
     })
     this.#runPlayerScript(name, ctx)
   }
