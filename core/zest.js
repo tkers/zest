@@ -1090,7 +1090,7 @@ class Zest extends EventTarget {
       })
     } else if (op === 'goto') {
       const { x, y } = run(args[0])
-      this.goto(x, y, run(args[1]))
+      this.goto(x, y, args[1] && run(args[1]))
     } else if (op === 'wait') {
       const delay = run(args[0]) * FPS
       this.#scheduleFrameTimer(() => run(args[1]), delay)
@@ -1264,14 +1264,14 @@ class Zest extends EventTarget {
 
     const anyExpr = script.any
     if (anyExpr) {
-      this.runExpression(anyExpr, script.__blocks, context)
       this.calledDone = false
+      this.runExpression(anyExpr, script.__blocks, context)
     }
 
     const expr = script[name]
     if (expr) {
-      this.runExpression(expr, script.__blocks, context)
       this.calledDone = false
+      this.runExpression(expr, script.__blocks, context)
     }
   }
 
@@ -1284,9 +1284,11 @@ class Zest extends EventTarget {
     })
   }
 
-  emit(name, ctx = {}) {
+  emit(name, context = {}) {
+    const { self, ...ctx } = context
     this.runScript(this.gameScript, name, ctx)
     this.runScript(this.room.script, name, ctx)
+    this.#runPlayerScript(name, ctx)
     this.room.tiles.slice().forEach((tile, ix) => {
       const [x, y] = indexToCoord(ix)
       this.runScript(tile.script, name, {
@@ -1294,10 +1296,24 @@ class Zest extends EventTarget {
         x,
         y,
         tile: tile.name,
-        self: tile.script,
       })
     })
-    this.#runPlayerScript(name, ctx)
+  }
+
+  // basically emit but player runs AFTER tiles
+  // used for 'enter' and 'exit'
+  #emitInternally(name) {
+    this.runScript(this.gameScript, name)
+    this.runScript(this.room.script, name)
+    this.room.tiles.slice().forEach((tile, ix) => {
+      const [x, y] = indexToCoord(ix)
+      this.runScript(tile.script, name, {
+        x,
+        y,
+        tile: tile.name,
+      })
+    })
+    this.#runPlayerScript(name)
   }
 
   act() {
@@ -1373,28 +1389,31 @@ class Zest extends EventTarget {
 
     // ENTER event
     this.#changeLoop(this.room.song)
-    this.emit('enter')
+    this.#emitInternally('enter')
   }
 
   goto(x, y, room) {
     if (isDefined(room)) {
       // EXIT event
-      this.emit('exit')
+      this.#emitInternally('exit')
 
       this.store()
       this.roomTransition = this.getRoom(room)
       this.roomTransitionX = x
       this.roomTransitionY = y
     } else {
-      this.player.x = x
-      this.player.y = y
       this.event = {
         ...this.event,
         px: x,
         py: y,
         tx: x,
         ty: y,
+        dx: x - this.player.x,
+        dy: y - this.player.y,
       }
+      this.player.x = x
+      this.player.y = y
+      this.#runPlayerScript('update')
     }
   }
 
