@@ -551,12 +551,26 @@ class Zest extends EventTarget {
     this.loopTimer = null
   }
 
-  pauseResume() {
-    if (!this.isRunning) return
+  pause() {
+    if (!this.isRunning || this.isPaused) return
+    this.isPaused = true
     this.#clearInput()
-    this.isPaused = !this.isPaused
-    ;(this.isPaused ? ZestAudio.pauseSong : ZestAudio.resumeSong)()
-    this.#emitEvent(this.isPaused ? 'pause' : 'resume')
+    ZestAudio.pauseSong()
+  }
+
+  resume() {
+    if (!this.isRunning || !this.isPaused) return
+    this.isPaused = false
+    this.#clearInput()
+    ZestAudio.resumeSong()
+  }
+
+  pauseResume() {
+    if (this.isPaused) {
+      this.resume()
+    } else {
+      this.pause()
+    }
     return this.isPaused
   }
 
