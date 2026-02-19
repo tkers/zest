@@ -1006,8 +1006,8 @@ class Zest extends EventTarget {
       return { x: xFloat | 0, y: yFloat | 0, xFloat, yFloat }
     } else if (op === 'rect') {
       const [xx, yy, ww, hh] = args
-      let x = run(xx) | 0
-      let y = run(yy) | 0
+      let xFloat = run(xx)
+      let yFloat = run(yy)
       let w = run(ww) | 0
       let h = run(hh) | 0
       if (w < 0) {
@@ -1018,7 +1018,7 @@ class Zest extends EventTarget {
         h *= -1
         y -= h
       }
-      return { x, y, w, h }
+      return { x: xFloat | 0, y: yFloat | 0, w, h, xFloat, yFloat }
     } else if (op === 'tell') {
       // parse manually because run() would return the name as string
       const magic = findSpecialGetter(args[0])
@@ -1119,7 +1119,7 @@ class Zest extends EventTarget {
     } else if (op === 'label') {
       const text = run(args[0])
       const pos = run(args[1])
-      this.#renderText(text, pos.xFloat, pos.yFloat)
+      this.#renderText(text, pos.xFloat, pos.yFloat, pos.w, pos.y)
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
@@ -1793,15 +1793,18 @@ class Zest extends EventTarget {
     }
   }
 
-  #renderText(text, x, y, w) {
+  #renderText(text, x, y, w, h) {
     let xx = x
     let yy = y
-    const limit = w ? Math.min(text.length, w) : text.length
+    const limit = isDefined(w) ? Math.min(text.length, w) : text.length
+    const maxY = isDefined(h) ? y + h : ROOM_HEIGHT
+
     for (let i = 0; i < limit; i++) {
       let glyph = text.charCodeAt(i)
       if (glyph == 10) {
         xx = x
         yy++
+        if (yy > maxY) return
       }
       if (glyph == 10 || glyph == 12) continue // skip nl and ff
       const frame =
