@@ -491,7 +491,6 @@ class Zest extends EventTarget {
     // these should always run
     this.#updateInput()
     this.render()
-    this.event.ra = 0
   }
 
   #tick() {
