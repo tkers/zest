@@ -566,6 +566,7 @@ class Zest extends EventTarget {
     this.isPaused = true
     this.#clearInput()
     ZestAudio.pauseSong()
+    this.#emitEvent('pause')
   }
 
   resume() {
@@ -573,6 +574,7 @@ class Zest extends EventTarget {
     this.isPaused = false
     this.#clearInput()
     ZestAudio.resumeSong()
+    this.#emitEvent('resume')
   }
 
   pauseResume() {
