@@ -1128,7 +1128,7 @@ class Zest extends EventTarget {
       const who = run(args[0])
       const tile = this.getTile(who)
       const where = run(args[1])
-      this.#renderTile(tile, where.x, where.y)
+      this.#renderTile(tile, where.xFloat, where.yFloat)
     } else if (op === 'fill') {
       const col = run(args[0])
       const { x, y, w, h } = run(args[1])
