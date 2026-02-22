@@ -45,8 +45,6 @@ function fail(message) {
   console.error(`[FAIL] ${message}`)
 }
 
-let alreadyWarnedForUnknownExpressionType = {}
-
 const Y2K = 946684800
 const getDateTimePart = (part) => {
   const now = new Date()
@@ -1250,10 +1248,7 @@ class Zest extends EventTarget {
     } else if (op === 'done') {
       this.calledDone = true // could it really be this simple?
     } else {
-      if (op in alreadyWarnedForUnknownExpressionType) return
-      alreadyWarnedForUnknownExpressionType[op] = true
-      warn(`Unknown expression type: ${op}`)
-      warn(JSON.stringify(expr))
+      fail(`Unknown expression type: ${op}`)
     }
   }
 
