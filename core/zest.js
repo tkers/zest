@@ -277,7 +277,7 @@ class Zest extends EventTarget {
   }
 
   restart() {
-    this.#loadCart(JSON.parse(this.originalCart))
+    this.#loadCart(this.originalCart)
     this.play()
   }
 
@@ -292,15 +292,17 @@ class Zest extends EventTarget {
     this.render()
   }
 
-  #loadCart(data) {
+  #loadCart(_data) {
+    const data = JSON.parse(JSON.stringify(_data))
+
     if (this.isRunning) {
       this.stop()
     }
 
     // repairAndCleanup(data)
-    console.log(data)
+    // console.log(data)
 
-    this.originalCart = JSON.stringify(data)
+    this.originalCart = _data
     this.cart = data
     this.meta = getMetaInfo(data)
     this.frameIx = 0
