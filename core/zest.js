@@ -249,9 +249,7 @@ const getMetaInfo = (data) => ({
 class Zest extends EventTarget {
   static run(data, canvas) {
     const game = new Zest(canvas)
-    game.#loadCart(data)
-    game.play()
-    // game.attract()
+    game.run(data)
     return game
   }
 
@@ -280,6 +278,11 @@ class Zest extends EventTarget {
 
   restart() {
     this.#loadCart(JSON.parse(this.originalCart))
+    this.play()
+  }
+
+  run(data) {
+    this.#loadCart(data)
     this.play()
   }
 
