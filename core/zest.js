@@ -1542,6 +1542,7 @@ class Zest extends EventTarget {
   }
 
   pressKey(key) {
+    ZestAudio.enable()
     if (key in this.input) {
       this.input[key].press()
     }
