@@ -373,7 +373,8 @@ class Zest extends EventTarget {
 
     // some sort of context?
     this.globals = {}
-    this.timers = {}
+    this.frameTimers = {}
+    this.playTimers = {}
     this.isInverted = 0
     this.isShaking = false
     this.currentSong = null
@@ -489,7 +490,7 @@ class Zest extends EventTarget {
     // keep world suspended while a window is open
     if (!this.menuActive && !this.dialogActive) {
       this.#tick()
-      this.#runFrameTimers()
+      this.#runTimers()
     } else if (this.dialogActive) {
       this.dialogLock--
       if (this.dialogTextIx < this.dialogText.length) {
@@ -618,8 +619,8 @@ class Zest extends EventTarget {
   }
 
   swapTileAt(x, y, tile) {
-    // @TODO should stop frametimer from PLAY?
     const ix = coordToIndex(x, y)
+    delete this.playTimers[ix]
     delete this.frameOverrides[ix]
     this.room.tiles[ix] = tile
   }
@@ -756,18 +757,38 @@ class Zest extends EventTarget {
 
   #scheduleFrameTimer(cb, frameDelay) {
     const atFrame = this.frameIx + 1 + Math.floor(frameDelay)
-    let list = this.timers[atFrame]
+    let list = this.frameTimers[atFrame]
     if (!list) {
       list = []
-      this.timers[atFrame] = list
+      this.frameTimers[atFrame] = list
     }
     list.unshift(cb)
   }
 
-  #runFrameTimers() {
-    let list = this.timers[this.frameIx]
+  #schedulePlayTimer(ix, opts) {
+    this.playTimers[ix] = { tick: 0, frameIx: 0, ...opts }
+  }
+
+  #runTimers() {
+    Object.entries(this.playTimers).forEach(([k, v]) => {
+      if (++v.tick < v.delay) return
+      v.tick = 0
+      v.frameIx++
+      if (k === 'player') {
+        this.player.frameIx = v.frameIx
+      } else {
+        this.#setFrameAt(v.x, v.y, v.frameIx)
+      }
+      if (v.frameIx >= v.tile.frames.length) {
+        if (v.callback) v.callback()
+        delete this.playTimers[k]
+      }
+    })
+
+    let list = this.frameTimers[this.frameIx]
     if (!list) return
     list.forEach((cb) => cb())
+    delete this.frameTimers[this.frameIx]
   }
 
   #emitEvent(name, detail) {
@@ -1188,38 +1209,31 @@ class Zest extends EventTarget {
         }
       }
     } else if (op === 'play') {
-      const newTile = this.getTile(run(args[0]))
-      const fpsOriginal = newTile.fpsOriginal ?? newTile.fps
+      const tile = this.getTile(run(args[0]))
+      const callback = args[1] && (() => runLater(args[1]))
+
+      const fpsOriginal = tile.fpsOriginal ?? tile.fps
       const delay = FPS / fpsOriginal
-      newTile.fpsOriginal = fpsOriginal
-      newTile.fps = 0
+      tile.fpsOriginal = fpsOriginal
+      tile.fps = 0
 
       if (context.self == this.playerScript) {
-        this.player.visual = newTile
+        this.player.visual = tile
         this.player.frameIx = 0
-        // @TODO cancel previous timer
-        newTile.frames.forEach((frame, ix) => {
-          this.#scheduleFrameTimer(() => {
-            this.player.frameIx = ix
-          }, ix * delay)
-        })
+        this.#schedulePlayTimer('player', { tile, delay, callback })
       } else if (isXY(context)) {
-        this.swapTileAt(context.x, context.y, newTile)
+        this.swapTileAt(context.x, context.y, tile)
         this.#setFrameAt(context.x, context.y, 0)
-        newTile.frames.forEach((frame, ix) => {
-          this.#scheduleFrameTimer(() => {
-            this.#setFrameAt(context.x, context.y, ix)
-          }, ix * delay)
+        this.#schedulePlayTimer(coordToIndex(context.x, context.y), {
+          tile,
+          delay,
+          x: context.x,
+          y: context.y,
+          callback,
         })
       } else {
         fail('Can only call PLAY on a tile instance')
         return
-      }
-
-      if (args[1]) {
-        this.#scheduleFrameTimer(() => {
-          runLater(args[1])
-        }, newTile.frames.length * delay)
       }
     } else if (op === 'random') {
       return randomInt(run(args[0]), run(args[1]))
@@ -1381,6 +1395,7 @@ class Zest extends EventTarget {
 
   #enter(room, x, y) {
     this.room = room
+    this.playTimers = {}
     this.frameOverrides = {}
 
     this.player.room = this.room.id
