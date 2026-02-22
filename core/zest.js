@@ -176,6 +176,8 @@ const clipInt = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
 
 // transform [{ name: n, ... }] -> { n: { ... } }
 const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
+const filterObject = (obj, cb) =>
+  Object.fromEntries(Object.entries(obj).filter(cb))
 
 const coordToIndex = (x, y) => x + y * ROOM_WIDTH
 const indexToCoord = (ix) => {
@@ -382,6 +384,7 @@ class Zest extends EventTarget {
 
     this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
     this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
+    this.storeDirty = new Set()
 
     this.event = {
       px: this.player.x,
@@ -444,8 +447,14 @@ class Zest extends EventTarget {
   store(name) {
     if (name) {
       this.storeData[name] = this.globals[name]
+      this.storeDirty.add(name)
     } else {
       localStorage.setItem(this.storeKey, JSON.stringify(this.storeData))
+      this.#emitEvent('store', {
+        key: this.storeKey,
+        data: filterObject(this.storeData, ([k]) => this.storeDirty.has(k)),
+      })
+      this.storeDirty = new Set()
     }
   }
 
@@ -462,6 +471,7 @@ class Zest extends EventTarget {
 
   toss() {
     this.storeData = {}
+    this.storeDirty = new Set()
     localStorage.removeItem(this.storeKey)
   }
 
