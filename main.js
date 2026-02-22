@@ -37,6 +37,9 @@ window.addEventListener('load', () => {
     if (e.key === ' ') {
       e.preventDefault()
       game.pauseResume()
+    } else if (e.key === 'R') {
+      e.preventDefault()
+      game.restart()
     }
   })
 
