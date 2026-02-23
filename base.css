@@ -17,6 +17,13 @@ footer {
   margin: 32px 0;
 }
 
+section a[href] {
+  color: #312f28;
+}
+section a[href]:hover {
+  color: #000000;
+}
+
 footer {
   color: #312f2880;
   font-size: small;

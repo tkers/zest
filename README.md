@@ -7,11 +7,9 @@ the ground up (without using Panic's proprietary code) so that developers can
 use it to make their games available to more players.
 
 This project is still in active development, so don't expect your game to be
-fully compatible just yet. However, games that use no PulpScript (i.e. only use
-the default dialog options for sprites and items), should already be working!
-
-Support for sound and music are not yet implemented, and inputs like the crank
-and accelerometer will probably be out of scope for the first release.
+fully compatible just yet! Have a look at the
+[open issues on GitHub](https://github.com/tkers/zest/issues) to see where we're
+currently at.
 
 ---
 
