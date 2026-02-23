@@ -422,6 +422,7 @@ class Zest extends EventTarget {
       ay: 0,
       az: 0,
       orientation: 'standing up',
+      zest: 1,
     }
   }
 
