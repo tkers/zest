@@ -1132,6 +1132,10 @@ class Zest extends EventTarget {
     } else if (op === 'goto') {
       const { x, y } = run(args[0])
       this.goto(x, y, args[1] && run(args[1]))
+      if (!args[1]) {
+        context.px = x
+        context.py = y
+      }
     } else if (op === 'wait') {
       const delay = run(args[0]) * FPS
       this.#scheduleFrameTimer(() => runLater(args[1]), delay)
