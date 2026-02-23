@@ -8,13 +8,9 @@ const PIXEL_WIDTH = 200
 const PIXEL_HEIGHT = 120
 const FRAME_DURATION = 1 / FPS
 
-// standard B/W
-let COLOR_WHITE = [0xff, 0xff, 0xff, 0xff]
-let COLOR_BLACK = [0x00, 0x00, 0x00, 0xff]
-
 // device appearance
-COLOR_WHITE = [0xba, 0xae, 0xa9, 0xff]
-COLOR_BLACK = [0x31, 0x2f, 0x28, 0xff]
+const FG_COLOR = '#312f28' // '#000'
+const BG_COLOR = '#baaea9' // '#fff'
 
 const BLACK_FRAME = Array(ROOM_WIDTH * ROOM_HEIGHT).fill(1)
 
@@ -120,6 +116,23 @@ const chunkify = (elements, chunkSize) => {
   }
   return res
 }
+
+const hexToRgba = (col) => {
+  let hex = col[0] == '#' ? col.slice(1) : col
+  if (hex.length == 3) {
+    const [r, g, b] = hex.split('')
+    hex = `${r}${r}${g}${g}${b}${b}`
+  }
+  if (hex.length != 6) {
+    warn('Invalid hex color: ${col}')
+    return [0, 0, 0, 255]
+  }
+  const num = parseInt(hex, 16)
+  return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff, 255]
+}
+
+let COLOR_BLACK = hexToRgba(FG_COLOR)
+let COLOR_WHITE = hexToRgba(BG_COLOR)
 
 const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
 const isOption = (x) => x && isDefined(x.label) && isDefined(x.action)
@@ -327,6 +340,8 @@ class Zest extends EventTarget {
       followCenterX: 12,
       followCenterY: 7,
       followOverflowTile: 'black',
+      fg: FG_COLOR,
+      bg: BG_COLOR,
     }
 
     this.input = {
@@ -912,8 +927,11 @@ class Zest extends EventTarget {
         // global
         this.globals[name] = val
       } else if (parts[0] == 'config') {
-        this.config[parts[1]] = val
-        this.#emitEvent('config', { key: parts[1], value: val })
+        const key = parts[1]
+        this.config[key] = val
+        if (key === 'fg') COLOR_BLACK = hexToRgba(val)
+        if (key === 'bg') COLOR_WHITE = hexToRgba(val)
+        this.#emitEvent('config', { key, value: val })
       } else {
         warn(`Not allowed to set: ${name}`)
       }
