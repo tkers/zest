@@ -484,28 +484,31 @@ class Zest extends EventTarget {
   #loop() {
     if (this.isPaused) return
 
-    // these should always run
-    this.#updateInput()
-
     // keep world suspended while a window is open
     if (!this.menuActive && !this.dialogActive) {
       this.#tick()
+      this.#updateInput()
       this.#runTimers()
-    } else if (this.dialogActive) {
-      this.dialogLock--
-      if (this.dialogTextIx < this.dialogText.length) {
-        do {
-          this.dialogTextIx += this.config.textSpeed / FPS
-        } while (
-          this.dialogText[this.dialogTextIx]?.trim() == '' &&
-          this.dialogTextIx < this.dialogText.length
-        )
-      } else if (!this.menuActive) {
-        this.dialogFrameIx++
-      }
-    }
+      this.render()
+    } else {
+      this.#updateInput()
 
-    this.render()
+      if (this.dialogActive) {
+        this.dialogLock--
+        if (this.dialogTextIx < this.dialogText.length) {
+          do {
+            this.dialogTextIx += this.config.textSpeed / FPS
+          } while (
+            this.dialogText[this.dialogTextIx]?.trim() == '' &&
+            this.dialogTextIx < this.dialogText.length
+          )
+        } else if (!this.menuActive) {
+          this.dialogFrameIx++
+        }
+      }
+
+      this.render()
+    }
   }
 
   #tick() {
