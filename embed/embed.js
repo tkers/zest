@@ -10,6 +10,12 @@ window.addEventListener('load', () => {
     ZestAudio.enable()
   })
 
+  game.addEventListener('config', (e) => {
+    if (e.detail.key === 'fg') {
+      lcd.style.backgroundColor = e.detail.value
+    }
+  })
+
   if (!autoplay) {
     const clickStart = () => {
       main.removeEventListener('click', clickStart)
