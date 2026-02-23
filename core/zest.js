@@ -565,6 +565,8 @@ class Zest extends EventTarget {
     }
     this.roomTransition = this.start
 
+    this.#emitEvent('start')
+
     // loop at 20 FPS (50ms per tick)
     this.loopTimer = setInterval(() => this.#loop(), 1000 / FPS)
     this.#loop()
@@ -756,6 +758,7 @@ class Zest extends EventTarget {
     this.say(message, () => {
       this.restart()
     })
+    this.#emitEvent('finish')
   }
 
   #scheduleFrameTimer(cb, frameDelay) {
