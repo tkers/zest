@@ -1743,7 +1743,7 @@ class Zest extends EventTarget {
 
     if (dx !== 0 || dy !== 0) {
       this.runScript(this.gameScript, 'change', {
-        option: page[menu.cursorIx].label,
+        option: menu.pages[menu.pageIx][menu.cursorIx].label,
       })
     }
   }
