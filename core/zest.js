@@ -762,7 +762,7 @@ class Zest extends EventTarget {
   }
 
   #scheduleFrameTimer(cb, frameDelay) {
-    const atFrame = this.frameIx + 1 + Math.floor(frameDelay)
+    const atFrame = this.frameIx + Math.max(1, Math.ceil(frameDelay))
     let list = this.frameTimers[atFrame]
     if (!list) {
       list = []
