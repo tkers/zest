@@ -1167,7 +1167,7 @@ class Zest extends EventTarget {
     } else if (op === 'label') {
       const text = run(args[0])
       const pos = run(args[1])
-      this.#renderText(text, pos.xFloat, pos.yFloat, pos.w, pos.y)
+      this.#renderText(text, pos.xFloat, pos.yFloat, pos.w, pos.h)
     } else if (op === 'draw') {
       const who = run(args[0])
       const tile = this.getTile(who)
