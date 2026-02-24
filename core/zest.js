@@ -1054,6 +1054,7 @@ class Zest extends EventTarget {
       if (isXY(where)) {
         this.swapTileAt(where.x, where.y, newTile)
       } else if (context.self == this.playerScript) {
+        delete this.playTimers['player']
         this.player.frameIx = undefined
         this.player.visual = newTile
       } else if (isXY(context)) {
