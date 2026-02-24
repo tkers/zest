@@ -1802,6 +1802,10 @@ class Zest extends EventTarget {
       warn('Missing bitmap data in renderFrame')
       return
     }
+
+    const xx = (8 * x) | 0
+    const yy = (8 * y) | 0
+
     const data = this.imgData.data
     const cBlack = this.isInverted ? this.colorWhite : this.colorBlack
     const cWhite = this.isInverted ? this.colorBlack : this.colorWhite
@@ -1813,8 +1817,8 @@ class Zest extends EventTarget {
       if (i % 8 >= halfWidth * 8) continue
       const [r, g, b, a] = col == 1 ? cBlack : cWhite
 
-      const px = ((8 * x) | 0) + (i % 8)
-      const py = ((8 * y) | 0) + ((i / 8) | 0)
+      const px = xx + (i % 8)
+      const py = yy + ((i / 8) | 0)
       const pi = 4 * (px + py * PIXEL_WIDTH)
 
       data[pi] = r
