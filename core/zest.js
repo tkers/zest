@@ -1252,6 +1252,7 @@ class Zest extends EventTarget {
         this.#schedulePlayTimer('player', { tile, delay, callback })
       } else if (isXY(context)) {
         this.swapTileAt(context.x, context.y, tile)
+        context.self = tile?.script
         this.#setFrameAt(context.x, context.y, 0)
         this.#schedulePlayTimer(coordToIndex(context.x, context.y), {
           tile,
