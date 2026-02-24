@@ -9,8 +9,8 @@ const PIXEL_HEIGHT = 120
 const FRAME_DURATION = 1 / FPS
 
 // device appearance
-const FG_COLOR = '#312f28' // '#000'
-const BG_COLOR = '#baaea9' // '#fff'
+const COLOR_BLACK = '#312f28' // '#000'
+const COLOR_WHITE = '#baaea9' // '#fff'
 
 const BLACK_FRAME = Array(ROOM_WIDTH * ROOM_HEIGHT).fill(1)
 
@@ -130,9 +130,6 @@ const hexToRgba = (col) => {
   const num = parseInt(hex, 16)
   return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff, 255]
 }
-
-let COLOR_BLACK = hexToRgba(FG_COLOR)
-let COLOR_WHITE = hexToRgba(BG_COLOR)
 
 const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
 const isOption = (x) => x && isDefined(x.label) && isDefined(x.action)
@@ -340,9 +337,12 @@ class Zest extends EventTarget {
       followCenterX: 12,
       followCenterY: 7,
       followOverflowTile: 'black',
-      fg: FG_COLOR,
-      bg: BG_COLOR,
+      colorBlack: COLOR_BLACK,
+      colorWhite: COLOR_WHITE,
     }
+
+    this.colorBlack = hexToRgba(this.config.colorBlack)
+    this.colorWhite = hexToRgba(this.config.colorWhite)
 
     this.input = {
       [Button.UP]: new ButtonState(),
@@ -930,8 +930,8 @@ class Zest extends EventTarget {
       } else if (parts[0] == 'config') {
         const key = parts[1]
         this.config[key] = val
-        if (key === 'fg') COLOR_BLACK = hexToRgba(val)
-        if (key === 'bg') COLOR_WHITE = hexToRgba(val)
+        if (key === 'colorBlack') this.colorBlack = hexToRgba(val)
+        if (key === 'colorWhite') this.colorWhite = hexToRgba(val)
         this.#emitEvent('config', { key, value: val })
       } else {
         warn(`Not allowed to set: ${name}`)
@@ -1205,7 +1205,6 @@ class Zest extends EventTarget {
       this.cropArea = [x, y, x + w - 1, y + h - 1]
     } else if (op === 'invert') {
       this.isInverted = 1 - this.isInverted
-      ;[COLOR_BLACK, COLOR_WHITE] = [COLOR_WHITE, COLOR_BLACK]
       return this.isInverted
     } else if (op === 'shake') {
       const frames = Math.ceil(run(args[0]) * FPS)
@@ -1773,7 +1772,8 @@ class Zest extends EventTarget {
     //   return
     // }
 
-    const [r, g, b, a] = col == 'white' ? COLOR_WHITE : COLOR_BLACK
+    const [r, g, b, a] =
+      (col == 'white') !== this.isInverted ? this.colorWhite : this.colorBlack
     const right = x + w
     const bottom = y + h
 
@@ -1799,12 +1799,15 @@ class Zest extends EventTarget {
       return
     }
     const data = this.imgData.data
+    const cBlack = this.isInverted ? this.colorWhite : this.colorBlack
+    const cWhite = this.isInverted ? this.colorBlack : this.colorWhite
+
     // assumes 8x8 frames in Array(64)
     for (let i = 0; i < 64; i++) {
       const col = frame[i]
       if (col == 2) continue // transparent
       if (i % 8 >= halfWidth * 8) continue
-      const [r, g, b, a] = col == 1 ? COLOR_BLACK : COLOR_WHITE
+      const [r, g, b, a] = col == 1 ? cBlack : cWhite
 
       const px = ((8 * x) | 0) + (i % 8)
       const py = ((8 * y) | 0) + ((i / 8) | 0)

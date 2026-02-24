@@ -11,7 +11,7 @@ window.addEventListener('load', () => {
   })
 
   game.addEventListener('config', (e) => {
-    if (e.detail.key === 'fg') {
+    if (e.detail.key === 'colorBlack') {
       lcd.style.backgroundColor = e.detail.value
     }
   })
