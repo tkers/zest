@@ -1458,10 +1458,10 @@ class Zest extends EventTarget {
       this.roomTransitionX = x
       this.roomTransitionY = y
     } else {
-      this.event = {
+      this.event.px = x
+      this.event.py = y
+      const ctx = {
         ...this.event,
-        px: x,
-        py: y,
         tx: x,
         ty: y,
         dx: x - this.player.x,
@@ -1469,7 +1469,7 @@ class Zest extends EventTarget {
       }
       this.player.x = x
       this.player.y = y
-      this.#runPlayerScript('update')
+      this.#runPlayerScript('update', ctx)
     }
   }
 
