@@ -1,5 +1,5 @@
-ZEST_SWITCHER_GAMES = {
-  'ware-wolf-collab': JSON.parse(JSON.stringify(gameData)),
+if (typeof ZEST_SWITCHER_GAMES === 'undefined') {
+  ZEST_SWITCHER_GAMES = {}
 }
 
 Zest.register((game) => {
