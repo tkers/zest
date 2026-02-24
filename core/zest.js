@@ -413,7 +413,7 @@ class Zest extends EventTarget {
       tx: this.player.x,
       ty: this.player.y,
       player: this.player.tile.name,
-      room: this.room.name,
+      room: null, //this.start.name,
       game: this.meta.name,
       aa: this.crankAngle,
       ra: 0,
@@ -531,17 +531,20 @@ class Zest extends EventTarget {
     this.frameIx++
     this.event.frame = this.frameIx
 
+    if (this.frameIx > 1) {
+      // skip during initial room transition
+      this.runScript(this.gameScript, 'loop')
+    }
+
     if (this.roomTransition) {
-      this.#enter(
-        this.roomTransition,
-        this.roomTransitionX,
-        this.roomTransitionY
-      )
+      // enter may trigger another goto so clear the vars first!
+      const nextRoom = this.roomTransition
+      const nextX = this.roomTransitionX
+      const nextY = this.roomTransitionY
       this.roomTransition = null
       this.roomTransitionX = null
       this.roomTransitionY = null
-    } else {
-      this.runScript(this.gameScript, 'loop')
+      this.#enter(nextRoom, nextX, nextY)
     }
   }
 
@@ -571,16 +574,15 @@ class Zest extends EventTarget {
       this.runScript(tile.script, 'load', { tile: tile.name })
     )
 
-    // START
-    this.#changeLoop(this.cart.song)
-    this.runScript(this.gameScript, 'start')
-
     // ENTER starting room in next frame
     this.room = {
       tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
     }
     this.roomTransition = this.start
 
+    // START
+    this.#changeLoop(this.cart.song)
+    this.runScript(this.gameScript, 'start')
     this.#emitEvent('start')
 
     // loop at 20 FPS (50ms per tick)
