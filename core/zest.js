@@ -1078,11 +1078,11 @@ class Zest extends EventTarget {
       let h = run(hh) | 0
       if (w < 0) {
         w *= -1
-        x -= w
+        xFloat -= w
       }
       if (h < 0) {
         h *= -1
-        y -= h
+        yFloat -= h
       }
       return { x: xFloat | 0, y: yFloat | 0, w, h, xFloat, yFloat }
     } else if (op === 'tell') {
