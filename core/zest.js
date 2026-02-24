@@ -390,7 +390,7 @@ class Zest extends EventTarget {
     this.globals = {}
     this.frameTimers = {}
     this.playTimers = {}
-    this.isInverted = 0
+    this.isInverted = false
     this.isShaking = false
     this.currentSong = null
 
@@ -1204,8 +1204,8 @@ class Zest extends EventTarget {
       // const cBottom = clipInt(0, cTop + h, ROOM_HEIGHT)
       this.cropArea = [x, y, x + w - 1, y + h - 1]
     } else if (op === 'invert') {
-      this.isInverted = 1 - this.isInverted
-      return this.isInverted
+      this.isInverted = !this.isInverted
+      return this.isInverted ? 1 : 0
     } else if (op === 'shake') {
       const frames = Math.ceil(run(args[0]) * FPS)
       this.isShaking = true
