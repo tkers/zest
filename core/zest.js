@@ -767,15 +767,13 @@ class Zest extends EventTarget {
     return true
   }
 
-  fin(message) {
+  fin(message, pos) {
     this.store()
     this.runScript(this.gameScript, 'finish')
     this.room = {
       tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
     }
-    this.say(message, () => {
-      this.restart()
-    })
+    this.say(message, () => this.restart(), pos)
     this.#emitEvent('finish')
   }
 
@@ -1025,7 +1023,9 @@ class Zest extends EventTarget {
         action: () => run(args[2]),
       }
     } else if (op === 'fin') {
-      this.fin(run(args[0]))
+      const msg = run(args[0])
+      const pos = args[1] && run(args[1])
+      this.fin(msg, pos)
     } else if (op === 'log') {
       this.log?.(run(args[0]))
     } else if (op === 'dump') {
