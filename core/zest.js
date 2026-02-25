@@ -804,8 +804,8 @@ class Zest extends EventTarget {
         this.#setFrameAt(v.x, v.y, v.frameIx)
       }
       if (v.frameIx >= v.tile.frames.length) {
-        if (v.callback) v.callback()
         delete this.playTimers[k]
+        if (v.callback) v.callback()
       }
     })
 
