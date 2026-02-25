@@ -773,6 +773,8 @@ class Zest extends EventTarget {
     this.room = {
       tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
     }
+    this.playTimers = {}
+    this.frameOverrides = {}
     this.say(message, () => this.restart(), pos)
     this.#emitEvent('finish')
   }
