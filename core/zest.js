@@ -157,10 +157,16 @@ function wrapText(str, maxWidth, maxLines) {
       lines.push(str.slice(from))
       break
     } else {
-      const bl = str.lastIndexOf(' ', breakAt)
+      let bl = str.lastIndexOf(' ', breakAt)
+      const hy = str.lastIndexOf('-', breakAt)
+      if (hy > bl) bl = -1
+
       if (bl > from) {
         lines.push(str.slice(from, bl))
         from = bl + 1
+      } else if (hy > from) {
+        lines.push(str.slice(from, hy + 1))
+        from = hy + 1
       } else {
         lines.push(str.slice(from, breakAt))
         from = breakAt
