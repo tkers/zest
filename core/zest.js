@@ -1,5 +1,7 @@
+'use strict'
+
 /*! Copyright (c) 2026 Tijn Kersjes - MIT License */
-Zest = (function () {
+window.Zest = (function () {
   const FPS = 20
   const CELL_SIZE = 8
   const ROOM_WIDTH = 25
@@ -219,7 +221,7 @@ Zest = (function () {
 
   // 'inline' frames into tiles for easier access
   const resolveFrames = (tiles, frameData) => {
-    tiles.forEach((tile) => {
+    tiles.filter(Boolean).forEach((tile) => {
       tile.frames = tile.frames?.map((id) => frameData[id]?.data)
     })
   }
@@ -242,7 +244,7 @@ Zest = (function () {
 
   // 'inline' tiles into rooms for easier access
   const resolveTiles = (rooms, tileData) => {
-    rooms.forEach((room) => {
+    rooms.filter(Boolean).forEach((room) => {
       room.tiles = room.tiles?.map((id) => tileData[id])
     })
   }
