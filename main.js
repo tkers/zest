@@ -29,7 +29,11 @@ window.addEventListener('load', () => {
   titleLabel.innerText = game.meta.name || 'untitled'
   authorLabel.innerText = game.meta.author || 'anonymous'
 
-  game.attachKeyboard({ z: Button.B, x: Button.A, c: Button.DOCK })
+  game.attachKeyboard({
+    z: Zest.kButtonB,
+    x: Zest.kButtonA,
+    c: Zest.kButtonCrank,
+  })
 
   game.addEventListener('pause', () => (lcd.className = 'paused'))
   game.addEventListener('resume', () => (lcd.className = ''))
@@ -44,12 +48,12 @@ window.addEventListener('load', () => {
   })
 
   Object.entries({
-    '#k-u': Button.UP,
-    '#k-r': Button.RIGHT,
-    '#k-d': Button.DOWN,
-    '#k-l': Button.LEFT,
-    '#k-a': Button.A,
-    '#k-b': Button.B,
+    '#k-u': Zest.kButtonUp,
+    '#k-r': Zest.kButtonRight,
+    '#k-d': Zest.kButtonDown,
+    '#k-l': Zest.kButtonLeft,
+    '#k-a': Zest.kButtonA,
+    '#k-b': Zest.kButtonB,
   }).forEach(([query, keyCode]) => {
     const btn = document.querySelector(query)
     btn.addEventListener('touchstart', (e) => {

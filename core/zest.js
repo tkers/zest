@@ -15,8 +15,6 @@ const COLOR_WHITE = '#baaea9' // '#fff'
 const BLACK_FRAME = Array(ROOM_WIDTH * ROOM_HEIGHT).fill(1)
 
 const EdgeDirection = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
-const Button = { UP: 1, RIGHT: 2, DOWN: 3, LEFT: 4, A: 5, B: 6, DOCK: 7 }
-
 const TileTypes = { 0: 'world', 1: 'player', 2: 'sprite', 3: 'item' }
 const PipeIndex = {
   PROMPT: 9,
@@ -25,6 +23,14 @@ const PipeIndex = {
   CURSOR_INACTIVE: 12,
   PAGES: 13,
 }
+
+const kButtonUp = 1
+const kButtonRight = 2
+const kButtonDown = 3
+const kButtonLeft = 4
+const kButtonA = 5
+const kButtonB = 6
+const kButtonCrank = 7
 
 const makeWindowRect = (rect = {}) => {
   const x = clipInt(0, rect.x ?? 3, ROOM_WIDTH - 1)
@@ -352,12 +358,12 @@ class Zest extends EventTarget {
     this.colorWhite = hexToRgba(this.config.colorWhite)
 
     this.input = {
-      [Button.UP]: new ButtonState(),
-      [Button.RIGHT]: new ButtonState(),
-      [Button.DOWN]: new ButtonState(),
-      [Button.LEFT]: new ButtonState(),
-      [Button.A]: new ButtonState(),
-      [Button.B]: new ButtonState(),
+      [kButtonUp]: new ButtonState(),
+      [kButtonRight]: new ButtonState(),
+      [kButtonDown]: new ButtonState(),
+      [kButtonLeft]: new ButtonState(),
+      [kButtonA]: new ButtonState(),
+      [kButtonB]: new ButtonState(),
     }
     this.isCrankDocked = true
     this.crankAngle = 0
@@ -435,13 +441,13 @@ class Zest extends EventTarget {
 
   attachKeyboard(bindings = {}) {
     const DEFAULT_KEY_BINDINGS = {
-      ArrowUp: Button.UP,
-      ArrowDown: Button.DOWN,
-      ArrowLeft: Button.LEFT,
-      ArrowRight: Button.RIGHT,
-      a: Button.B,
-      s: Button.A,
-      d: Button.DOCK,
+      ArrowUp: kButtonUp,
+      ArrowDown: kButtonDown,
+      ArrowLeft: kButtonLeft,
+      ArrowRight: kButtonRight,
+      a: kButtonB,
+      s: kButtonA,
+      d: kButtonCrank,
     }
 
     const bound = new Set(Object.values(bindings))
@@ -455,7 +461,7 @@ class Zest extends EventTarget {
       if (!btn) return
       e.preventDefault()
       if (e.repeat) return
-      if (btn === Button.DOCK) {
+      if (btn === kButtonCrank) {
         if (this.isCrankDocked) {
           this.undockCrank()
         } else {
@@ -1622,12 +1628,12 @@ class Zest extends EventTarget {
   // }
 
   #clearInput() {
-    this.input[Button.UP].clear()
-    this.input[Button.RIGHT].clear()
-    this.input[Button.DOWN].clear()
-    this.input[Button.LEFT].clear()
-    this.input[Button.A].clear()
-    this.input[Button.B].clear()
+    this.input[kButtonUp].clear()
+    this.input[kButtonRight].clear()
+    this.input[kButtonDown].clear()
+    this.input[kButtonLeft].clear()
+    this.input[kButtonA].clear()
+    this.input[kButtonB].clear()
   }
 
   #updateInput() {
@@ -1642,7 +1648,7 @@ class Zest extends EventTarget {
     let anythingPressed = false
 
     if (
-      this.input[Button.UP].check(
+      this.input[kButtonUp].check(
         inputRepeat,
         inputRepeatDelay,
         inputRepeatBetween
@@ -1652,7 +1658,7 @@ class Zest extends EventTarget {
       anythingPressed = true
     }
     if (
-      this.input[Button.DOWN].check(
+      this.input[kButtonDown].check(
         inputRepeat,
         inputRepeatDelay,
         inputRepeatBetween
@@ -1662,7 +1668,7 @@ class Zest extends EventTarget {
       anythingPressed = true
     }
     if (
-      this.input[Button.RIGHT].check(
+      this.input[kButtonRight].check(
         inputRepeat,
         inputRepeatDelay,
         inputRepeatBetween
@@ -1672,7 +1678,7 @@ class Zest extends EventTarget {
       anythingPressed = true
     }
     if (
-      this.input[Button.LEFT].check(
+      this.input[kButtonLeft].check(
         inputRepeat,
         inputRepeatDelay,
         inputRepeatBetween
@@ -1682,11 +1688,11 @@ class Zest extends EventTarget {
       anythingPressed = true
     }
 
-    if (this.input[Button.A].check(0)) {
+    if (this.input[kButtonA].check(0)) {
       anythingPressed = true
       confirmPressed = true
     }
-    if (this.input[Button.B].check(0)) {
+    if (this.input[kButtonB].check(0)) {
       anythingPressed = true
       cancelPressed = true
     }
@@ -2026,3 +2032,11 @@ class Zest extends EventTarget {
     this.ctx2d.putImageData(this.imgData, shakeX, shakeY)
   }
 }
+
+Zest.kButtonUp = kButtonUp
+Zest.kButtonRight = kButtonRight
+Zest.kButtonDown = kButtonDown
+Zest.kButtonLeft = kButtonLeft
+Zest.kButtonA = kButtonA
+Zest.kButtonB = kButtonB
+Zest.kButtonCrank = kButtonCrank

@@ -26,21 +26,21 @@ Zest.register((game) => {
     touchDownC = -1
 
     if (wasDouble) {
-      emulateKeyPress(Button.B)
+      emulateKeyPress(Zest.kButtonB)
       return
     }
 
     const adx = Math.abs(dx)
     const ady = Math.abs(dy)
     if (adx < SWIPE_DEADZONE && ady < SWIPE_DEADZONE) {
-      emulateKeyPress(Button.A)
+      emulateKeyPress(Zest.kButtonA)
       return
     }
 
     if (adx > ady) {
-      emulateKeyPress(dx > 0 ? Button.LEFT : Button.RIGHT)
+      emulateKeyPress(dx > 0 ? Zest.kButtonLeft : Zest.kButtonRight)
     } else {
-      emulateKeyPress(dy > 0 ? Button.UP : Button.DOWN)
+      emulateKeyPress(dy > 0 ? Zest.kButtonUp : Zest.kButtonDown)
     }
   }
 

@@ -109,15 +109,15 @@ Zest.register((game) => {
       const gpButtons = gamepad.buttons
       const gpAxes = gamepad.axes
 
-      mapButton(gpButtons[GamepadButton.B], Button.B)
-      mapButton(gpButtons[GamepadButton.A], Button.A)
-      mapButton(gpButtons[GamepadButton.UP], Button.UP)
-      mapButton(gpButtons[GamepadButton.DOWN], Button.DOWN)
-      mapButton(gpButtons[GamepadButton.LEFT], Button.LEFT)
-      mapButton(gpButtons[GamepadButton.RIGHT], Button.RIGHT)
+      mapButton(gpButtons[GamepadButton.B], Zest.kButtonB)
+      mapButton(gpButtons[GamepadButton.A], Zest.kButtonA)
+      mapButton(gpButtons[GamepadButton.UP], Zest.kButtonUp)
+      mapButton(gpButtons[GamepadButton.DOWN], Zest.kButtonDown)
+      mapButton(gpButtons[GamepadButton.LEFT], Zest.kButtonLeft)
+      mapButton(gpButtons[GamepadButton.RIGHT], Zest.kButtonRight)
 
-      mapAxis(gpAxes[1], Button.UP, Button.DOWN)
-      mapAxis(gpAxes[0], Button.LEFT, Button.RIGHT)
+      mapAxis(gpAxes[1], Zest.kButtonUp, Zest.kButtonDown)
+      mapAxis(gpAxes[0], Zest.kButtonLeft, Zest.kButtonRight)
 
       simulateCrank(gpAxes[2], gpAxes[3])
 
