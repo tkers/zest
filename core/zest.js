@@ -191,6 +191,10 @@ window.Zest = (function () {
   }
 
   const randomInt = (lo, hi) => {
+    if (!isDefined(hi)) {
+      hi = lo
+      lo = 0
+    }
     lo = Math.floor(lo)
     hi = Math.floor(hi)
     const range = Math.abs(hi - lo + 1)
@@ -1296,7 +1300,7 @@ window.Zest = (function () {
           return
         }
       } else if (op === 'random') {
-        return randomInt(run(args[0]), run(args[1]))
+        return randomInt(run(args[0]), args[1] && run(args[1]))
       } else if (op === 'sine') {
         return Math.sin(run(args[0]))
       } else if (op === 'cosine') {
