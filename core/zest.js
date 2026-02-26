@@ -874,12 +874,14 @@ class Zest extends EventTarget {
   loopMusic(ref) {
     const song = this.getSong(ref)
     if (this.currentSong == song) return
+    ZestAudio.stopSong()
     this.currentSong = song
     ZestAudio.playSong(song, true)
   }
   onceMusic(ref, cb) {
     const song = this.getSong(ref)
     if (this.currentSong == song) return
+    ZestAudio.stopSong()
     this.currentSong = song
     ZestAudio.playSong(song, false, () => {
       this.currentSong = null
