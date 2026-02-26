@@ -140,8 +140,9 @@ function wrapText(str, maxWidth, maxLines) {
 
   while (from < str.length) {
     let breakAt = from + maxWidth
-    const ff = str.indexOf('\f', from)
+    let ff = str.indexOf('\f', from)
     const nl = str.indexOf('\n', from)
+    if (nl > -1 && nl < ff) ff = -1
 
     if (ff >= from && ff <= breakAt) {
       lines.push(str.slice(from, ff))
