@@ -42,6 +42,9 @@ window.Zest = (function () {
     return [x, y, w, h]
   }
 
+  function info(message) {
+    console.info(`[INFO] ${message}`)
+  }
   function warn(message) {
     console.warn(`[WARN] ${message}`)
   }
@@ -235,6 +238,9 @@ window.Zest = (function () {
       .filter((t) => isDefined(t.script))
       .forEach((tile) => {
         tile.script = scriptData[tile.script].data
+        if (tile.script) {
+          tile.script._scriptParentName = `<TILE> ${tile.name} (${tile.id})`
+        }
       })
   }
 
@@ -243,6 +249,9 @@ window.Zest = (function () {
       .filter((r) => isDefined(r.script))
       .forEach((room) => {
         room.script = scriptData[room.script].data
+        if (room.script) {
+          room.script._scriptParentName = `<ROOM> ${room.name} (${room.id})`
+        }
       })
   }
 
@@ -329,7 +338,7 @@ window.Zest = (function () {
       }
 
       // repairAndCleanup(data)
-      // console.log(data)
+      console.log(data)
 
       this.originalCart = _data
       this.cart = data
@@ -395,7 +404,13 @@ window.Zest = (function () {
       this.charWidth = data.font.type === 0 ? 0.5 : 1
 
       this.gameScript = data.scripts[data.script]?.data
+      if (this.gameScript) {
+        this.gameScript._scriptParentName = '<GAME>'
+      }
       this.playerScript = data.player.tile.script
+      if (this.playerScript) {
+        this.playerScript._scriptParentName = '<PLAYER>'
+      }
 
       // create a lookup table for room and tile names
       this.namedRooms = byName(data.rooms)
@@ -1167,10 +1182,14 @@ window.Zest = (function () {
           })
         }
       } else if (op === 'call') {
+        const name = run(args[0])
+        info(
+          `Call "${name}" on ${context.self?._scriptParentName ?? '<NOTHING>'}`
+        )
         if (context.self == this.playerScript) {
-          this.#runPlayerScript(run(args[0]), context)
+          this.#runPlayerScript(name, context)
         } else {
-          this.runScript(context.self, run(args[0]), context)
+          this.runScript(context.self, name, context)
         }
       } else if (op === 'emit') {
         this.emit(run(args[0]), context)
