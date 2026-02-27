@@ -43,7 +43,7 @@ window.Zest = (function () {
   }
 
   function info(message) {
-    console.info(`[INFO] ${message}`)
+    console.debug(`[INFO] ${message}`)
   }
   function warn(message) {
     console.warn(`[WARN] ${message}`)
