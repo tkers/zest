@@ -466,9 +466,9 @@ window.Zest = (function () {
         ArrowDown: kButtonDown,
         ArrowLeft: kButtonLeft,
         ArrowRight: kButtonRight,
-        z: kButtonB,
-        x: kButtonA,
-        c: kButtonCrank,
+        KeyZ: kButtonB,
+        KeyX: kButtonA,
+        KeyC: kButtonCrank,
       }
 
       const bound = new Set(Object.values(bindings))
@@ -478,7 +478,7 @@ window.Zest = (function () {
       const keymap = { ...missing, ...bindings }
 
       target.addEventListener('keydown', (e) => {
-        const btn = keymap[e.key]
+        const btn = keymap[e.code]
         if (!btn) return
         e.preventDefault()
         if (e.repeat) return

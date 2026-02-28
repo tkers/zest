@@ -29,11 +29,7 @@ window.addEventListener('load', () => {
   titleLabel.innerText = game.meta.name || 'untitled'
   authorLabel.innerText = game.meta.author || 'anonymous'
 
-  game.attachKeyboard({
-    z: Zest.kButtonB,
-    x: Zest.kButtonA,
-    c: Zest.kButtonCrank,
-  })
+  game.attachKeyboard()
 
   game.addEventListener('pause', () => (lcd.className = 'paused'))
   game.addEventListener('resume', () => (lcd.className = ''))
