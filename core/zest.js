@@ -1168,7 +1168,7 @@ window.Zest = (function () {
             ...context,
             x: who.x,
             y: who.y,
-            tile,
+            tile: tile.name,
             self: tile?.script,
           })
         } else {
@@ -1177,7 +1177,7 @@ window.Zest = (function () {
             ...context,
             // x: undefined,
             // y: undefined,
-            tile,
+            tile: tile.name,
             self: tile?.script,
           })
         }
