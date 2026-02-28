@@ -466,9 +466,9 @@ window.Zest = (function () {
         ArrowDown: kButtonDown,
         ArrowLeft: kButtonLeft,
         ArrowRight: kButtonRight,
-        a: kButtonB,
-        s: kButtonA,
-        d: kButtonCrank,
+        z: kButtonB,
+        x: kButtonA,
+        c: kButtonCrank,
       }
 
       const bound = new Set(Object.values(bindings))
