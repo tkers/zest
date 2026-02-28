@@ -494,9 +494,10 @@ window.Zest = (function () {
       })
 
       target.addEventListener('keyup', (e) => {
-        if (!(e.key in keymap)) return
+        const btn = keymap[e.code]
+        if (!btn) return
         e.preventDefault()
-        this.releaseKey(keymap[e.key])
+        this.releaseKey(btn)
       })
     }
 
