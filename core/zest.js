@@ -460,7 +460,7 @@ window.Zest = (function () {
       }
     }
 
-    attachKeyboard(bindings = {}) {
+    attachKeyboard(bindings = {}, target = window) {
       const DEFAULT_KEY_BINDINGS = {
         ArrowUp: kButtonUp,
         ArrowDown: kButtonDown,
@@ -477,7 +477,7 @@ window.Zest = (function () {
       )
       const keymap = { ...missing, ...bindings }
 
-      window.addEventListener('keydown', (e) => {
+      target.addEventListener('keydown', (e) => {
         const btn = keymap[e.key]
         if (!btn) return
         e.preventDefault()
@@ -493,7 +493,7 @@ window.Zest = (function () {
         }
       })
 
-      window.addEventListener('keyup', (e) => {
+      target.addEventListener('keyup', (e) => {
         if (!(e.key in keymap)) return
         e.preventDefault()
         this.releaseKey(keymap[e.key])
