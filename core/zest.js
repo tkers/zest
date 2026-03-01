@@ -1,6 +1,7 @@
 'use strict'
 
 /*! Copyright (c) 2026 Tijn Kersjes - MIT License */
+
 window.Zest = (function () {
   const FPS = 20
   const CELL_SIZE = 8
@@ -1199,10 +1200,16 @@ window.Zest = (function () {
       } else if (op === 'mimic') {
         const who = run(args[0])
         const tile = this.getTile(who)
-        this.runScript(tile.script, context.name, {
-          ...context,
-          self: tile.script,
-        })
+        if (tile.script) {
+          this.runScript(tile.script, context.name, {
+            ...context,
+            self: tile.script,
+          })
+        } else if (context.name === 'interact') {
+          this.#noscriptInteract(tile, context)
+        } else if (context.name === 'collect') {
+          this.#noscriptCollect(tile, context)
+        }
       } else if (op === 'goto') {
         const { x, y } = run(args[0])
         this.goto(x, y, args[1] && run(args[1]))
@@ -1431,26 +1438,29 @@ window.Zest = (function () {
       const ty = py + dy
       const target = this.getTileAt(tx, ty)
       if (target) {
-        this.#actOn(target, tx, ty)
+        this.#interact(target, tx, ty)
       }
     }
 
-    #actOn(target, x, y) {
+    #interact(target, x, y) {
       const ctx = { tile: target.name, x, y }
       if (target.script) {
         this.runScript(target.script, 'interact', ctx)
       } else {
-        // noscript handler
-        if (isDefined(target.sound)) {
-          this.playSound(target.sound)
-        }
-        if (target.says) {
-          const message = this.runExpression(target.says, null, {
-            ...this.event,
-            ...ctx,
-          })
-          this.say(message)
-        }
+        this.#noscriptInteract(target, ctx)
+      }
+    }
+
+    #noscriptInteract(target, ctx) {
+      if (isDefined(target.sound)) {
+        this.playSound(target.sound)
+      }
+      if (target.says) {
+        const message = this.runExpression(target.says, null, {
+          ...this.event,
+          ...ctx,
+        })
+        this.say(message)
       }
     }
 
@@ -1459,21 +1469,24 @@ window.Zest = (function () {
       if (target.script) {
         this.runScript(target.script, 'collect', ctx)
       } else {
-        // noscript handler
-        const keyName = `${target.name}s`
-        const counter = this.globals[keyName] ?? 0
-        this.globals[keyName] = counter + 1
-        this.room.tiles[coordToIndex(x, y)] = this.backgroundTile
-        if (isDefined(target.sound)) {
-          this.playSound(target.sound)
-        }
-        if (target.says) {
-          const message = this.runExpression(target.says, null, {
-            ...this.event,
-            ...ctx,
-          })
-          this.say(message)
-        }
+        this.#noscriptCollect(target, ctx)
+      }
+    }
+
+    #noscriptCollect(target, ctx) {
+      const keyName = `${target.name}s`
+      const counter = this.globals[keyName] ?? 0
+      this.globals[keyName] = counter + 1
+      this.room.tiles[coordToIndex(ctx.x, ctx.y)] = this.backgroundTile
+      if (isDefined(target.sound)) {
+        this.playSound(target.sound)
+      }
+      if (target.says) {
+        const message = this.runExpression(target.says, null, {
+          ...this.event,
+          ...ctx,
+        })
+        this.say(message)
       }
     }
 
@@ -1574,7 +1587,7 @@ window.Zest = (function () {
       let shouldBump = false
       if (target.type == 2) {
         if (this.config.autoAct) {
-          this.#actOn(target, tx, ty)
+          this.#interact(target, tx, ty)
         }
       } else if (target.type == 3) {
         this.#collect(target, tx, ty)
