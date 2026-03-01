@@ -7,6 +7,7 @@ const wrapColor = document.getElementById('color-wrap')
 const inColor = document.getElementById('color-in')
 const inTitle = document.getElementById('title-in')
 const inAutoplay = document.getElementById('autoplay-in')
+const inControls = document.getElementById('controls-in')
 const downloadLink = document.getElementById('download-link')
 const fileOut = document.getElementById('file-out')
 
@@ -108,6 +109,26 @@ wrapColor.addEventListener('contextmenu', (e) => {
   setThemeColor(inColor.value)
 })
 
+const keyboard_wasd = {
+  KeyW: Zest.kButtonUp,
+  KeyA: Zest.kButtonLeft,
+  KeyS: Zest.kButtonDown,
+  KeyD: Zest.kButtonRight,
+  Comma: Zest.kButtonB,
+  Period: Zest.kButtonA,
+  Slash: Zest.kButtonCrank,
+}
+const keyboard_as = {
+  KeyA: Zest.kButtonB,
+  KeyS: Zest.kButtonA,
+  KeyD: Zest.kButtonCrank,
+}
+const keyboard_mappers = {
+  'arrow-zx': {},
+  'arrow-as': keyboard_as,
+  'wasd-,.': keyboard_wasd,
+}
+
 downloadLink.addEventListener('click', (e) => {
   if (!rawGameData) {
     e.preventDefault()
@@ -115,10 +136,12 @@ downloadLink.addEventListener('click', (e) => {
   }
 
   const vAutoplay = inAutoplay.checked ? 'clicked' : ''
+  const vKeymap = JSON.stringify(keyboard_mappers[inControls.value])
 
   const src = ZEST_TEMPLATE.replace('{{AUTOPLAY}}', vAutoplay)
     .replace('{{COLOR}}', inColor.value)
     .replace('{{TITLE}}', inTitle.value)
+    .replace('{{KEYMAP}}', vKeymap)
     .replace('{{GAME}}', rawGameData)
 
   const blob = new Blob([src], { type: 'text/html' })
