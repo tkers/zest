@@ -1,37 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>Zest</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, viewport-fit=cover" />
     <link rel="stylesheet" type="text/css" href="base.css" />
-    <link rel="stylesheet" type="text/css" href="keypad.css" />
+    <link rel="stylesheet" type="text/css" href="home.css" />
     <script type="text/javascript" src="core/zest.js"></script>
     <script type="text/javascript" src="core/audio.js"></script>
     <script type="text/javascript" src="plugins/touch.js"></script>
     <script type="text/javascript" src="plugins/gamepad.js"></script>
     <script type="text/javascript" src="plugins/openurl.js"></script>
-    <script type="text/javascript" src="data/hello-world.js"></script>
-    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="home.js"></script>
   </head>
-  <body class="lemon">
+  <body>
+    <header>
+      <nav>
+        <a href="/zest" class="here"><strong>Zest</strong></a>
+        <a href="/zest/bundler">Bundler</a>
+        <a href="/zest/docs">Docs</a>
+        <a href="https://github.com/tkers/zest" class="right">GitHub</a>
+      </nav>
+    </header>
     <main>
       <h1>Zest</h1>
-      <h2>
-        A web runtime for
-        <a href="https://play.date/pulp/about" target="_blank">Pulp</a> games
-      </h2>
+      <h2>a web runtime for Pulp games</h2>
 
       <section class="lcd-bezel">
         <div class="lcd-bg">
           <canvas id="lcd" width="200" height="120"></canvas>
         </div>
         <div class="lcd-bar">
-          <small class="meta">
-            &#8220;<span id="label-title">game</span>&#8221; by
+          <small class="meta" style="float: right">
+            <span id="label-title">game</span> by
             <span id="label-author">author</span>
           </small>
-          <div style="float: right">
+          <div>
             <!-- <a href="#" id="btn-snap" style="float: right">Snapshot</a> -->
             <button id="btn-lemon">Lemon</button>
             <button id="btn-plum">Plum</button>
@@ -40,27 +45,25 @@
         </div>
       </section>
 
-      <section class="controls">
-        <div class="dpad">
-          <div class="key" id="k-u">▲&#xFE0E;</div>
-          <div class="key" id="k-l">◀&#xFE0E;</div>
-          <div class="key" id="k-m">&nbsp;</div>
-          <div class="key" id="k-r">▶&#xFE0E;</div>
-          <div class="key" id="k-d">▼&#xFE0E;</div>
-        </div>
-        <div class="btns">
-          <div class="key" id="k-a">A</div>
-          <div class="key" id="k-b">B</div>
-        </div>
-      </section>
-
       <section>
         <p>
           <strong>🍋 Zest</strong> is a new way to play and distribute games
-          made with Pulp. It's build from the ground up (without using Panic's
-          proprietary code) so that developers can use it to make their games
-          available to more players.
+          made with
+          <a href="https://play.date/pulp/about" target="_blank">Pulp</a>. It's
+          build from the ground up (without using Panic's proprietary code) so
+          that developers can use it to make their games available to more
+          players. Completely free and
+          <a href="https://github.com/tkers/zest" target="_blank">open source</a
+          >!
         </p>
+      </section>
+
+      <section class="center">
+        <a href="/zest/bundler" class="btn btn-primary">Try the Bundler</a>
+        <a href="/zest/docs" class="btn btn-secondary">Documentation</a>
+      </section>
+
+      <section>
         <p>
           This project is still in active development, so don't expect your game
           to be fully compatible just yet! Have a look at the
@@ -70,15 +73,18 @@
           to see where we're currently at.
         </p>
       </section>
-
-      <footer>
-        Made with ❤ in Amsterdam. If you like this project,
-        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
-        maybe?<br /><br />
-        <a href="https://github.com/tkers/zest" target="_blank">Zest</a> is an
-        independent, unofficial runtime and is not affiliated with, endorsed by,
-        or supported by Panic Inc.
-      </footer>
     </main>
+
+    <footer>
+      <p>
+        Made with ❤&#xFE0E; in Amsterdam. If you like this project,
+        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
+        maybe?
+      </p>
+      <p>
+        Zest is an independent, unofficial runtime and is not affiliated with,
+        endorsed by, or supported by Panic Inc.
+      </p>
+    </footer>
   </body>
 </html>

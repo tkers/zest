@@ -1,57 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>Zest Bundler</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="../base.css" />
     <link rel="stylesheet" type="text/css" href="bundler.css" />
     <script type="text/javascript" src="../core/zest.js"></script>
     <script type="text/javascript" src="../core/utils.js"></script>
     <script type="text/javascript" src="template.js"></script>
   </head>
-  <body class="lemon">
+  <body>
+    <header>
+      <nav>
+        <a href="/zest"><strong>Zest</strong></a>
+        <a href="/zest/bundler" class="here">Bundler</a>
+        <a href="/zest/docs">Docs</a>
+        <a href="https://github.com/tkers/zest" class="right">GitHub</a>
+      </nav>
+    </header>
     <main>
       <h1>Zest Bundler</h1>
-      <h2>
-        export your
-        <a href="https://play.date/pulp/about" target="_blank">Pulp</a> game to
-        web
-      </h2>
+      <h2>export your Pulp game to web</h2>
       <section id="dropzone">
         <h3 id="drop-label" class="hint">Drop your source JSON file</h3>
-        <input type="file" id="data-in" accept="application/json"/ >
+        <input type="file" id="data-in" accept="application/json" />
         <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
       </section>
-      <section>
-        <div class="row">
-          <div class="col">
-            <h3>Title</h3>
-            <input type="text" id="title-in" />
+      <section class="config">
+        <div>
+          <h3>Title</h3>
+          <input type="text" id="title-in" />
+        </div>
+        <div>
+          <h3>Palette</h3>
+          <div id="color-wrap">
+            <input type="color" id="color-in" value="#808080" />
           </div>
-          <div class="col">
-            <h3>Autoplay</h3>
-              <input type="checkbox" id="autoplay-in" />
-          </div>
-          <div class="col">
-            <h3>Palette</h3>
-            <div id="color-wrap">
-              <input type="color" id="color-in" value="#808080" />
-            </div>
-          </div>
+        </div>
+        <div>
+          <h3>Autoplay</h3>
+          <input type="checkbox" id="autoplay-in" />
         </div>
       </section>
       <section style="margin-top: 64px">
-        <a href="#" id="download-link" class="disabled">Download bundle</a>
+        <a href="#" id="download-link" class="disabled">Download!</a>
+        <p id="file-out">&nbsp;</p>
       </section>
-      <footer>
-        Made with ❤ in Amsterdam. If you like this project,
-        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
-        maybe?<br /><br />
-        <a href="https://tkers.dev/zest" target="_blank">Zest</a> is an
-        independent, unofficial runtime and is not affiliated with, endorsed by,
-        or supported by Panic Inc.
-      </footer>
     </main>
+    <footer>
+      <p>
+        Made with ❤&#xFE0E; in Amsterdam. If you like this project,
+        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
+        maybe?
+      </p>
+      <p>
+        Zest is an independent, unofficial runtime and is not affiliated with,
+        endorsed by, or supported by Panic Inc.
+      </p>
+    </footer>
     <script type="text/javascript" src="bundler.js"></script>
   </body>
 </html>

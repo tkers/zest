@@ -1,0 +1,123 @@
+body {
+  background-color: #f4ba53;
+}
+
+h1 {
+  font-size: 3em;
+  margin-top: 16px;
+}
+
+/* body.lemon, */
+#btn-lemon {
+  background-color: #f4ba53;
+}
+
+/* body.plum, */
+#btn-plum {
+  background-color: #8a60be;
+}
+
+/* body.mint, */
+#btn-mint {
+  background-color: #4ca38d;
+}
+
+#btn-lemon,
+#btn-plum,
+#btn-mint {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  font-size: 0;
+  border: 2px solid #000;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: transform 80ms;
+}
+
+body.lemon #btn-lemon,
+body.plum #btn-plum,
+body.mint #btn-mint {
+  border-color: #00000077;
+  filter: grayscale(25%);
+}
+
+#btn-lemon:hover,
+#btn-plum:hover,
+#btn-mint:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+#btn-lemon:active,
+#btn-plum:active,
+#btn-mint:active {
+  transform: none;
+}
+
+small.meta {
+  color: #808080;
+  font-size: small;
+  line-height: 28px;
+}
+small.meta #label-title {
+  font-style: italic;
+}
+
+small.meta a[href] {
+  color: #808080;
+  text-decoration: underline;
+  cursor: pointer;
+}
+small.meta a[href]:hover {
+  color: #b0b0b0;
+  text-decoration: none;
+}
+
+.lcd-bezel {
+  clear: both;
+  border: 8px #000000 solid;
+  border-radius: 8px;
+  margin: 32px auto;
+  box-sizing: content-box;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.lcd-bg {
+  /* effectively cancels out blend mode */
+  background-color: #808080;
+}
+
+/* body.lemon .lcd-bg {
+  background-color: #d09584;
+} */
+body.plum .lcd-bg {
+  background-color: #8a60be;
+  background-image: radial-gradient(#8d00ff, transparent);
+}
+body.mint .lcd-bg {
+  background-color: #4ca38d;
+}
+
+#lcd {
+  background-color: #312f28;
+  aspect-ratio: auto 200/120;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  mix-blend-mode: hard-light;
+  touch-action: none;
+  display: block;
+}
+
+#lcd.paused {
+  filter: brightness(0.5);
+  mix-blend-mode: unset;
+}
+
+.lcd-bar {
+  padding: 4px 4px 0;
+  background-color: #000000;
+}

@@ -1,36 +1,3 @@
-html,
-body {
-  margin: 0;
-  height: 100%;
-}
-
-body {
-  color: #312f28;
-  /* background-color: #f8f0e7; */
-  /* background-color: #4ca38d; */
-  background-color: #f4ba53;
-  font-family: monospace;
-  font-size: 16px;
-  padding: 0 8px;
-}
-
-main {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 32px 8px 8px;
-}
-
-h1,
-h2 {
-  text-align: center;
-  margin-bottom: 0;
-  text-wrap: balance;
-}
-
-h1 {
-  color: #000000;
-}
-
 @keyframes wiggle {
   0% {
     transform: rotate(12deg);
@@ -56,7 +23,7 @@ h1 {
 }
 
 h1::after {
-  content: 'beta';
+  content: 'BETA';
   font-size: small;
   background-color: #de461c;
   box-shadow: 0 1px 0 #a73819;
@@ -66,48 +33,17 @@ h1::after {
   border-radius: 32px;
   transform: rotate(12deg);
   position: absolute;
-  margin-top: -16px;
+  margin-top: -8px;
   margin-left: -8px;
   animation: wiggle 5200ms infinite;
 }
 
-h2 {
-  margin-top: 4px;
-  margin-bottom: 16px;
-  font-weight: normal;
-}
-
-h2 a {
-  color: #000000;
-  text-decoration: none;
-}
-h2 a:hover {
-  text-decoration: underline;
-}
-
-section,
-footer {
-  margin: 32px 0;
+h3 {
+  font-weight: 500;
 }
 
 section {
   text-align: center;
-}
-
-footer {
-  color: #312f2880;
-  font-size: small;
-  padding-top: 32px;
-  margin-top: 64px;
-  border-top: 1px solid #ffffff20;
-  box-shadow: 0 -1px 0 #00000010;
-}
-
-footer a {
-  color: #312f28d0;
-}
-footer a:hover {
-  color: #000000;
 }
 
 section#dropzone {
@@ -117,7 +53,9 @@ section#dropzone {
   padding: 4px;
   border-radius: 16px;
   background-color: #0000001a;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   aspect-ratio: auto 200/120;
 }
@@ -132,10 +70,9 @@ section#dropzone input {
   left: 0;
 }
 section#dropzone h3 {
-  text-align: center;
-  position: relative;
-  margin-top: 27%;
   color: #312f2880;
+  margin: 8px;
+  text-wrap: balance;
 }
 section#dropzone:hover h3 {
   color: #312f28d0;
@@ -166,34 +103,35 @@ section#dropzone.loaded canvas#card-view {
   display: block;
 }
 
-.row {
+section.config {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 32px 64px;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  flex: 1;
+input[type='text'],
+select {
+  appearance: none;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 16px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 32px;
+  border: 4px solid #312f28;
 }
 
 input#title-in {
-  padding: 6px 12px;
-  border: 4px solid #312f28;
-  background-color: #ffffff;
-  color: #000000;
-  border-radius: 32px;
-  width: 160px;
+  width: 200px;
 }
 
 #color-wrap {
-  border: 4px solid #312f28;
+  border: 4px solid #00000080;
   background-color: #ffffff;
   color: #000000;
   display: inline-block;
@@ -217,43 +155,46 @@ input#title-in {
   cursor: pointer;
 }
 
-input#autoplay-in {
+input[type='checkbox'] {
   appearance: none;
-  margin: 0 auto;
-  background-color: #ffffff;
-  border: 4px solid #000000;
+  background-color: #000000;
+  width: 64px;
+  height: 40px;
+  border-radius: 32px;
+  vertical-align: middle;
+  margin: 0 8px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 80ms;
+}
+input[type='checkbox']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 32px;
   height: 32px;
-  box-sizing: content-box;
+  margin: 4px;
   border-radius: 32px;
-  display: grid;
-  place-content: center;
-  cursor: pointer;
+  background-color: #ffffff;
+  transition: left 80ms;
 }
 
-input#autoplay-in::before {
-  content: '';
-  width: 24px;
-  height: 24px;
-  border-radius: 32px;
-  background-color: #312f28;
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-  transform: scale(0);
-  transition: transform 80ms;
+input[type='checkbox']:checked {
+  background-color: #4ea867;
 }
-
-input#autoplay-in:checked::before {
-  transform: scale(1);
+input[type='checkbox']:checked::before {
+  left: 24px;
 }
 
 a#download-link {
   border-radius: 32px;
-  padding: 8px 16px;
+  padding: 8px 24px;
   background-color: #312f28;
   color: #ffffffdd;
   text-decoration: none;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 64px;
   position: relative;
   border-bottom: 4px solid #000000;
 }
@@ -267,4 +208,11 @@ a#download-link:active {
 a#download-link.disabled {
   color: #ffffff20 !important;
   pointer-events: none;
+}
+
+#download-link ~ p {
+  color: #9f824f;
+  font-size: small;
+  font-style: italic;
+  margin-top: 16px;
 }

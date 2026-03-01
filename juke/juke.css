@@ -1,14 +1,10 @@
 html,
 body {
-  margin: 0;
   height: fit-content;
 }
 
 body {
   color: #ffffffa0;
-  font-family: monospace;
-  font-size: 16px;
-  padding: 0 8px;
   background-color: #8a60be;
   background-blend-mode: soft-light;
   background-size: cover;
@@ -17,16 +13,15 @@ body {
   backdrop-filter: blur(8px);
 }
 
-main {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 32px 8px 8px;
+header {
+  background-color: #300c5c;
 }
-
-h1,
-h2 {
-  text-align: center;
-  margin-bottom: 0;
+header nav a {
+  color: #ffffffc0;
+}
+header nav a:hover {
+  background: none;
+  color: #fff;
 }
 
 h1 {
@@ -58,7 +53,7 @@ h1 {
 }
 
 h1::after {
-  content: 'beta';
+  content: 'BETA';
   font-size: small;
   background-color: #de461c;
   box-shadow: 0 1px 0 #a73819;
@@ -84,27 +79,18 @@ h2 a {
   text-decoration: none;
 }
 h2 a:hover {
+  color: #ffffff;
   text-decoration: underline;
-}
-
-section,
-footer {
-  margin: 32px 0;
 }
 
 section {
   max-width: 400px;
+  padding: 0 8px;
 }
 
 footer {
   color: #ffffff60;
-  font-size: small;
-  padding-top: 32px;
-  margin-top: 64px;
-  border-top: 1px solid #ffffff10;
-  box-shadow: 0 -1px 0 #00000010;
 }
-
 footer a {
   color: #ffffff80;
 }
@@ -192,7 +178,7 @@ section#controls a {
   width: 64px;
   height: 64px;
   font-size: 24px;
-  line-height: 62px;
+  line-height: 66px;
   color: #ffffffa0;
   border: 4px solid #ffffffa0;
   text-decoration: none;

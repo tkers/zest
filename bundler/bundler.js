@@ -8,6 +8,7 @@ const inColor = document.getElementById('color-in')
 const inTitle = document.getElementById('title-in')
 const inAutoplay = document.getElementById('autoplay-in')
 const downloadLink = document.getElementById('download-link')
+const fileOut = document.getElementById('file-out')
 
 const cardCanvas = document.getElementById('card-view')
 const cardViewer = new Zest(cardCanvas)
@@ -52,6 +53,9 @@ dropzone.addEventListener('click', () => {
 function handleProjectDataLoaded(e) {
   const data = JSON.parse(e.target.result)
   rawGameData = JSON.stringify(Zest.minify(data))
+
+  const size = rawGameData.length + ZEST_TEMPLATE.length
+  fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
 
   cardViewer.load(data)
   inTitle.value = data.name
@@ -110,12 +114,12 @@ downloadLink.addEventListener('click', (e) => {
     return
   }
 
-  const src = zest_template
-    .replace('{{AUTOPLAY}}', inAutoplay.checked ? 'clicked' : '')
+  const vAutoplay = inAutoplay.checked ? 'clicked' : ''
+
+  const src = ZEST_TEMPLATE.replace('{{AUTOPLAY}}', vAutoplay)
     .replace('{{COLOR}}', inColor.value)
     .replace('{{TITLE}}', inTitle.value)
     .replace('{{GAME}}', rawGameData)
-  // .replace('{{GAME}}', `"${btoa(rawGameData)}"`)
 
   const blob = new Blob([src], { type: 'text/html' })
   const url = URL.createObjectURL(blob)

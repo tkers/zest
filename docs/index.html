@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Zest Docs</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="../base.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/zest"><strong>Zest</strong></a>
+        <a href="/zest/bundler">Bundler</a>
+        <a href="/zest/docs" class="here">Docs</a>
+        <a href="https://github.com/tkers/zest" class="right">GitHub</a>
+      </nav>
+    </header>
+    <main>
+      <h1>Zest Docs</h1>
+      <h2>core API reference</h2>
+
+      <section>
+        <p>There's generally 2 ways to use Zest:</p>
+        <ol>
+          <li>
+            Use the <a href="/zest/bundler">bundler</a> to convert your game
+            automatically <em>(easy)</em>
+          </li>
+          <li>
+            Download and integrate with the core runtime library
+            <em>(advanced)</em>
+          </li>
+        </ol>
+        <p>
+          The first option does not require any coding, but customisation is
+          more limited. The second option entails importing the library into
+          your own HTML/JS project, and using the API reference below to load
+          and run your game.
+        </p>
+      </section>
+
+      <section class="center">
+        <a
+          href="https://github.com/tkers/zest/releases"
+          target="_blank"
+          class="btn btn-primary"
+          >Download</a
+        >
+        <a
+          href="https://github.com/tkers/zest/issues"
+          target="_blank"
+          class="btn btn-secondary"
+          >Open Issues</a
+        >
+      </section>
+
+      <section>
+        <p>
+          After downloading zest.js, you should import the library into your
+          HTML page like so:
+        </p>
+        <pre><code>&lt;script src="<strong>zest.js</strong>" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+        <p>
+          When the script loads, it defines a global <code>Zest</code> variable
+          that you can use to initialise and run your game.
+        </p>
+      </section>
+
+      <section>
+        <h3>Initialising Zest</h3>
+        <p>
+          There are 2 static constructors available to initialise Zest and get
+          your game in a playable state. Both require your game
+          <code>data</code> as input. This is essentially the
+          <code>data.json</code> that Pulp exports, but be aware that browsers
+          can't load JSON files directly; You can either use
+          <code>fetch()</code> to load the game, or prefix your data file with
+          e.g. <code>const gameData = {...}</code> to make it a valid JS file.
+        </p>
+        <p>
+          The static method <code>Zest.load(data, canvas)</code> loads your game
+          and renders the <em>card</em> screen, allowing you to call
+          <code>play()</code> on it to start your game. This is generally the
+          best way to start, because browsers require a user gesture (keyboard
+          press or mouse click) for WebAudio to work.
+        </p>
+        <p>
+          The static method <code>Zest.run(data, canvas)</code> loads your game
+          and immediately starts it. This is essentially the
+          <em>autoplay</em> route, but WebAudio might not be enabled when doing
+          this from a browser.
+        </p>
+        <p>
+          Both of these constructors return the <code>game</code> instance
+          referred to below.
+        </p>
+      </section>
+
+      <section>
+        <h3>Basic Example</h3>
+        <p>
+          This example assumes that <code>gameData</code> is already loaded with
+          the contents of your <code>data.json</code> file:
+        </p>
+        <pre><code>window.addEventListener('load', () => {
+  const canvas = document.getElementByTagName('canvas')[0]
+  const game = Zest.run(gameData, canvas)
+  game.attachKeyboard()
+})</code></pre>
+        <p>
+          It waits for the page (and your gamedata) to be loaded, and then
+          immediately starts your game on the first <code>canvas</code> element
+          on the page. Lastly, we attach the default keyboard controls to the
+          game, which maps the arrow keys to the d-pad, and <kbd>Z</kbd> and
+          <kbd>X</kbd> to the B and A buttons respectively.
+        </p>
+
+        <h3>Advanced Example</h3>
+        <p>
+          This example asynchronously loads a <code>data.json</code> file using
+          <code>fetch</code>, and waits for the player to click the canvas
+          before starting the game. This ensures that audio is enabled from the
+          first frame. Finally, we customise the keyboard bindings to attach to
+          the <kbd>A</kbd> and <kbd>S</kbd> buttons instead of the defaults.
+        </p>
+        <pre><code>window.addEventListener('load', () => {
+  const canvas = document.getElementByTagName('canvas')[0]
+  fetch('mygame/data.json')
+    .then((res) => res.json())
+    .then((data) => {
+      const game = Zest.load(data, canvas)
+      game.attachKeyboard({ KeyA: Zest.kButtonB, KeyS: Zest.kButtonA })
+      canvas.addEventListener('click', () => game.play())
+    })
+})</code></pre>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Made with ❤&#xFE0E; in Amsterdam. If you like this project,
+        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
+        maybe?
+      </p>
+      <p>
+        Zest is an independent, unofficial runtime and is not affiliated with,
+        endorsed by, or supported by Panic Inc.
+      </p>
+    </footer>
+  </body>
+</html>

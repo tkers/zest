@@ -4,11 +4,20 @@
     <title>Zest Jukebox</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="../base.css" />
     <link rel="stylesheet" type="text/css" href="juke.css" />
     <script type="text/javascript" src="../core/audio.js"></script>
     <script type="text/javascript" src="../core/zest.js"></script>
   </head>
-  <body class="lemon">
+  <body>
+    <header>
+      <nav>
+        <a href="/zest"><strong>Zest</strong></a>
+        <a href="/zest/bundler">Bundler</a>
+        <a href="/zest/docs">Docs</a>
+        <a href="https://github.com/tkers/zest" class="right">GitHub</a>
+      </nav>
+    </header>
     <main>
       <h1>Zest Jukebox</h1>
       <h2>
@@ -41,15 +50,18 @@
       </section>
       <section id="playlist" class="hidden">
       </section>
-      <footer>
-        Made with ❤ in Amsterdam. If you like this project,
-        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
-        maybe?<br /><br />
-        <a href="https://tkers.dev/zest" target="_blank">Zest</a> is an
-        independent, unofficial runtime and is not affiliated with, endorsed by,
-        or supported by Panic Inc.
-      </footer>
     </main>
+    <footer>
+      <p>
+        Made with ❤&#xFE0E; in Amsterdam. If you like this project,
+        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
+        maybe?
+      </p>
+      <p>
+        Zest is an independent, unofficial runtime and is not affiliated with,
+        endorsed by, or supported by Panic Inc.
+      </p>
+    </footer>
     <script type="text/javascript" src="juke.js"></script>
   </body>
 </html>
