@@ -95,7 +95,7 @@ window.addEventListener('load', () => {
     .then((res) => res.json())
     .then((data) => {
       const game = Zest.load(data, canvas)
-      game.attachKeyboard({ z: Zest.kButtonB, x: Zest.kButtonA })
+      game.attachKeyboard({ KeyZ: Zest.kButtonB, KeyX: Zest.kButtonA })
       canvas.addEventListener('click', () => game.play())
     })
 })
