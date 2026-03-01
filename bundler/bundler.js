@@ -118,6 +118,12 @@ const keyboard_wasd = {
   Period: Zest.kButtonA,
   Slash: Zest.kButtonCrank,
 }
+const keyboard_hjkl = {
+  KeyH: Zest.kButtonLeft,
+  KeyJ: Zest.kButtonDown,
+  KeyK: Zest.kButtonUp,
+  KeyL: Zest.kButtonRight,
+}
 const keyboard_as = {
   KeyA: Zest.kButtonB,
   KeyS: Zest.kButtonA,
@@ -127,6 +133,7 @@ const keyboard_mappers = {
   'arrow-zx': {},
   'arrow-as': keyboard_as,
   'wasd-,.': keyboard_wasd,
+  'hjkl-as': { ...keyboard_hjkl, ...keyboard_as },
 }
 
 downloadLink.addEventListener('click', (e) => {
