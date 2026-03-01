@@ -245,6 +245,10 @@ window.ZestAudio = (function () {
     ZestAudio.__currentSong.tickLength = 15 / bpm // (1 / 4) * (60 / bpm)
   }
 
+  const getTime = () => {
+    return audioCtx?.currentTime
+  }
+
   const SCHEDULE_INTERVAL = 50 // 20 FPS (1000ms / 20)
   const SCHEDULE_WINDOW = 0.1 // 100ms ahead, should be >interval
 
@@ -316,5 +320,6 @@ window.ZestAudio = (function () {
     pauseSong,
     resumeSong,
     setTempo,
+    getTime,
   }
 })()

@@ -96,17 +96,21 @@ const startSong = (songIx) => {
   }
 
   const song = allSongs[currentSong]
-  const ti = audioCtx.currentTime
+  const ti = ZestAudio.getTime()
   const te = (song.ticks / 4) * (60 / song.bpm)
   barTimer = setInterval(() => {
-    const td = audioCtx.currentTime - ti
+    const td = ZestAudio.getTime() - ti
     timeNow.innerText = humanTime(td)
     timeBar.style.width = `${(td * 100) / te}%`
   }, 1000 / 60)
 }
 
 const gotoNextSong = () => {
-  if (currentSong >= allSongs.length - 1) return stopMusic()
+  if (currentSong >= allSongs.length - 1) {
+    stopMusic()
+    selectSong(0)
+    return
+  }
   currentSong++
   if (isPlaying) {
     startSong(currentSong)
