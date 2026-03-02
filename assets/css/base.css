@@ -55,7 +55,9 @@ main {
 }
 
 header {
-  overflow: scroll;
+  overflow: auto hidden;
+  scrollbar-color: #ffffff80 transparent;
+  scrollbar-width: thin;
   border-bottom: 1px solid #00000030;
   box-shadow: 0 8px 8px #00000016;
   background-color: #ffce5bc0;
