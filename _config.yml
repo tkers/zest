@@ -1,0 +1,28 @@
+# Site settings
+title: 'Zest'
+description: 'A web runtime for Pulp games'
+author: 'Tijn Kersjes'
+
+# URL and baseurl (automatically set by GitHub Pages)
+# url: https://tkers.dev
+# baseurl: /zest
+
+# Build settings
+permalink: pretty
+markdown: kramdown
+kramdown:
+  syntax_highlighter: rouge
+sass:
+  style: :compressed
+include: ['.well-known']
+# exclude:
+#   - .sass-cache/
+#   - .jekyll-cache/
+#   - gemfiles/
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules/
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/

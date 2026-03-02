@@ -1,25 +1,45 @@
-# 🍋 Zest
+---
+title: Zest Docs
+css: highlight
+---
 
-> A web runtime for [Pulp](https://play.date/pulp/about) games
+# Zest Docs
 
-Zest is a new way to play and distribute games made with Pulp. It allows
-developers to port over their games to HTML5, which lets you run your game
-directly from the browser, or bundle it into a downloadable desktop or mobile
-app!
-
-## Getting started
+## core API reference
 
 There's generally 2 ways to use Zest:
 
-1. Use a bundler to wrap your game automatically (easy)
-2. Use the core runtime library directly (advanced)
+1. Use the bundler to convert your game automatically _(easy)_
+2. Download and integrate with the core runtime library _(advanced)_
 
-The first option does not require any coding, but customisation is of course
-more limited. Additional settings may become available in the future, though
-development on the core runtime will take priority at this stage.
-
+The first option does not require any coding, but customisation is more limited.
 The second option entails importing the library into your own HTML/JS project,
-and using the API reference below to load and run your game:
+and using the API reference below to load and run your game.
+
+<section class="center">
+  <a
+    href="https://github.com/tkers/zest/releases"
+    target="_blank"
+    class="btn btn-primary"
+    >Download</a
+  >
+  <a
+    href="https://github.com/tkers/zest/issues"
+    target="_blank"
+    class="btn btn-secondary"
+    >Open Issues</a
+  >
+</section>
+
+After downloading zest.js, you should import the library into your HTML page
+like so:
+
+```
+<script src="zest.min.js" type="text/javascript"></script>
+```
+
+When the script loads, it defines a global `Zest` variable that you can use to
+initialise and run your game.
 
 ## Core API
 
@@ -112,14 +132,6 @@ Set `config.colorWhite = "#ffffff"` and `config.colorBlack = "#000000"` to
 control the color palette.
 
 Some special features are made available through optional plugins. For example,
-with the _openurl_ plugin active, you can use `log "@open http://example.org"`
-to open a new window. Check out the `plugins/` folder for more ways to extend
-the runner.
-
----
-
-Made with ❤ in Amsterdam. If you like this project,
-[buy me a coffee](https://ko-fi.com/tkers), maybe?
-
-[Zest](https://tkers.dev/zest) is an independent, unofficial runtime and is not
-affiliated with, endorsed by, or supported by Panic Inc.
+with the _openurl_ plugin active, you can use `log "@open http://example.org"`to
+open a new window. Check out the `plugins/` folder for more ways to extend the
+runner.

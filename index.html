@@ -1,90 +1,55 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Zest</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
-    <link rel="stylesheet" type="text/css" href="base.css" />
-    <link rel="stylesheet" type="text/css" href="home.css" />
-    <script type="text/javascript" src="core/zest.js"></script>
-    <script type="text/javascript" src="core/audio.js"></script>
-    <script type="text/javascript" src="plugins/touch.js"></script>
-    <script type="text/javascript" src="plugins/gamepad.js"></script>
-    <script type="text/javascript" src="plugins/openurl.js"></script>
-    <script type="text/javascript" src="data.js"></script>
-    <script type="text/javascript" src="home.js"></script>
-  </head>
-  <body>
-    <header>
-      <nav>
-        <a href="/zest" class="here"><strong>Zest</strong></a>
-        <a href="/zest/bundler">Bundler</a>
-        <a href="/zest/docs">Docs</a>
-        <a href="https://github.com/tkers/zest" class="right">GitHub</a>
-      </nav>
-    </header>
-    <main>
-      <h1>Zest</h1>
-      <h2>a web runtime for Pulp games</h2>
+---
+layout: default
+css: home
+js: [../../plugins/gamepad, ../../plugins/touch, data, home]
+---
 
-      <section class="lcd-bezel">
-        <div class="lcd-bg">
-          <canvas id="lcd" width="200" height="120"></canvas>
-        </div>
-        <div class="lcd-bar">
-          <small class="meta" style="float: right">
-            <span id="label-title">game</span> by
-            <span id="label-author">author</span>
-          </small>
-          <div>
-            <!-- <a href="#" id="btn-snap" style="float: right">Snapshot</a> -->
-            <button id="btn-lemon">Lemon</button>
-            <button id="btn-plum">Plum</button>
-            <button id="btn-mint">Mint</button>
-          </div>
-        </div>
-      </section>
+<h1>Zest</h1>
+<h2>a web runtime for Pulp games</h2>
 
-      <section>
-        <p>
-          <strong>🍋 Zest</strong> is a new way to play and distribute games
-          made with
-          <a href="https://play.date/pulp/about" target="_blank">Pulp</a>. It's
-          build from the ground up (without using Panic's proprietary code) so
-          that developers can use it to make their games available to more
-          players. Completely free and
-          <a href="https://github.com/tkers/zest" target="_blank">open source</a
-          >!
-        </p>
-      </section>
+<section class="lcd-bezel">
+  <div class="lcd-bg">
+    <canvas id="lcd" width="200" height="120"></canvas>
+  </div>
+  <div class="lcd-bar">
+    <small class="meta" style="float: right">
+      <span id="label-title">game</span> by
+      <span id="label-author">author</span>
+    </small>
+    <div>
+      <!-- <a href="#" id="btn-snap" style="float: right">Snapshot</a> -->
+      <button id="btn-lemon">Lemon</button>
+      <button id="btn-plum">Plum</button>
+      <button id="btn-mint">Mint</button>
+    </div>
+  </div>
+</section>
 
-      <section class="center">
-        <a href="/zest/bundler" class="btn btn-primary">Try the Bundler</a>
-        <a href="/zest/docs" class="btn btn-secondary">Documentation</a>
-      </section>
+<section>
+  <p>
+    <strong>🍋 Zest</strong> is a new way to play and distribute games made with
+    <a href="https://play.date/pulp/about" target="_blank">Pulp</a>. It's build
+    from the ground up (without using Panic's proprietary code) so that
+    developers can use it to make their games available to more players.
+    Completely free and
+    <a href="https://github.com/tkers/zest" target="_blank">open source</a>!
+  </p>
+</section>
 
-      <section>
-        <p>
-          This project is still in active development, so don't expect your game
-          to be fully compatible just yet! Have a look at the
-          <a href="https://github.com/tkers/zest/issues" target="_blank"
-            >open issues on GitHub</a
-          >
-          to see where we're currently at.
-        </p>
-      </section>
-    </main>
+<section class="center">
+  <a href="{{ site.baseurl }}/bundler" class="btn btn-primary"
+    >Try the Bundler</a
+  >
+  <a href="{{ site.baseurl }}/docs" class="btn btn-secondary">Documentation</a>
+</section>
 
-    <footer>
-      <p>
-        Made with ❤&#xFE0E; in Amsterdam. If you like this project,
-        <a href="https://ko-fi.com/tkers" target="_blank">buy me a coffee</a>,
-        maybe?
-      </p>
-      <p>
-        Zest is an independent, unofficial runtime and is not affiliated with,
-        endorsed by, or supported by Panic Inc.
-      </p>
-    </footer>
-  </body>
-</html>
+<section>
+  <p>
+    This project is still in active development, so don't expect your game to be
+    fully compatible just yet! Have a look at the
+    <a href="https://github.com/tkers/zest/issues" target="_blank"
+      >open issues on GitHub</a
+    >
+    to see where we're currently at.
+  </p>
+</section>

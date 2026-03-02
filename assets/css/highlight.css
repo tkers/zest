@@ -1,0 +1,64 @@
+.highlight {
+  --hl-c: #82817d;
+  --hl-k: #bc82ff;
+  --hl-n: #ffffff;
+  --hl-m: #f4ba53;
+  --hl-s: #2ec07d;
+  --hl-r: #e7e6e4;
+}
+.highlight .c{color:var(--hl-c);font-style:italic}
+.highlight .err{color:#960050;background-color:#1e0010}
+.highlight .k{color:var(--hl-k)}
+.highlight .l{color:var(--hl-s)}
+.highlight .cm{color:var(--hl-c);font-style:italic}
+.highlight .cp{color:var(--hl-c);font-style:italic}
+.highlight .c1{color:var(--hl-c);font-style:italic}
+.highlight .cs{color:var(--hl-c);font-style:italic}
+.highlight .ge{font-style:italic}
+.highlight .gs{font-weight:700}
+.highlight .kc{color:var(--hl-k)}
+.highlight .kd{color:var(--hl-k)}
+.highlight .kn{color:var(--hl-k)}
+.highlight .kp{color:var(--hl-k)}
+.highlight .kr{color:var(--hl-n)}
+.highlight .kt{color:var(--hl-k)}
+.highlight .ld{color:var(--hl-s)}
+.highlight .m{color:var(--hl-m)}
+.highlight .s{color:var(--hl-s)}
+.highlight .na{color:var(--hl-m)}
+.highlight .nb{color:var(--hl-n)}
+.highlight .nc{color:var(--hl-n)}
+.highlight .no{color:var(--hl-n)}
+.highlight .nd{color:var(--hl-n)}
+.highlight .ni{color:var(--hl-n)}
+.highlight .ne{color:var(--hl-n)}
+.highlight .nl{color:var(--hl-n)}
+.highlight .py{color:var(--hl-n)}
+.highlight .nt{color:var(--hl-r)}
+.highlight .nv{color:var(--hl-n)}
+.highlight .ow{font-weight:700}
+.highlight .w{color:#f8f8f2}
+.highlight .mf{color:var(--hl-m)}
+.highlight .mh{color:var(--hl-m)}
+.highlight .mi{color:var(--hl-m)}
+.highlight .mo{color:var(--hl-m)}
+.highlight .sb{color:var(--hl-s)}
+.highlight .sc{color:var(--hl-s)}
+.highlight .sd{color:var(--hl-s)}
+.highlight .s2{color:var(--hl-s)}
+.highlight .dl{color:var(--hl-s)}
+.highlight .se{color:var(--hl-s)}
+.highlight .sh{color:var(--hl-s)}
+.highlight .si{color:var(--hl-s)}
+.highlight .sx{color:var(--hl-s)}
+.highlight .sr{color:#56b6c2}
+.highlight .s1{color:var(--hl-s)}
+.highlight .ss{color:#56b6c2}
+.highlight .bp{color:var(--hl-n)}
+.highlight .vc{color:var(--hl-n)}
+.highlight .vg{color:var(--hl-n)}
+.highlight .vi{color:var(--hl-r)}
+.highlight .il{color:var(--hl-m)}
+.highlight .gu{color:#75715e}
+.highlight .gd{color:#f92672}
+.highlight .gi{color:#a6e22e}

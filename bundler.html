@@ -1,0 +1,46 @@
+---
+layout: default
+title: Zest Bundler
+css: bundler
+js: [../../core/utils, template, bundler]
+---
+
+<h1>Zest Bundler</h1>
+<h2>export your Pulp game to web</h2>
+
+<section id="dropzone">
+  <h3 id="drop-label" class="hint">Drop your source JSON file</h3>
+  <input type="file" id="data-in" accept="application/json" />
+  <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
+</section>
+
+<section class="config">
+  <div>
+    <h3>Title</h3>
+    <input type="text" id="title-in" />
+  </div>
+  <div>
+    <h3>Palette</h3>
+    <div id="color-wrap">
+      <input type="color" id="color-in" value="#808080" />
+    </div>
+  </div>
+  <div>
+    <h3>Autoplay</h3>
+    <input type="checkbox" id="autoplay-in" />
+  </div>
+  <div>
+    <h3>Controls</h3>
+    <select id="controls-in">
+      <option value="arrow-zx">Arrow keys + Z X</option>
+      <option value="arrow-as">Arrow keys + A S</option>
+      <option value="wasd-,.">WASD keys + , .</option>
+      <option value="hjkl-as">HJKL keys + A S</option>
+    </select>
+  </div>
+</section>
+
+<section style="margin-top: 64px">
+  <a href="#" id="download-link" class="disabled">Download!</a>
+  <p id="file-out">&nbsp;</p>
+</section>

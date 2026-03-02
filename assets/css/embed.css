@@ -11,6 +11,7 @@ main {
   padding: 0;
   height: 100%;
   position: relative;
+  max-width: unset;
 }
 
 canvas#lcd {

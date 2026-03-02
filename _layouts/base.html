@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en" }}">
+  <head>
+    <title>{{ page.title | default: site.title }}</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ page.excerpt | strip_html | truncate: 140 | default: site.description }}{% endif %}" />
+    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/assets/css/base.css" />
+    {% if page.css %}
+      {% for css in page.css %}
+        <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/assets/css/{{ css }}.css" />
+      {% endfor %}
+    {% endif %}
+    <script type="text/javascript" src="{{ site.baseurl }}/core/zest.js"></script>
+    <script type="text/javascript" src="{{ site.baseurl }}/core/audio.js"></script>
+  </head>
+  <body {% if page.style %}style="{{ page.style }}"{% endif %}>
+    {{ content }}
+    {% if page.js %}
+      {% for js in page.js %}
+        <script type="text/javascript" src="{{ site.baseurl }}/assets/js/{{ js }}.js"></script>
+      {% endfor %}
+    {% endif %}
+  </body>
+</html>
