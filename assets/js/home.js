@@ -49,7 +49,7 @@ window.addEventListener('load', () => {
     game.run(dkData)
     titleLabel.innerText = 'Hall of the Dwarf King'
     authorLabel.innerHTML =
-      '<a href="https://ledbetter-games.itch.io" target="_blank">Ledbetter Games</a>'
+      '<a href="https://ledbetter.games" target="_blank">Ledbetter Games</a>'
     document.body.className = 'lemon'
   })
   document.getElementById('btn-plum').addEventListener('click', () => {
