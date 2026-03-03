@@ -1939,9 +1939,9 @@ window.Zest = (function () {
         }
         if (glyph == 10) continue // ignore nl (prewrapped text)
         const frame =
-          glyph > 128
-            ? this.cart.tiles[glyph - 128].frames[0]
-            : this.cart.font.chars[glyph - 32]
+          (glyph > 128
+            ? this.cart.tiles[glyph - 128]?.frames[0]
+            : this.cart.font.chars[glyph - 32]) ?? this.cart.font.chars[0]
         this.#renderFrame(frame, xx, yy, this.charWidth)
         xx += this.charWidth
       }
@@ -1962,9 +1962,9 @@ window.Zest = (function () {
         }
         if (glyph == 10 || glyph == 12) continue // skip nl and ff
         const frame =
-          glyph > 128
-            ? this.cart.tiles[glyph - 128].frames[0]
-            : this.cart.font.chars[glyph - 32]
+          (glyph > 128
+            ? this.cart.tiles[glyph - 128]?.frames[0]
+            : this.cart.font.chars[glyph - 32]) ?? this.cart.font.chars[0]
         this.#renderFrame(frame, xx, yy, this.charWidth)
         xx += this.charWidth
       }
