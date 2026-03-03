@@ -122,7 +122,7 @@ h2 a:hover {
 }
 
 section {
-  margin: 32px 0;
+  margin: 32px auto;
 }
 
 section.center {
@@ -173,4 +173,13 @@ code {
 }
 code strong {
   color: #bb96e3;
+}
+
+kbd {
+  border: 1px solid #00000030;
+  border-bottom: 3px solid #00000030;
+  padding: 2px 6px;
+  border-radius: 4px;
+  word-spacing: -4px;
+  white-space: nowrap;
 }

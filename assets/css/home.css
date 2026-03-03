@@ -121,3 +121,24 @@ body.mint .lcd-bg {
   padding: 4px 4px 0;
   background-color: #000000;
 }
+
+section.input-hints {
+  margin-top: -24px;
+  color: #a77f3b;
+  font-size: small;
+  font-style: italic;
+  max-width: 500px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+@media (max-width: 400px) {
+  section.input-hints div:nth-child(2) {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  section.input-hints {
+    display: none;
+  }
+}
