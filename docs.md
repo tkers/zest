@@ -7,14 +7,7 @@ css: highlight
 
 ## core API reference
 
-There's generally 2 ways to use Zest:
-
-1. Use the bundler to convert your game automatically _(easy)_
-2. Download and integrate with the core runtime library _(advanced)_
-
-The first option does not require any coding, but customisation is more limited.
-The second option entails importing the library into your own HTML/JS project,
-and using the API reference below to load and run your game.
+The runtime library is the core of what makes Zest work. By manually integrating with it, you can customise your game runner in any way you'd like, beyond what the standard configuration options of the Bundler have to offer!
 
 <section class="center">
   <a
@@ -42,9 +35,9 @@ When the script loads, it defines a global `Zest` variable that you can use to
 initialise and run your game.
 
 > **Skip directly to:** \
-> [Event Target](#eventtarget) • [PulpScript Extensions](#special-pulpscript-extensions) • [Examples](#basic-example) • [Bundler Instructions](#bundler-instructions)
+> [Initialise](#initialising-zest) • [Attach Keyboard](#gameattachkeyboardbindings-target) • [Event Target](#eventtarget) • [PulpScript Access](#pulpscript-methods) • [Usage Examples](#basic-example) • [Plugins](#plugins)
 
-## Core API
+## Runtime API
 
 ### Initialising Zest
 
@@ -186,39 +179,38 @@ window.addEventListener('load', () => {
 })
 ```
 
-## Special PulpScript extensions
-
-Some extensions to the runtime make it easier to maintain a single Pulp game
-while still being able to use some Zest features:
-
-Use `event.zest == 1` to detect if the game is currently running in Zest.
-
-Set `config.colorWhite = "#ffffff"` and `config.colorBlack = "#000000"` to
-control the color palette.
+## Plugins
 
 Some special features are made available through optional plugins. For example,
-with the _openurl_ plugin active, you can use `log "@open http://example.org"`to
-open a new window. Check out the `plugins/` folder for more ways to extend the
-runner.
+with the _openurl_ plugin active, you can use `log "@open http://example.org"` in PulpScript to
+open a new window. Other plugins enable additional input methods, or accessibility features.
 
-## Bundler instructions
+A number of plugins is available in the `plugins/` folder, but you can easily make new ones yourself!
 
-Using the Bundler is supposed to be as straighforward as possible, but there's a few quirks to know about.
+```js
+Zest.register((game) => {
+  game.addEventListener('shake', (e) => {
+    console.log(`Shake for ${e.detail.duration} seconds!`)
+  })
+})
+```
 
-> Keep in mind that the Bundler is supposed to offer a _simple and basic_ way to turn your Pulp game into a HTML5 game. Even though some customisations are possible, the Bundler will not offer the full flexibility as using the core library directly would.
+In this example, we use `Zest.register` to register a new plugin. The callback function that we pass in will be called when a new `game` instance is created (i.e. when `Game.run` or `Game.load` is called from anywhere). Next, we attach an event listener that logs a message to the console whenever `shake` is used from PulpScript.
 
-The Bundler asks you for a few things:
+Another, slightly larger example:
 
-**Source JSON:** Drop in your `data.json` here, i.e. the file that Pulp lets you download through the "Export" button. Zest will compress this file (slightly) by removing all data that is relevant for the editor, but not needed for playing the game. This data will be combined with the Zest runtime library to create a working web version of your game.
+```js
+Zest.register((game) => {
+  window.addEventListener('keydown', (e) => {
+    if (e.code == 'Space') {
+      game.pressKey(Zest.kButtonCrank)
+    }
+  })
 
-**Title:** The title for the exported HTML page, typically not visible when embedded in another page, but you probably want to set this to your game's title.
-
-**Palette:** By default your game will simulate the device appearance, using two shades of grey. You can optionally change the palette by selecting a color here, which will be used to tint your graphics. For more control over the colors your game uses, set the `config.colorBlack` and `config.colorWhite` through PulpScript directly. If you change the palette through PulpScript, leave this option to the default grey tint. (Right clicking the circle will reset the color.)
-
-**Autoplay:** Toggles whether your game will automatically start playing on page load, or display a "Play" icon on top of your launcher card until the player clicks it. While enabling autoplay seems like a good option, most (if not all) browsers will mute audio until the first user interaction (keyboard or mouse click). Only enable this setting if you're okay with your game _starting muted_, or when you intend to package your game in a native app (using tools like Electron or Tauri), where this restriction does not exist.
-
-**Controls:** Pick a preset control scheme for your game. By default, the arrow keys and <kbd>Z</kbd> <kbd>X</kbd> are mapped to the d-pad, B button and A button respectively, while the <kbd>C</kbd> key toggles docking and undocking the crank.
-
-Besides the keyboard controls, the bundler also includes the _Gamepad_ and _Touch_ plugins. This allows your game to be played with a gamepad, or on a touch screen device like a smart phone or tablet.
-
-> Touch controls (experimental) are mapped as follows: Swiping in cardinal directions simulates pressing the d-pad, a single tap maps to the A button, and a tap with 2 fingers maps to the B button. Crank controls are not available.
+  window.addEventListener('keyup', (e) => {
+    if (e.code == 'Space') {
+      game.releaseKey(Zest.kButtonCrank)
+    }
+  })
+})
+```
