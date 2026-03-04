@@ -132,6 +132,10 @@ section.input-hints {
   justify-content: space-evenly;
 }
 
+section.input-hints kbd {
+  border-color: #00000030;
+}
+
 @media (max-width: 400px) {
   section.input-hints div:nth-child(2) {
     display: none;

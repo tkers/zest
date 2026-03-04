@@ -41,6 +41,9 @@ like so:
 When the script loads, it defines a global `Zest` variable that you can use to
 initialise and run your game.
 
+> **Skip directly to:** \
+> [Event Target](#eventtarget) • [PulpScript Extensions](#special-pulpscript-extensions) • [Examples](#basic-example) • [Bundler Instructions](#bundler-instructions)
+
 ## Core API
 
 ### Initialising Zest
@@ -68,17 +71,53 @@ Both of these constructors return the `game` instance referred to below.
 
 ### game.play()
 
+Starts the game previously loaded through `Zest.load(data, canvas)`. Calling this function will also try to resume the AudioContext, so you're advised to do this from a user gesture to ensure audio is working.
+
 ### game.load()
 
 ### game.restart()
 
 ### game.stop()
 
+### game.pause()
+
+### game.resume()
+
 ### game.pauseResume()
 
-### game.attachKeyboard(bindings?)
+Returns `true` if the game is now paused, or `false` if it's now resumed. You can also use the `game.isPaused` flag to determine the state of the game.
+
+### game.attachKeyboard(bindings?, target?)
+
+A convenience method to automatically attach keyboard bindings to the game, so you don't have to manually listen for input and call `game.pressKey` and `game.releaseKey`. It takes an optional object with overrides to the default key bindings, and an optional target for the listeners (defaults to `window`).
+
+Bindings are provided as a mapping from a [key code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) (i.e. a value of `event.code` in keyboard events) to a virtual button, like so:
+
+```js
+game.attachKeyboard({
+  KeyA: Zest.kButtonA,
+  KeyS: Zest.kButtonB,
+  KeyD: Zest.kButtonCrank,
+})
+```
+
+These bindings will be merged with the default control scheme, so in this example the arrow keys are still mapped to the dpad.
+
+> Note that key codes are layout-independent. That means that `KeyA` represents the **physical location** of the A Key on a standard QWERTY keyboard, not the actual letter "A". When using an AZERTY layout, this will map to the Q key, which is located left of S, preserving adjacency.
 
 ### game.pressKey(key)
+
+Triggers the press of a button. Possible values for `key` are:
+
+- Zest.kButtonUp
+- Zest.kButtonRight
+- Zest.kButtonDown
+- Zest.kButtonLeft
+- Zest.kButtonA
+- Zest.kButtonB
+- Zest.kButtonCrank
+
+The `kButtonCrank` key is a special "key" that toggles the crank between docked and undocked, provided as a convenience to make input handling simpler. For more grannular control of crank input, use the `dockCrank`, `undockCrank` and `turnCrank` methods.
 
 ### game.releaseKey(key)
 
@@ -86,7 +125,33 @@ Both of these constructors return the `game` instance referred to below.
 
 ### game.undockCrank(aa?)
 
-### game.turnCrank(aa, ra)
+### game.turnCrank(aa)
+
+## EventTarget
+
+You can attach event listeners to the Zest instance to react to changes in the game, for example you can apply a "paused" style to the canvas element like so:
+
+```js
+game.addEventListener('pause', () => {
+  canvas.className = 'paused'
+})
+game.addEventListener('resume', () => {
+  canvas.className = ''
+})
+```
+
+Other events that are emitted are:
+
+- `log`
+- `shake`
+- `store`
+- `config`
+- `dock`
+- `undock`
+- `start`
+- `pause`
+- `resume`
+- `finish`
 
 ## PulpScript Methods
 
@@ -135,3 +200,25 @@ Some special features are made available through optional plugins. For example,
 with the _openurl_ plugin active, you can use `log "@open http://example.org"`to
 open a new window. Check out the `plugins/` folder for more ways to extend the
 runner.
+
+## Bundler instructions
+
+Using the Bundler is supposed to be as straighforward as possible, but there's a few quirks to know about.
+
+> Keep in mind that the Bundler is supposed to offer a _simple and basic_ way to turn your Pulp game into a HTML5 game. Even though some customisations are possible, the Bundler will not offer the full flexibility as using the core library directly would.
+
+The Bundler asks you for a few things:
+
+**Source JSON:** Drop in your `data.json` here, i.e. the file that Pulp lets you download through the "Export" button. Zest will compress this file (slightly) by removing all data that is relevant for the editor, but not needed for playing the game. This data will be combined with the Zest runtime library to create a working web version of your game.
+
+**Title:** The title for the exported HTML page, typically not visible when embedded in another page, but you probably want to set this to your game's title.
+
+**Palette:** By default your game will simulate the device appearance, using two shades of grey. You can optionally change the palette by selecting a color here, which will be used to tint your graphics. For more control over the colors your game uses, set the `config.colorBlack` and `config.colorWhite` through PulpScript directly. If you change the palette through PulpScript, leave this option to the default grey tint. (Right clicking the circle will reset the color.)
+
+**Autoplay:** Toggles whether your game will automatically start playing on page load, or display a "Play" icon on top of your launcher card until the player clicks it. While enabling autoplay seems like a good option, most (if not all) browsers will mute audio until the first user interaction (keyboard or mouse click). Only enable this setting if you're okay with your game _starting muted_, or when you intend to package your game in a native app (using tools like Electron or Tauri), where this restriction does not exist.
+
+**Controls:** Pick a preset control scheme for your game. By default, the arrow keys and <kbd>Z</kbd> <kbd>X</kbd> are mapped to the d-pad, B button and A button respectively, while the <kbd>C</kbd> key toggles docking and undocking the crank.
+
+Besides the keyboard controls, the bundler also includes the _Gamepad_ and _Touch_ plugins. This allows your game to be played with a gamepad, or on a touch screen device like a smart phone or tablet.
+
+> Touch controls (experimental) are mapped as follows: Swiping in cardinal directions simulates pressing the d-pad, a single tap maps to the A button, and a tap with 2 fingers maps to the B button. Crank controls are not available.
