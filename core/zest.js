@@ -13,7 +13,7 @@ window.Zest = (function () {
 
   // device appearance
   const COLOR_BLACK = '#312f28' // '#000'
-  const COLOR_WHITE = '#baaea9' // '#fff'
+  const COLOR_WHITE = '#b1afa8' // '#fff'
 
   const BLACK_FRAME = Array(ROOM_WIDTH * ROOM_HEIGHT).fill(1)
 
