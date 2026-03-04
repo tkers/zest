@@ -2054,7 +2054,12 @@ window.Zest = (function () {
           )
           const lines = menu.pages[menu.pageIx]
           for (let i = 0; i < lines.length; i++) {
-            this.#renderText(lines[i].label, wx + 2, wy + 1 + i, ww)
+            this.#renderText(
+              lines[i].label,
+              wx + 2,
+              wy + 1 + i,
+              ww / this.charWidth
+            )
           }
           this.#renderFrame(
             this.cart.font.pipe[
