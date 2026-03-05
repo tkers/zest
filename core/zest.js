@@ -1598,34 +1598,41 @@ window.Zest = (function () {
       }
 
       // check for exits
-      this.room.exits.forEach((exit) => {
+      for (let i = 0; i < this.room.exits.length; i++) {
+        const exit = this.room.exits[i]
         if (isDefined(exit.edge)) {
           if (exit.edge == EdgeDirection.UP) {
             if (prevY == exit.y && dy < 0) {
               this.goto(prevX, exit.ty, exit.room)
+              break
             }
           } else if (exit.edge == EdgeDirection.RIGHT) {
             if (prevX == exit.x && dx > 0) {
               this.goto(exit.tx, prevY, exit.room)
+              break
             }
           } else if (exit.edge == EdgeDirection.DOWN) {
             if (prevY == exit.y && dy > 0) {
               this.goto(prevX, exit.ty, exit.room)
+              break
             }
           } else if (exit.edge == EdgeDirection.LEFT) {
             if (prevX == exit.x && dx < 0) {
               this.goto(exit.tx, prevY, exit.room)
+              break
             }
           }
         } else if (tx == exit.x && ty == exit.y) {
           if (exit.fin) {
             this.#changeLoop(exit.song)
             this.fin(exit.fin)
+            break
           } else {
             this.goto(exit.tx, exit.ty, exit.room)
+            break
           }
         }
-      })
+      }
 
       if (shouldBump && !this.roomTransition) {
         this.#runPlayerScript('bump')
