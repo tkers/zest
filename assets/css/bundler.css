@@ -103,6 +103,15 @@ section#dropzone.loaded canvas#card-view {
   display: block;
 }
 
+section.instructions {
+  margin-top: -24px;
+  color: #a77f3b;
+  font-size: small;
+  font-style: italic;
+  max-width: 500px;
+  text-align: center;
+}
+
 section.config {
   display: flex;
   flex-direction: row;
