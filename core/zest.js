@@ -629,6 +629,7 @@ window.Zest = (function () {
         return
       }
       this.isRunning = false
+      this.isPaused = false
       this.stopMusic()
       clearInterval(this.loopTimer)
       this.loopTimer = null
