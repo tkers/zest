@@ -230,7 +230,8 @@ window.Zest = (function () {
   const clipInt = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
 
   // transform [{ name: n, ... }] -> { n: { ... } }
-  const byName = (arr) => Object.fromEntries(arr.map((x) => [x.name, x]))
+  const byName = (arr) =>
+    Object.fromEntries(arr.filter(Boolean).map((x) => [x.name, x]))
   const filterObject = (obj, cb) =>
     Object.fromEntries(Object.entries(obj).filter(cb))
 
