@@ -2133,17 +2133,17 @@ window.Zest = (function () {
       }
 
       if (this.ctx2d) {
-        this.#renderToCanvas()
+        this.renderToCanvas(this.imgData)
       }
     }
 
-    #renderToCanvas() {
+    renderToCanvas(img) {
       let [shakeX, shakeY] = [0, 0]
       if (this.isShaking && !this.menuActive && !this.dialogActive) {
         ;[shakeX, shakeY] = [randomInt(-2, 2), randomInt(-2, 2)]
       }
       this.ctx2d.clearRect(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
-      this.ctx2d.putImageData(this.imgData, shakeX, shakeY)
+      this.ctx2d.putImageData(img, shakeX, shakeY)
     }
   }
 

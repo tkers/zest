@@ -1,0 +1,44 @@
+---
+layout: default
+title: 'Zest Cartography'
+css: [bundler, maps]
+js: [../../core/utils, maps]
+---
+
+<h1>Zest Cartography</h1>
+<h2>generate your worldmap</h2>
+
+<section id="dropzone">
+  <h3 id="drop-label" class="hint">Drop your source JSON file</h3>
+  <input type="file" id="data-in" accept="application/json" />
+  <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
+</section>
+
+<section class="instructions">
+  <p>(only supports games using <strong>edge</strong> type exits)</p>
+</section>
+
+<section class="config">
+  <div>
+    <h3>Start Room</h3>
+    <select id="room-in">
+      <option value="" selected disabled>
+        &#9733; Automatic (player start)
+      </option>
+    </select>
+  </div>
+  <div>
+    <h3>Palette</h3>
+    <div id="color-wrap">
+      <input type="color" id="color-in" value="#808080" />
+    </div>
+  </div>
+  <div>
+    <h3>Scaled @2x</h3>
+    <input type="checkbox" id="scale-in" />
+  </div>
+</section>
+
+<section style="margin-top: 64px">
+  <a href="#" id="download-link" class="disabled">Generate!</a>
+</section>

@@ -1,0 +1,21 @@
+body {
+  background-color: #31c17f;
+}
+
+header {
+  background-color: #49e19cc0;
+}
+
+h1::after {
+  background-color: #841cde;
+  box-shadow: 0 1px 0 #6519a7;
+  text-shadow: 0 -1px 0 #6519a7;
+}
+
+section.instructions {
+  color: #296644;
+}
+
+input[type='checkbox']:checked {
+  background-color: #4aefa4;
+}
