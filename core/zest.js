@@ -10,6 +10,7 @@ window.Zest = (function () {
   const PIXEL_WIDTH = 200
   const PIXEL_HEIGHT = 120
   const FRAME_DURATION = 1 / FPS
+  const SCALE_FACTOR = 2
 
   // device appearance
   const COLOR_BLACK = '#312f28' // '#000'
@@ -138,6 +139,30 @@ window.Zest = (function () {
     }
     const num = parseInt(hex, 16)
     return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff, 255]
+  }
+
+  const imgDataToURL = (img) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = img.width * SCALE_FACTOR
+    canvas.height = img.height * SCALE_FACTOR
+
+    const ctx = canvas.getContext('2d')
+    ctx.putImageData(img, 0, 0)
+
+    ctx.imageSmoothingEnabled = false
+    ctx.drawImage(
+      canvas,
+      0,
+      0,
+      img.width,
+      img.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    )
+
+    return canvas.toDataURL('image/png')
   }
 
   const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
@@ -2039,6 +2064,18 @@ window.Zest = (function () {
         }
       }
       return img
+    }
+
+    getCardURL() {
+      return imgDataToURL(this.getCardImageData())
+    }
+
+    getWrapURL() {
+      return imgDataToURL(this.getWrapImageData())
+    }
+
+    getIconURL() {
+      return imgDataToURL(this.getIconImageData())
     }
 
     render() {
