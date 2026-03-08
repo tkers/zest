@@ -51,17 +51,28 @@ dropzone.addEventListener('click', () => {
   inData.click()
 })
 
-function createFaviconTags(imgData, size = 180) {
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
+function createFaviconTags(img, tint, size = 180) {
+  const iconCanvas = document.createElement('canvas')
+  iconCanvas.width = img.width
+  iconCanvas.height = img.height
 
-  const ctx = canvas.getContext('2d')
-  ctx.imageSmoothingEnabled = false
-  ctx.putImageData(imgData, 0, 0)
-  ctx.drawImage(canvas, 0, 0, imgData.width, imgData.height, 0, 0, size, size)
+  const iconCtx = iconCanvas.getContext('2d')
+  iconCtx.putImageData(img, 0, 0)
 
-  const url = canvas.toDataURL('image/png')
+  const bigCanvas = document.createElement('canvas')
+  bigCanvas.width = size
+  bigCanvas.height = size
+
+  const bigCtx = bigCanvas.getContext('2d')
+  if (tint) {
+    bigCtx.fillStyle = tint
+    bigCtx.fillRect(0, 0, size, size)
+    bigCtx.globalCompositeOperation = 'hard-light'
+  }
+  bigCtx.imageSmoothingEnabled = false
+  bigCtx.drawImage(iconCanvas, 0, 0, img.width, img.height, 0, 0, size, size)
+
+  const url = bigCanvas.toDataURL('image/png')
 
   const favicon = `<link rel="icon" href="${url}" />`
   const iosicon = `<link rel="apple-touch-icon" href="${url}" />`
@@ -160,7 +171,7 @@ downloadLink.addEventListener('click', (e) => {
   }
 
   const iconData = cardViewer.getIconImageData()
-  const vFavicons = iconData ? createFaviconTags(iconData) : ''
+  const vFavicons = iconData ? createFaviconTags(iconData, inColor.value) : ''
 
   const vAutoplay = inAutoplay.checked ? 'clicked' : ''
   const vKeymap = JSON.stringify(keyboard_mappers[inControls.value])
