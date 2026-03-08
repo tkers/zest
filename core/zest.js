@@ -1981,6 +1981,58 @@ window.Zest = (function () {
       }
     }
 
+    #renderFrameToImageData(img, frame, x, y) {
+      const data = img.data
+      const width = img.width
+
+      const black = this.colorBlack
+      const white = this.colorWhite
+
+      // assumes 8x8 frames in Array(64)
+      for (let i = 0; i < 64; i++) {
+        const [r, g, b, a] = frame[i] == 1 ? black : white
+
+        const px = x + (i % 8)
+        const py = y + ((i / 8) | 0)
+        const pi = 4 * (px + py * width)
+
+        data[pi] = r
+        data[pi + 1] = g
+        data[pi + 2] = b
+        data[pi + 3] = a
+      }
+    }
+
+    getCardImageData() {
+      if (!this.card) return
+      const black = this.colorBlack
+      const white = this.colorWhite
+      const img = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
+      for (let y = 0; y < ROOM_HEIGHT; y++) {
+        for (let x = 0; x < ROOM_WIDTH; x++) {
+          const ix = coordToIndex(x, y)
+          const frame = this.card.tiles[ix].frames[0]
+          this.#renderFrameToImageData(img, frame, x * 8, y * 8)
+        }
+      }
+      return img
+    }
+
+    getIconImageData() {
+      if (!this.icon) return
+      const black = this.colorBlack
+      const white = this.colorWhite
+      const img = new ImageData(16, 16)
+      for (let y = 2; y < 4; y++) {
+        for (let x = 1; x < 3; x++) {
+          const ix = coordToIndex(x, y)
+          const frame = this.icon.tiles[ix].frames[0]
+          this.#renderFrameToImageData(img, frame, (x - 1) * 8, (y - 2) * 8)
+        }
+      }
+      return img
+    }
+
     render() {
       const inPlayerRoom = this.room.id == this.player.room
       const [cLeft, cTop, cRight, cBottom] = this.cropArea
