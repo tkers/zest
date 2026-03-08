@@ -2003,19 +2003,27 @@ window.Zest = (function () {
       }
     }
 
-    getCardImageData() {
-      if (!this.card) return
+    #getRoomImageData(room) {
+      if (!room) return
       const black = this.colorBlack
       const white = this.colorWhite
       const img = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
       for (let y = 0; y < ROOM_HEIGHT; y++) {
         for (let x = 0; x < ROOM_WIDTH; x++) {
           const ix = coordToIndex(x, y)
-          const frame = this.card.tiles[ix].frames[0]
+          const frame = room.tiles[ix].frames[0]
           this.#renderFrameToImageData(img, frame, x * 8, y * 8)
         }
       }
       return img
+    }
+
+    getCardImageData() {
+      return this.#getRoomImageData(this.card)
+    }
+
+    getWrapImageData() {
+      return this.#getRoomImageData(this.wrap)
     }
 
     getIconImageData() {
