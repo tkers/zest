@@ -1,9 +1,11 @@
 Zest.register((game) => {
-  const SWIPE_DEADZONE = 16
+  const SWIPE_DEADZONE = 24
 
   let touchDownX = null
   let touchDownY = null
   let touchDownC = -1
+  let keyDown = null
+
   const handleTouchStart = (evt) => {
     const firstTouch = evt.touches[0]
     touchDownX = firstTouch.clientX
@@ -11,44 +13,64 @@ Zest.register((game) => {
     touchDownC = evt.touches.length
   }
 
+  const handleTouchMove = (evt) => {
+    if (touchDownX === null || touchDownY === null) {
+      return
+    }
+
+    if (touchDownC > 1) return
+
+    const touch = evt.changedTouches[0]
+    const touchMoveX = touch.clientX
+    const touchMoveY = touch.clientY
+
+    const dx = touchMoveX - touchDownX
+    const dy = touchMoveY - touchDownY
+
+    let nextKey
+    if (dx > SWIPE_DEADZONE) nextKey = Zest.kButtonRight
+    else if (dx < -SWIPE_DEADZONE) nextKey = Zest.kButtonLeft
+    else if (dy > SWIPE_DEADZONE) nextKey = Zest.kButtonDown
+    else if (dy < -SWIPE_DEADZONE) nextKey = Zest.kButtonUp
+    else return
+
+    if (nextKey === keyDown) return
+
+    if (keyDown) {
+      game.releaseKey(keyDown)
+    }
+    game.pressKey(nextKey)
+    keyDown = nextKey
+
+    touchDownX = touchMoveX
+    touchDownY = touchMoveY
+  }
+
   const handleTouchEnd = (evt) => {
     if (touchDownX === null || touchDownY === null) {
       return
     }
 
-    const endTouch = evt.changedTouches[0]
-    const dx = touchDownX - endTouch.clientX
-    const dy = touchDownY - endTouch.clientY
+    const prevKey = keyDown
     const wasDouble = touchDownC >= 2
 
     touchDownX = null
     touchDownY = null
     touchDownC = -1
+    keyDown = null
 
-    if (wasDouble) {
-      emulateKeyPress(Zest.kButtonB)
-      return
-    }
-
-    const adx = Math.abs(dx)
-    const ady = Math.abs(dy)
-    if (adx < SWIPE_DEADZONE && ady < SWIPE_DEADZONE) {
-      emulateKeyPress(Zest.kButtonA)
-      return
-    }
-
-    if (adx > ady) {
-      emulateKeyPress(dx > 0 ? Zest.kButtonLeft : Zest.kButtonRight)
+    if (prevKey) {
+      game.releaseKey(prevKey)
+    } else if (wasDouble) {
+      game.pressKey(Zest.kButtonB)
+      game.releaseKey(Zest.kButtonB)
     } else {
-      emulateKeyPress(dy > 0 ? Zest.kButtonUp : Zest.kButtonDown)
+      game.pressKey(Zest.kButtonA)
+      game.releaseKey(Zest.kButtonA)
     }
-  }
-
-  const emulateKeyPress = (key) => {
-    game.pressKey(key)
-    setTimeout(() => game.releaseKey(key), 1)
   }
 
   game.canvas?.addEventListener('touchstart', handleTouchStart, false)
+  game.canvas?.addEventListener('touchmove', handleTouchMove, false)
   game.canvas?.addEventListener('touchend', handleTouchEnd, false)
 })
