@@ -94,7 +94,8 @@ function handleProjectDataLoaded(e) {
 }
 
 inData.addEventListener('change', (e) => {
-  const file = e.target.files[0]
+  const file = e.target.files?.[0]
+  if (!file) return
   if (file.type !== 'application/json') {
     showDropzoneError(`Wrong filetype: ${file.type}`)
     return
