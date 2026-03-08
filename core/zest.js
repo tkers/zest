@@ -2029,42 +2029,31 @@ window.Zest = (function () {
       }
     }
 
-    #getRoomImageData(room) {
+    getRoomImageData(room, x = 0, y = 0, w = ROOM_WIDTH, h = ROOM_HEIGHT) {
       if (!room) return
       const black = this.colorBlack
       const white = this.colorWhite
-      const img = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
-      for (let y = 0; y < ROOM_HEIGHT; y++) {
-        for (let x = 0; x < ROOM_WIDTH; x++) {
-          const ix = coordToIndex(x, y)
+      const img = new ImageData((w * 8) | 0, (h * 8) | 0)
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          const ix = coordToIndex(x + dx, y + dy)
           const frame = room.tiles[ix].frames[0]
-          this.#renderFrameToImageData(img, frame, x * 8, y * 8)
+          this.#renderFrameToImageData(img, frame, (dx * 8) | 0, (dy * 8) | 0)
         }
       }
       return img
     }
 
     getCardImageData() {
-      return this.#getRoomImageData(this.card)
+      return this.getRoomImageData(this.card)
     }
 
     getWrapImageData() {
-      return this.#getRoomImageData(this.wrap)
+      return this.getRoomImageData(this.wrap)
     }
 
     getIconImageData() {
-      if (!this.icon) return
-      const black = this.colorBlack
-      const white = this.colorWhite
-      const img = new ImageData(16, 16)
-      for (let y = 2; y < 4; y++) {
-        for (let x = 1; x < 3; x++) {
-          const ix = coordToIndex(x, y)
-          const frame = this.icon.tiles[ix].frames[0]
-          this.#renderFrameToImageData(img, frame, (x - 1) * 8, (y - 2) * 8)
-        }
-      }
-      return img
+      return this.getRoomImageData(this.icon, 1, 2, 2, 2)
     }
 
     getCardURL() {
