@@ -51,6 +51,23 @@ dropzone.addEventListener('click', () => {
   inData.click()
 })
 
+function createFaviconTags(imgData, size = 180) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+
+  const ctx = canvas.getContext('2d')
+  ctx.imageSmoothingEnabled = false
+  ctx.putImageData(imgData, 0, 0)
+  ctx.drawImage(canvas, 0, 0, imgData.width, imgData.height, 0, 0, size, size)
+
+  const url = canvas.toDataURL('image/png')
+
+  const favicon = `<link rel="icon" href="${url}" />`
+  const iosicon = `<link rel="apple-touch-icon" href="${url}" />`
+  return `${favicon}${iosicon}`
+}
+
 function handleProjectDataLoaded(e) {
   const data = JSON.parse(e.target.result)
   rawGameData = JSON.stringify(Zest.minify(data))
@@ -142,12 +159,16 @@ downloadLink.addEventListener('click', (e) => {
     return
   }
 
+  const iconData = cardViewer.getIconImageData()
+  const vFavicons = iconData ? createFaviconTags(iconData) : ''
+
   const vAutoplay = inAutoplay.checked ? 'clicked' : ''
   const vKeymap = JSON.stringify(keyboard_mappers[inControls.value])
 
   const src = ZEST_TEMPLATE.replace('{{AUTOPLAY}}', vAutoplay)
     .replace('{{COLOR}}', inColor.value)
     .replace('{{TITLE}}', inTitle.value)
+    .replace('{{META_TAGS}}', vFavicons)
     .replace('{{KEYMAP}}', vKeymap)
     .replace('{{GAME}}', rawGameData)
 
