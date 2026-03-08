@@ -25,6 +25,9 @@ function handleProjectDataLoaded(e) {
     )
     .join('\n')
 
+  const startImg = cardViewer.getRoomImageData(cardViewer.start)
+  cardViewer.renderToCanvas(startImg)
+
   dropzone.className = 'loaded'
   dropzone.style = `background-color: ${inColor.value}`
 
@@ -152,7 +155,7 @@ function scaleAndTint(img, scale = 1, tint = '#808080') {
 }
 
 inRoom.addEventListener('change', (e) => {
-  const room = cardViewer.getRoom(inRoom.value)
+  const room = cardViewer.getRoom(inRoom.value) ?? cardViewer.start
   const img = cardViewer.getRoomImageData(room)
   cardViewer.renderToCanvas(img)
 })
