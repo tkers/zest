@@ -6,6 +6,8 @@ const inColor = document.getElementById('color-in')
 const inScale = document.getElementById('scale-in')
 const inRoom = document.getElementById('room-in')
 const downloadLink = document.getElementById('download-link')
+const downloadLinkAlt = document.getElementById('download-link-alt')
+const outProgress = document.getElementById('progress')
 
 const cardCanvas = document.getElementById('card-view')
 const cardViewer = new Zest(cardCanvas)
@@ -32,6 +34,7 @@ function handleProjectDataLoaded(e) {
   dropzone.style = `background-color: ${inColor.value}`
 
   downloadLink.className = ''
+  downloadLinkAlt.className = 'clicky'
 }
 
 function showDropzoneError(message) {
@@ -126,6 +129,9 @@ function downloadCanvas(canvas, filename) {
     a.click()
 
     URL.revokeObjectURL(url)
+    setTimeout(() => {
+      progress.innerHTML = '&nbsp;'
+    }, 3200)
   }, 'image/png')
 }
 
@@ -161,8 +167,8 @@ inRoom.addEventListener('change', (e) => {
 })
 
 downloadLink.addEventListener('click', (e) => {
+  e.preventDefault()
   if (downloadLink.className !== '') {
-    e.preventDefault()
     return
   }
 
@@ -171,7 +177,60 @@ downloadLink.addEventListener('click', (e) => {
   const vTint = inColor.value
   const vFilename = `${cardViewer.meta.name} - worldmap.png`
 
+  progress.textContent = `Generating worldmap...`
+
   const worldmap = cardViewer.getWorldCanvas(vRoom)
   const canvas = scaleAndTint(worldmap, vScale, vTint)
+
+  progress.textContent = `Download started...`
+
   return downloadCanvas(canvas, vFilename)
+})
+
+downloadLinkAlt.addEventListener('click', async (e) => {
+  e.preventDefault()
+  if (downloadLinkAlt.className !== 'clicky') {
+    return
+  }
+
+  const vScale = inScale.checked ? 2 : 1
+  const vTint = inColor.value
+
+  var zip = new JSZip()
+  const canvas = document.createElement('canvas')
+
+  const allRooms = Object.values(cardViewer.namedRooms)
+  const total = allRooms.length
+  let i = 0
+  progress.textContent = `Exporting 0 of ${total}...`
+
+  for (const room of allRooms) {
+    const imgData = cardViewer.getRoomImageData(room)
+    canvas.width = imgData.width
+    canvas.height = imgData.height
+    const ctx = canvas.getContext('2d')
+    ctx.putImageData(imgData, 0, 0)
+
+    const img = await new Promise((resolve) =>
+      scaleAndTint(canvas, vScale, vTint).toBlob(resolve, 'image/png')
+    )
+
+    zip.file(`${room.name}.png`, img)
+    progress.textContent = `Saving room ${++i} of ${total}...`
+  }
+
+  const blob = await zip.generateAsync({ type: 'blob' })
+  const url = URL.createObjectURL(blob)
+
+  progress.textContent = `Download started...`
+
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${cardViewer.meta.name} - rooms.zip`
+  a.click()
+
+  URL.revokeObjectURL(url)
+  setTimeout(() => {
+    progress.innerHTML = '&nbsp;'
+  }, 3200)
 })

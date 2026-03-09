@@ -12,10 +12,11 @@ h1::after {
   text-shadow: 0 -1px 0 #6519a7;
 }
 
-section.instructions {
+section.instructions,
+a.clicky + p {
   color: #296644;
 }
 
 input[type='checkbox']:checked {
-  background-color: #4aefa4;
+  background-color: #6519a7;
 }

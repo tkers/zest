@@ -253,7 +253,8 @@ table {
   text-align: right;
 }
 
-a#download-link {
+a#download-link,
+a.clicky {
   border-radius: 32px;
   padding: 8px 24px;
   background-color: #312f28;
@@ -264,19 +265,23 @@ a#download-link {
   position: relative;
   border-bottom: 4px solid #000000;
 }
-a#download-link:hover {
+a#download-link:hover,
+a.clicky:hover {
   color: #ffffff;
 }
-a#download-link:active {
+a#download-link:active,
+a.clicky:active {
   top: 3px;
   border-bottom: 1px solid #000000;
 }
-a#download-link.disabled {
+a#download-link.disabled,
+a.clicky.disabled {
   color: #ffffff20 !important;
   pointer-events: none;
 }
 
-#download-link ~ p {
+#download-link + p,
+a.clicky + p {
   color: #9f824f;
   font-size: small;
   font-style: italic;

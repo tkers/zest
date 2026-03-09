@@ -2,7 +2,7 @@
 layout: default
 title: 'Zest Cartography'
 css: [bundler, maps]
-js: [../../core/utils, maps]
+js: [../../core/utils, jszip.min, maps]
 ---
 
 <h1>Zest Cartography</h1>
@@ -15,7 +15,11 @@ js: [../../core/utils, maps]
 </section>
 
 <section class="instructions">
-  <p>(only supports games using <strong>edge</strong> type exits)</p>
+  <p>
+    <strong>Generate Map</strong> only works for games using
+    <strong>edge</strong> type exits.<br />For all other games, use
+    <strong>Save Individually</strong> instead.
+  </p>
 </section>
 
 <section class="config">
@@ -35,10 +39,14 @@ js: [../../core/utils, maps]
   </div>
   <div>
     <h3>Scaled @2x</h3>
-    <input type="checkbox" id="scale-in" />
+    <input type="checkbox" id="scale-in" checked />
   </div>
 </section>
 
 <section style="margin-top: 64px">
-  <a href="#" id="download-link" class="disabled">Generate!</a>
+  <a href="#" id="download-link" class="disabled">Generate Map</a>
+  <a href="#" id="download-link-alt" class="clicky disabled"
+    >Save Individually</a
+  >
+  <p id="progress">&nbsp;</p>
 </section>
