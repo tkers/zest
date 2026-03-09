@@ -45,11 +45,15 @@ window.ZestAudio = (function () {
     release: 0.1,
   }
 
-  let audioCtx
+  let audioCtx, volumeNode
   const enable = () => {
     if (!audioCtx) {
       audioCtx = new AudioContext()
       console.log(`[ZestAudio] Created AudioContext (${audioCtx.state})`)
+
+      volumeNode = audioCtx.createGain()
+      volumeNode.gain.value = 1
+      volumeNode.connect(audioCtx.destination)
     }
     if (audioCtx.state === 'suspended') {
       console.log('[ZestAudio] Resuming AudioContext...')
@@ -148,7 +152,7 @@ window.ZestAudio = (function () {
       gainNode = audioCtx.createGain()
       gainNode.gain.value = 0
       oscNode.connect(gainNode)
-      gainNode.connect(audioCtx.destination)
+      gainNode.connect(volumeNode)
 
       const t0 = time ?? audioCtx.currentTime
       let ta = t0 + attack
@@ -249,6 +253,12 @@ window.ZestAudio = (function () {
     return audioCtx?.currentTime
   }
 
+  const setVolume = (v) => {
+    volumeNode.gain.value = v
+  }
+
+  const getVolume = () => volumeNode.gain.value
+
   const SCHEDULE_INTERVAL = 50 // 20 FPS (1000ms / 20)
   const SCHEDULE_WINDOW = 0.1 // 100ms ahead, should be >interval
 
@@ -319,6 +329,8 @@ window.ZestAudio = (function () {
     stopSong,
     pauseSong,
     resumeSong,
+    setVolume,
+    getVolume,
     setTempo,
     getTime,
   }
