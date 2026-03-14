@@ -1,3 +1,11 @@
 #!/usr/bin/env node
 
-console.log('CLI not yet available, check back later!')
+const cmd = process.argv[2]
+if (cmd == 'minify') {
+  import('./minify')
+} else if (cmd == 'bundle') {
+  import('./bundle')
+} else {
+  console.error(`Unknown command: ${cmd}`)
+  process.exit(1)
+}

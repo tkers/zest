@@ -6,6 +6,7 @@
   "author": "Tijn Kersjes <tijn@divbyzero.nl>",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "main": "core/zest.js",
   "bin": {
     "zest": "cli/zest"

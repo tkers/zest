@@ -1,15 +1,5 @@
 import { template } from './bundlerTemplate.js'
-
-const deepCopy = (x) => JSON.parse(JSON.stringify(x))
-function minify(original) {
-  const gameData = deepCopy(original)
-  delete gameData.editor
-  gameData.scripts.forEach((script) => {
-    delete script?.data?.__comments
-    delete script?.data?.__srcOrder
-  })
-  return gameData
-}
+import { minify } from './minify.js'
 
 export function estimateSize(gameData) {
   return template.length + JSON.stringify(minify(gameData)).length
