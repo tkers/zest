@@ -96,7 +96,9 @@ function handleProjectDataLoaded(e) {
   dropzone.className = 'loaded'
   dropzone.style = `background-color: ${inColor.value}`
   downloadLink.className = ''
-  downloadLinkAlt.className = 'clicky'
+
+  const iconData = cardViewer.getIconImageData()
+  downloadLinkAlt.className = iconData ? 'clicky' : 'clicky disabled'
 }
 
 inData.addEventListener('change', (e) => {
