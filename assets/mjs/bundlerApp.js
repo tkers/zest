@@ -1,3 +1,5 @@
+import { bundle, estimateSize } from './bundler.js'
+
 let rawGameData = null
 
 const dropzone = document.getElementById('dropzone')
@@ -9,6 +11,7 @@ const inTitle = document.getElementById('title-in')
 const inAutoplay = document.getElementById('autoplay-in')
 const inControls = document.getElementById('controls-in')
 const downloadLink = document.getElementById('download-link')
+const downloadLinkAlt = document.getElementById('download-link-alt')
 const fileOut = document.getElementById('file-out')
 
 const cardCanvas = document.getElementById('card-view')
@@ -51,7 +54,7 @@ dropzone.addEventListener('click', () => {
   inData.click()
 })
 
-function createFaviconTags(img, tint, size = 180) {
+function createFavicon(img, tint, size = 128) {
   const iconCanvas = document.createElement('canvas')
   iconCanvas.width = img.width
   iconCanvas.height = img.height
@@ -72,25 +75,28 @@ function createFaviconTags(img, tint, size = 180) {
   bigCtx.imageSmoothingEnabled = false
   bigCtx.drawImage(iconCanvas, 0, 0, img.width, img.height, 0, 0, size, size)
 
-  const url = bigCanvas.toDataURL('image/png')
+  return bigCanvas.toDataURL('image/png')
+}
 
+function createFaviconTags(img, tint, size) {
+  const url = createFavicon(img, tint, size)
   const favicon = `<link rel="icon" href="${url}" />`
   const iosicon = `<link rel="apple-touch-icon" href="${url}" />`
   return `${favicon}${iosicon}`
 }
 
 function handleProjectDataLoaded(e) {
-  const data = JSON.parse(e.target.result)
-  rawGameData = JSON.stringify(Zest.minify(data))
+  rawGameData = JSON.parse(e.target.result)
 
-  const size = rawGameData.length + ZEST_TEMPLATE.length
+  const size = estimateSize(rawGameData)
   fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
 
-  cardViewer.load(data)
-  inTitle.value = data.name
+  cardViewer.load(rawGameData)
+  inTitle.value = rawGameData.name
   dropzone.className = 'loaded'
   dropzone.style = `background-color: ${inColor.value}`
   downloadLink.className = ''
+  downloadLinkAlt.className = 'clicky'
 }
 
 inData.addEventListener('change', (e) => {
@@ -138,33 +144,6 @@ wrapColor.addEventListener('contextmenu', (e) => {
   setThemeColor(inColor.value)
 })
 
-const keyboard_wasd = {
-  KeyW: Zest.kButtonUp,
-  KeyA: Zest.kButtonLeft,
-  KeyS: Zest.kButtonDown,
-  KeyD: Zest.kButtonRight,
-  Comma: Zest.kButtonB,
-  Period: Zest.kButtonA,
-  Slash: Zest.kButtonCrank,
-}
-const keyboard_hjkl = {
-  KeyH: Zest.kButtonLeft,
-  KeyJ: Zest.kButtonDown,
-  KeyK: Zest.kButtonUp,
-  KeyL: Zest.kButtonRight,
-}
-const keyboard_as = {
-  KeyA: Zest.kButtonB,
-  KeyS: Zest.kButtonA,
-  KeyD: Zest.kButtonCrank,
-}
-const keyboard_mappers = {
-  'arrow-zx': {},
-  'arrow-as': keyboard_as,
-  'wasd-,.': keyboard_wasd,
-  'hjkl-as': { ...keyboard_hjkl, ...keyboard_as },
-}
-
 downloadLink.addEventListener('click', (e) => {
   if (!rawGameData) {
     e.preventDefault()
@@ -172,17 +151,16 @@ downloadLink.addEventListener('click', (e) => {
   }
 
   const iconData = cardViewer.getIconImageData()
-  const vFavicons = iconData ? createFaviconTags(iconData, inColor.value) : ''
+  const faviconTags = iconData && createFaviconTags(iconData, inColor.value)
 
-  const vAutoplay = inAutoplay.checked ? 'clicked' : ''
-  const vKeymap = JSON.stringify(keyboard_mappers[inControls.value])
-
-  const src = ZEST_TEMPLATE.replace('{{AUTOPLAY}}', vAutoplay)
-    .replace('{{COLOR}}', inColor.value)
-    .replace('{{TITLE}}', inTitle.value)
-    .replace('{{META_TAGS}}', vFavicons)
-    .replace('{{KEYMAP}}', vKeymap)
-    .replace('{{GAME}}', rawGameData)
+  const src = bundle({
+    autoplay: inAutoplay.checked,
+    color: inColor.value,
+    title: inTitle.value,
+    keymap: inControls.value,
+    meta: faviconTags,
+    gameData: rawGameData,
+  })
 
   const blob = new Blob([src], { type: 'text/html' })
   const url = URL.createObjectURL(blob)
@@ -191,4 +169,17 @@ downloadLink.addEventListener('click', (e) => {
   downloadLink.href = url
 
   // URL.revokeObjectURL(url)
+})
+
+downloadLinkAlt.addEventListener('click', (e) => {
+  if (downloadLinkAlt.className !== 'clicky') {
+    e.preventDefault()
+    return
+  }
+
+  const iconData = cardViewer.getIconImageData()
+  if (!iconData) return
+
+  downloadLinkAlt.download = `${inTitle.value} icon.png`
+  downloadLinkAlt.href = iconData && createFavicon(iconData, inColor.value)
 })

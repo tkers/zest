@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{TITLE}}</title>
+    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    {{META_TAGS}}
+    <style type="text/css">
+      {{INLINE_CSS}}
+    </style>
+    <script type="text/javascript">
+      const gameData = {{GAME}};
+      const ZEST_KEY_MAP = {{KEYMAP}};
+      {{INLINE_JS}}
+    </script>
+  </head>
+  <body style="background-color:{{COLOR}}">
+    <main class="{{AUTOPLAY}}">
+      <canvas id="lcd" width="200" height="120"></canvas>
+    </main>
+  </body>
+</html>

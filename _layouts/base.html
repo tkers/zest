@@ -21,5 +21,10 @@
         <script type="text/javascript" src="{{ site.baseurl }}/assets/js/{{ js }}.js"></script>
       {% endfor %}
     {% endif %}
+    {% if page.mjs %}
+      {% for mjs in page.mjs %}
+        <script type="module" src="{{ site.baseurl }}/assets/mjs/{{ mjs }}.js"></script>
+      {% endfor %}
+    {% endif %}
   </body>
 </html>
