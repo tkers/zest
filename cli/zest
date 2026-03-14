@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+console.log('CLI not yet available, check back later!')

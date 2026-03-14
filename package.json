@@ -1,0 +1,21 @@
+{
+  "name": "zest",
+  "version": "0.0.1",
+  "description": "A web runtime for Pulp games",
+  "repository": "git@github.com:tkers/zest.git",
+  "author": "Tijn Kersjes <tijn@divbyzero.nl>",
+  "license": "MIT",
+  "private": true,
+  "main": "core/zest.js",
+  "bin": {
+    "zest": "cli/zest"
+  },
+  "scripts": {
+    "build": "terser core/zest.js core/audio.js -o dist/zest.min.js -c -m"
+  },
+  "dependencies": {
+    "clean-css": "^5.3.3",
+    "html-minifier": "^4.0.0",
+    "terser": "^5.46.0"
+  }
+}
