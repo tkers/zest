@@ -12,9 +12,10 @@
     "zest": "cli/zest"
   },
   "scripts": {
-    "build": "terser core/zest.js core/audio.js -o dist/zest.min.js -c -m"
+    "build": "terser core/zest.js core/audio.js -o dist/zest.min.js -c -m",
+    "template": "node build/make_template.js"
   },
-  "dependencies": {
+  "devDependencies": {
     "clean-css": "^5.3.3",
     "html-minifier": "^4.0.0",
     "terser": "^5.46.0"

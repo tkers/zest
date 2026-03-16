@@ -1,13 +1,12 @@
-const fs = require('fs')
-const path = require('path')
+import { readFileSync, writeFileSync } from 'fs'
+import { resolve } from 'path'
+import CleanCSS from 'clean-css'
+import * as Terser from 'terser'
 
-const CleanCSS = require('clean-css')
+const resolvePath = (fname) => resolve(import.meta.dirname, fname)
+const read = (fname) => readFileSync(resolvePath(fname), 'utf8')
 const minifyCss = (css) => new CleanCSS().minify(css).styles
-
-const Terser = require('terser')
 const minifyJs = (js) => Terser.minify(js).then((res) => res.code)
-
-const read = (fname) => fs.readFileSync(path.resolve(__dirname, fname), 'utf8')
 
 const html = read('../bundler_template/index.html')
 const css = read('../bundler_template/style.css')
@@ -28,8 +27,7 @@ minifyJs(js).then((minjs) => {
     .replace('{{INLINE_CSS}}', minifyCss(css))
     .replace('{{INLINE_JS}}', minjs)
 
-  fs.writeFileSync(
-    path.resolve(__dirname, '../assets/mjs/bundlerTemplate.js'),
-    `export const template = ${JSON.stringify(compiled)}`
-  )
+  const outFile = resolvePath('../assets/mjs/bundlerTemplate.js')
+  writeFileSync(outFile, `export const template = ${JSON.stringify(compiled)}`)
+  console.log(`Created template at ${outFile}`)
 })
