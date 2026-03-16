@@ -10,6 +10,8 @@ window.addEventListener('load', () => {
     ZestAudio.enable()
   })
 
+  // config on LOAD event does not correctly trigger event
+  lcd.style.backgroundColor = game.config.colorBlack
   game.addEventListener('config', (e) => {
     if (e.detail.key === 'colorBlack') {
       lcd.style.backgroundColor = e.detail.value
