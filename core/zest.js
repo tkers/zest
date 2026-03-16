@@ -1242,7 +1242,7 @@ window.Zest = (function () {
       } else if (op === 'hide') {
         this.isHidden = true
       } else if (op === 'window') {
-        const { x, y, w, h } = run(args[0])
+        const { xFloat: x, yFloat: y, w, h } = run(args[0])
         this.#renderWindow(x, y, w, h)
       } else if (op === 'label') {
         const text = run(args[0])
