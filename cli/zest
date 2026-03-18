@@ -58,13 +58,13 @@ function writeOutput(result) {
 
 async function readInput() {
   return new Promise((resolve) => {
-    if (process.stdout.isTTY) {
+    if (args.input) {
       if (!existsSync(args.input)) {
         reject(`Input file does not exist: ${args.input}`)
         return
       }
       resolve(readFileSync(args.input, 'utf8'))
-    } else {
+    } else if (!process.stdout.isTTY) {
       const chunks = []
       process.stdin.on('readable', () => {
         let chunk
@@ -75,6 +75,9 @@ async function readInput() {
       process.stdin.on('end', () => {
         resolve(JSON.parse(chunks.join('')))
       })
+    } else {
+      console.error('No input file provided!')
+      process.exit(1)
     }
   })
 }
