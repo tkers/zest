@@ -62,7 +62,7 @@ function writeOutput(result) {
 }
 
 async function readInput() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (args.input) {
       if (!existsSync(args.input)) {
         reject(`Input file does not exist: ${args.input}`)
