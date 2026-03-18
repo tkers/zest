@@ -1,11 +1,95 @@
 #!/usr/bin/env node
 
-const cmd = process.argv[2]
-if (cmd == 'minify') {
-  import('./minify')
-} else if (cmd == 'bundle') {
-  import('./bundle')
+import { existsSync, readFileSync, writeFileSync } from 'fs'
+
+import { bundle } from '../assets/mjs/bundler.js'
+import { minify } from '../assets/mjs/minify.js'
+
+const readJSON = (fname) => JSON.parse(readFileSync(fname, 'utf8'))
+
+function readArgs(short = {}) {
+  const command = process.argv[2]
+  const options = {}
+  let input, flag, val
+  for (let i = 3; i < process.argv.length; i++) {
+    const arg = process.argv[i]
+    if (arg.startsWith('--')) {
+      flag = arg.slice(2)
+      options[flag] = true
+    } else if (arg.startsWith('-')) {
+      flag = short[arg.slice(1)]
+      options[flag] = true
+    } else if (flag) {
+      options[flag] = arg
+      flag = null
+    } else {
+      input = arg
+    }
+  }
+  return { command, options, input }
+}
+
+const args = readArgs({
+  a: 'autoplay',
+  p: 'palette',
+  t: 'title',
+  o: 'out',
+  c: 'config',
+})
+
+const configFile = args.options.config ?? 'zest.conf.json'
+const configExists = existsSync(configFile)
+if (args.options.config && !configExists) {
+  console.error(`Config file does not exist: ${configFile}`)
+  process.exit(1)
+}
+const config = configExists ? readJSON(configFile) : {}
+for (let key in config) {
+  args.options[key] = config[key]
+}
+
+function writeOutput(result) {
+  if (args.options.out) {
+    writeFileSync(args.options.out, result)
+  } else {
+    process.stdout.write(result)
+  }
+}
+
+async function readInput() {
+  return new Promise((resolve) => {
+    if (process.stdout.isTTY) {
+      if (!existsSync(args.input)) {
+        reject(`Input file does not exist: ${args.input}`)
+        return
+      }
+      resolve(readFileSync(args.input, 'utf8'))
+    } else {
+      const chunks = []
+      process.stdin.on('readable', () => {
+        let chunk
+        while (null !== (chunk = process.stdin.read())) {
+          chunks.push(chunk)
+        }
+      })
+      process.stdin.on('end', () => {
+        resolve(JSON.parse(chunks.join('')))
+      })
+    }
+  })
+}
+
+const gameData = JSON.parse(await readInput())
+if (args.command == 'minify') {
+  writeOutput(JSON.stringify(minify(gameData)))
+} else if (args.command == 'bundle') {
+  writeOutput(
+    bundle({
+      gameData,
+      ...args.options,
+    })
+  )
 } else {
-  console.error(`Unknown command: ${cmd}`)
+  console.error(`Unknown command: ${args.command}`)
   process.exit(1)
 }
