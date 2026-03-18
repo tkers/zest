@@ -44,8 +44,13 @@ if (args.options.config && !configExists) {
   process.exit(1)
 }
 const config = configExists ? readJSON(configFile) : {}
+if (!args.input) {
+  args.input = config.input
+}
 for (let key in config) {
-  args.options[key] = config[key]
+  if (!(key in args.options)) {
+    args.options[key] = config[key]
+  }
 }
 
 function writeOutput(result) {
