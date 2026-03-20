@@ -1962,16 +1962,17 @@ window.Zest = (function () {
     #renderText(text, x, y, w, h) {
       let xx = x
       let yy = y
-      const limit = isDefined(w) ? Math.min(text.length, w) : text.length
+      const maxX = isDefined(w) ? x + w : ROOM_WIDTH
       const maxY = isDefined(h) ? y + h : ROOM_HEIGHT
 
-      for (let i = 0; i < limit; i++) {
+      for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
         if (glyph == 10) {
           xx = x
           yy++
           if (yy > maxY) return
         }
+        if (x > maxX) continue
         if (glyph == 10 || glyph == 12) continue // skip nl and ff
         const frame =
           (glyph > 128
