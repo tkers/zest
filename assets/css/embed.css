@@ -12,11 +12,14 @@ main {
   height: 100%;
   position: relative;
   max-width: unset;
-}
-
-canvas#lcd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #312f28;
   mix-blend-mode: hard-light;
+}
+
+canvas {
   image-rendering: pixelated;
 
   display: block;
