@@ -30,6 +30,11 @@ const plugins = [
     file: 'openurl.js',
     info: 'Allows opening popups by logging "@open {url}"',
   },
+  {
+    name: 'Tauri',
+    file: 'tauri.js',
+    info: 'Configures keyboard shortcuts for running with Tauri',
+  },
 ]
 
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)
