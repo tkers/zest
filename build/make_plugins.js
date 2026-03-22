@@ -16,6 +16,12 @@ const plugins = [
     enabled: true,
   },
   {
+    name: 'Seamless Borders',
+    file: 'seamless.js',
+    info: "Matches the screen borders to the game's color palette",
+    enabled: true,
+  },
+  {
     name: 'Integer Scaling',
     file: 'intscale.js',
     info: 'Forces integer scaling to avoid distorted pixels',

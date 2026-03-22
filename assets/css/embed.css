@@ -15,7 +15,7 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #312f28;
+  background-color: #000000;
   mix-blend-mode: hard-light;
 }
 
