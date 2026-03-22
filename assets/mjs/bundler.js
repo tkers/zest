@@ -1,8 +1,21 @@
 import { template } from './bundlerTemplate.js'
+import { plugins } from './bundlerPlugins.js'
 import { minify } from './minify.js'
 
-export function estimateSize(gameData) {
-  return template.length + JSON.stringify(minify(gameData)).length
+const pluginsByName = Object.fromEntries(
+  plugins.map((plugin) => [plugin.name, plugin.src])
+)
+
+const getPluginCode = (pluginNames = []) =>
+  pluginNames.map((name) => pluginsByName[name] ?? '').join('\n')
+
+export function estimateSize(gameData, pluginNames) {
+  const pluginCode = getPluginCode(pluginNames)
+  return (
+    template.length +
+    pluginCode.length +
+    JSON.stringify(minify(gameData)).length
+  )
 }
 
 const kButtonUp = 1
@@ -42,12 +55,21 @@ const keyboard_mappers = {
   'hjkl-as': { ...keyboard_hjkl, ...keyboard_as },
 }
 
-export function bundle({ autoplay, color, title, meta, keymap, gameData }) {
+export function bundle({
+  autoplay,
+  color,
+  title,
+  meta,
+  keymap,
+  plugins,
+  gameData,
+}) {
   const vAutoplay = autoplay ? 'clicked' : ''
   const vColor = color ?? '#808080'
   const vTitle = title ?? 'Zest game'
   const vMetatags = meta ?? ''
   const vKeymap = JSON.stringify(keyboard_mappers[keymap] ?? {})
+  const vPlugins = getPluginCode(plugins)
   const vGame = JSON.stringify(gameData ? minify(gameData) : {})
 
   return template
@@ -56,5 +78,6 @@ export function bundle({ autoplay, color, title, meta, keymap, gameData }) {
     .replace('{{TITLE}}', vTitle)
     .replace('{{META_TAGS}}', vMetatags)
     .replace('{{KEYMAP}}', vKeymap)
+    .replace('{{PLUGIN_SRC}}', vPlugins)
     .replace('{{GAME}}', vGame)
 }

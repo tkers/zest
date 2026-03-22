@@ -14,8 +14,6 @@ const js = [
   '../bundler_template/main.js',
   '../core/zest.js',
   '../core/audio.js',
-  '../plugins/touch.js',
-  '../plugins/gamepad.js',
 ]
   .map(read)
   .join('\n')

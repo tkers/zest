@@ -1,4 +1,5 @@
 import { bundle, estimateSize } from './bundler.js'
+import { plugins } from './bundlerPlugins.js'
 
 let rawGameData = null
 
@@ -13,6 +14,23 @@ const inControls = document.getElementById('controls-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
 const fileOut = document.getElementById('file-out')
+const pluginsOut = document.getElementById('plugins-out')
+
+pluginsOut.innerHTML = plugins
+  .map((plugin) => {
+    return `<li class="plugin">
+    <div>
+      <input type="checkbox" onchange="updateEstimatedSize()" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
+    </div>
+    <div>
+      <label for="plugin-box-${plugin.file}">
+        <strong>${plugin.name}</strong> <small>+${Math.ceil(plugin.src.length / 100) / 10} KB</small>
+      </label>
+      <p>${plugin.info}</p>
+    </div>
+    </li>`
+  })
+  .join('\n')
 
 const cardCanvas = document.getElementById('card-view')
 const cardViewer = new Zest(cardCanvas)
@@ -85,11 +103,24 @@ function createFaviconTags(img, tint, size) {
   return `${favicon}${iosicon}`
 }
 
+function getSelectedPlugins() {
+  return plugins
+    .filter(
+      (plugin) => document.getElementById(`plugin-box-${plugin.file}`).checked
+    )
+    .map((plugin) => plugin.name)
+}
+
+function updateEstimatedSize() {
+  if (!rawGameData) return
+  const size = estimateSize(rawGameData, getSelectedPlugins())
+  fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
+}
+window.updateEstimatedSize = updateEstimatedSize
+
 function handleProjectDataLoaded(e) {
   rawGameData = JSON.parse(e.target.result)
-
-  const size = estimateSize(rawGameData)
-  fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
+  updateEstimatedSize()
 
   cardViewer.load(rawGameData)
   inTitle.value = rawGameData.name
@@ -155,12 +186,15 @@ downloadLink.addEventListener('click', (e) => {
   const iconData = cardViewer.getIconImageData()
   const faviconTags = iconData && createFaviconTags(iconData, inColor.value)
 
+  const selectedPlugins = getSelectedPlugins()
+
   const src = bundle({
     autoplay: inAutoplay.checked,
     color: inColor.value,
     title: inTitle.value,
     keymap: inControls.value,
     meta: faviconTags,
+    plugins: selectedPlugins,
     gameData: rawGameData,
   })
 
