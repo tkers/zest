@@ -982,8 +982,10 @@ window.Zest = (function () {
         setValueOf(name, update(getValueOf(name)))
 
       const run = (e) => this.runExpression(e, blocks, context)
-      const runLater = (e) =>
+      const runLater = (e) => {
         this.runExpression(e, blocks, { ...context, ...this.event })
+        this.calledDone = false
+      }
       const [op, ...args] = expr
 
       if (op === '_') {
