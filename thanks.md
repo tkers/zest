@@ -17,3 +17,4 @@ Zest is a labour of love, shared freely as open source software. This project wo
 - [SN-Studios](https://sn-studios.itch.io)
 - [RSTeknology](https://robertsteeber.itch.io)
 - [Puddle Scum](https://puddle-scum.itch.io)
+- [MintFerret](https://mintferret.itch.io)
