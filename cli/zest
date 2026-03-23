@@ -31,10 +31,11 @@ function readArgs(short = {}) {
 
 const args = readArgs({
   a: 'autoplay',
-  p: 'palette',
+  c: 'color',
   t: 'title',
+  p: 'plugins',
   o: 'out',
-  c: 'config',
+  C: 'config',
 })
 
 const configFile = args.options.config ?? 'zest.conf.json'
@@ -87,14 +88,21 @@ async function readInput() {
   })
 }
 
+const asArray = (list) =>
+  Array.isArray(list) ? list : list?.split(',').map((elem) => elem.trim())
+
 const gameData = JSON.parse(await readInput())
 if (args.command == 'minify') {
   writeOutput(JSON.stringify(minify(gameData)))
 } else if (args.command == 'bundle') {
+  const { autoplay, color, title, plugins } = args.options
   writeOutput(
     bundle({
       gameData,
-      ...args.options,
+      autoplay,
+      color,
+      title,
+      plugins: asArray(plugins),
     })
   )
 } else {

@@ -2,15 +2,15 @@ import { template } from './bundlerTemplate.js'
 import { plugins } from './bundlerPlugins.js'
 import { minify } from './minify.js'
 
-const pluginsByName = Object.fromEntries(
-  plugins.map((plugin) => [plugin.name, plugin.src])
+const pluginsByFile = Object.fromEntries(
+  plugins.map((plugin) => [plugin.file, plugin.src])
 )
 
-const getPluginCode = (pluginNames = []) =>
-  pluginNames.map((name) => pluginsByName[name] ?? '').join('\n')
+const getPluginCode = (pluginFiles = []) =>
+  pluginFiles.map((file) => pluginsByFile[file] ?? '').join('\n')
 
-export function estimateSize(gameData, pluginNames) {
-  const pluginCode = getPluginCode(pluginNames)
+export function estimateSize(gameData, pluginFiles) {
+  const pluginCode = getPluginCode(pluginFiles)
   return (
     template.length +
     pluginCode.length +

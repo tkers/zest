@@ -108,7 +108,7 @@ function getSelectedPlugins() {
     .filter(
       (plugin) => document.getElementById(`plugin-box-${plugin.file}`).checked
     )
-    .map((plugin) => plugin.name)
+    .map((plugin) => plugin.file)
 }
 
 function updateEstimatedSize() {

@@ -22,7 +22,7 @@ cat data.json | npx github:tkers/zest minify > data.min.json
 Headless version of the bundler:
 
 ```sh
-npx github:tkers/zest bundle --autoplay --palette "#FF00AA" -o game.html data.json
+npx github:tkers/zest bundle -a -c "#FF00AA" -p "gamepad.js,touch.js" -o "game.html" data.json
 ```
 
 Also reads from `zest.conf.json` (flags overwrite config) when present:
@@ -30,7 +30,8 @@ Also reads from `zest.conf.json` (flags overwrite config) when present:
 ```json
 {
   "autoplay": true,
-  "palette": "FF00AA",
+  "color": "#FF00AA",
+  "plugins": ["gamepad.js", "touch.js"],
   "out": "game.html"
 }
 ```
