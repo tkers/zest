@@ -147,6 +147,13 @@ p {
   margin: 16px 0;
 }
 
+hr {
+  border: none;
+  border-top: 1px solid #00000010;
+  border-bottom: 1px solid #ffffff20;
+  margin: 32px 0;
+}
+
 a.btn {
   display: inline-block;
   text-decoration: none;
