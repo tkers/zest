@@ -33,6 +33,7 @@ const args = readArgs({
   a: 'autoplay',
   c: 'color',
   t: 'title',
+  k: 'keymap',
   p: 'plugins',
   o: 'out',
   C: 'config',
@@ -95,13 +96,14 @@ const gameData = JSON.parse(await readInput())
 if (args.command == 'minify') {
   writeOutput(JSON.stringify(minify(gameData)))
 } else if (args.command == 'bundle') {
-  const { autoplay, color, title, plugins } = args.options
+  const { autoplay, color, title, keymap, plugins } = args.options
   writeOutput(
     bundle({
       gameData,
       autoplay,
       color,
       title,
+      keymap,
       plugins: asArray(plugins),
     })
   )
