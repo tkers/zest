@@ -47,17 +47,9 @@ const keyboard_as = {
   KeyS: kButtonA,
   KeyD: kButtonCrank,
 }
-const keyboard_zxab = {
-  KeyZ: kButtonB,
-  KeyX: kButtonA,
-  KeyC: kButtonCrank,
-  KeyA: kButtonA,
-  KeyB: kButtonB,
-}
 
 const keyboard_mappers = {
   'arrow-zx': {},
-  'arrow-zxab': keyboard_zxab,
   'arrow-as': keyboard_as,
   'wasd-,.': keyboard_wasd,
   'hjkl-as': { ...keyboard_hjkl, ...keyboard_as },
