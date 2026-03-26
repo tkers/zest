@@ -27,6 +27,11 @@ const plugins = [
     info: 'Forces integer scaling to avoid distorted pixels',
   },
   {
+    name: 'A/B Keys',
+    file: 'ab.js',
+    info: 'Adds extra (layout-dependent) key bindings for the A and B buttons',
+  },
+  {
     name: 'Mousewheel Crank',
     file: 'mousewheel.js',
     info: 'Enables using the mousewheel to crank',
