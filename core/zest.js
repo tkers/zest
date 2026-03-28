@@ -834,14 +834,13 @@ window.Zest = (function () {
         if (++v.tick < v.delay) return
         v.tick = 0
         v.frameIx++
-        if (k === 'player') {
-          this.player.frameIx = v.frameIx
-        } else {
-          this.#setFrameAt(v.x, v.y, v.frameIx)
-        }
         if (v.frameIx >= v.tile.frames.length) {
           delete this.playTimers[k]
           if (v.callback) v.callback()
+        } else if (k === 'player') {
+          this.player.frameIx = v.frameIx
+        } else {
+          this.#setFrameAt(v.x, v.y, v.frameIx)
         }
       })
 
