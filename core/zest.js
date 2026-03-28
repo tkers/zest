@@ -1279,7 +1279,11 @@ window.Zest = (function () {
         if (isDefined(args[0])) {
           const frameIx = run(args[0])
           if (context.self == this.playerScript) {
-            this.player.frameIx = frameIx
+            this.player.frameIx = clamp(
+              0,
+              frameIx,
+              this.player.visual.frames.length - 1
+            )
           } else if (isXY(context)) {
             this.#setFrameAt(context.x, context.y, frameIx)
           } else {
