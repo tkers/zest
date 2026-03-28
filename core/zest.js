@@ -1272,7 +1272,16 @@ window.Zest = (function () {
         }, frames)
         this.#emitEvent('shake', { duration: frames / FPS })
       } else if (op === 'frame') {
+        let frameIx
         if (isDefined(args[0])) {
+          frameIx = run(args[0])
+          if (isXY(frameIx)) {
+            // frame x,y
+            return this.#getFrameAt(frameIx.x, frameIx.y)
+          }
+        }
+        if (isDefined(frameIx)) {
+          // frame ix
           const frameIx = run(args[0])
           if (context.self == this.playerScript) {
             this.player.frameIx = clamp(
@@ -1286,6 +1295,7 @@ window.Zest = (function () {
             fail('Can only set FRAME on a tile instance')
           }
         } else {
+          // frame <no arg>
           if (context.self == this.playerScript) {
             return (
               this.player.frameIx ??
