@@ -35,11 +35,12 @@ window.Zest = (function () {
   const kButtonB = 6
   const kButtonCrank = 7
 
+  const clamp = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
   const makeWindowRect = (rect = {}) => {
-    const x = clipInt(0, rect.x ?? 3, ROOM_WIDTH - 1)
-    const y = clipInt(0, rect.y ?? 3, ROOM_HEIGHT - 1)
-    const w = clipInt(0, rect.w ?? 17, ROOM_WIDTH - 2 - x)
-    const h = clipInt(0, rect.h ?? 4, ROOM_HEIGHT - 2 - y)
+    const x = clamp(0, rect.x ?? 3, ROOM_WIDTH - 1)
+    const y = clamp(0, rect.y ?? 3, ROOM_HEIGHT - 1)
+    const w = clamp(0, rect.w ?? 17, ROOM_WIDTH - 2 - x)
+    const h = clamp(0, rect.h ?? 4, ROOM_HEIGHT - 2 - y)
     return [x, y, w, h]
   }
 
@@ -201,8 +202,6 @@ window.Zest = (function () {
     const range = Math.abs(hi - lo + 1)
     return Math.floor(Math.random() * range) + Math.min(lo, hi)
   }
-
-  const clipInt = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
 
   // transform [{ name: n, ... }] -> { n: { ... } }
   const byName = (arr) =>
@@ -686,7 +685,7 @@ window.Zest = (function () {
     #setFrameAt(x, y, frameIx) {
       const tile = this.getTileAt(x, y)
       const ix = coordToIndex(x, y)
-      this.frameOverrides[ix] = clipInt(0, frameIx, tile.frames.length - 1)
+      this.frameOverrides[ix] = clamp(0, frameIx, tile.frames.length - 1)
     }
 
     #getFrameAt(x, y) {
@@ -1260,10 +1259,10 @@ window.Zest = (function () {
         this.#fill(col, x, y, w, h)
       } else if (op === 'crop') {
         const { x, y, w, h } = run(args[0])
-        // const cLeft = clipInt(0, x, ROOM_WIDTH)
-        // const cTop = clipInt(0, x, ROOM_HEIGHT)
-        // const cRight = clipInt(0, cLeft + w, ROOM_WIDTH)
-        // const cBottom = clipInt(0, cTop + h, ROOM_HEIGHT)
+        // const cLeft = clamp(0, x, ROOM_WIDTH)
+        // const cTop = clamp(0, x, ROOM_HEIGHT)
+        // const cRight = clamp(0, cLeft + w, ROOM_WIDTH)
+        // const cBottom = clamp(0, cTop + h, ROOM_HEIGHT)
         this.cropArea = [x, y, x + w - 1, y + h - 1]
       } else if (op === 'invert') {
         this.isInverted = !this.isInverted
