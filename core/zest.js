@@ -679,6 +679,7 @@ window.Zest = (function () {
 
     #setFrameAt(x, y, frameIx) {
       const tile = this.getTileAt(x, y)
+      if (tile.fps !== 0) return
       const ix = coordToIndex(x, y)
       this.frameOverrides[ix] = clamp(0, frameIx, tile.frames.length - 1)
     }
