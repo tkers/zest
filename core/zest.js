@@ -402,13 +402,8 @@ window.Zest = (function () {
       this.charWidth = data.font.type === 0 ? 0.5 : 1
 
       this.gameScript = data.scripts[data.script]?.data
-      // if (this.gameScript) {
-      //   this.gameScript._scriptParentName = '<GAME>'
-      // }
-      this.playerScript = data.player.tile.script
-      // if (this.playerScript) {
-      //   this.playerScript._scriptParentName = '<PLAYER>'
-      // }
+      // needs to be a unique refrence to compare to, so NULL breaks things
+      this.playerScript = data.player.tile.script ?? {}
 
       // create a lookup table for room and tile names
       this.namedRooms = byName(data.rooms)
