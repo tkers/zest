@@ -1982,7 +1982,7 @@ window.Zest = (function () {
           yy++
           if (yy > maxY) return
         }
-        if (x > maxX) continue
+        if (xx > maxX) continue
         if (glyph == 10 || glyph == 12) continue // skip nl and ff
         const frame =
           (glyph > 128
