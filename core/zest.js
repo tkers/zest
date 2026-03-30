@@ -1920,15 +1920,15 @@ window.Zest = (function () {
       this.#renderFrame(this.cart.font.pipe[2], right, top)
 
       // horizontal border
-      for (let dx = 1; dx < w - 1; dx++) {
-        this.#renderFrame(this.cart.font.pipe[1], left + dx, top)
-        this.#renderFrame(this.cart.font.pipe[7], left + dx, bottom)
+      for (let xx = left + 1; xx < right; xx++) {
+        this.#renderFrame(this.cart.font.pipe[1], xx, top)
+        this.#renderFrame(this.cart.font.pipe[7], xx, bottom)
       }
 
       // vertical border
-      for (let dy = 1; dy < h; dy++) {
-        this.#renderFrame(this.cart.font.pipe[3], left, top + dy)
-        this.#renderFrame(this.cart.font.pipe[5], right, top + dy)
+      for (let yy = top + 1; yy < bottom; yy++) {
+        this.#renderFrame(this.cart.font.pipe[3], left, yy)
+        this.#renderFrame(this.cart.font.pipe[5], right, yy)
       }
 
       // bottom left/right corner
