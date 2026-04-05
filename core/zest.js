@@ -1836,8 +1836,16 @@ window.Zest = (function () {
         }
       } else if (dx > 0) {
         menu.pageIx = (menu.pageIx + 1) % menu.pages.length
+        menu.cursorIx = Math.min(
+          menu.cursorIx,
+          menu.pages[menu.pageIx].length - 1
+        )
       } else if (dx < 0) {
         menu.pageIx = (menu.pageIx - 1 + menu.pages.length) % menu.pages.length
+        menu.cursorIx = Math.min(
+          menu.cursorIx,
+          menu.pages[menu.pageIx].length - 1
+        )
       } else if (dy > 0) {
         menu.cursorIx = (menu.cursorIx + 1) % page.length
       } else if (dy < 0) {
