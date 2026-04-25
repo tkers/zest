@@ -37,12 +37,6 @@ window.addEventListener('keydown', async (e) => {
     mainWindow.setFullscreen(!isFullscreen)
   }
 
-  // Exit fullscreen with Esc
-  if (e.key == 'Escape') {
-    e.preventDefault()
-    mainWindow.setFullscreen(false)
-  }
-
   const decWindowScale = () => setWindowScaleTo(Math.max(MIN_SCALE, scale - 1))
   const incWindowScale = () => setWindowScaleTo(Math.min(MAX_SCALE, scale + 1))
   const dy = navigator.platform.startsWith('Mac') ? 28 : 0
