@@ -14,6 +14,7 @@ const js = [
   '../bundler_template/main.js',
   '../core/zest.js',
   '../core/audio.js',
+  '../core/font.js',
 ]
   .map(read)
   .join('\n')

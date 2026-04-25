@@ -2013,46 +2013,48 @@ window.Zest = (function () {
       }
     }
 
-    #renderWindow(x, y, w, h, arrowIx) {
+    #renderWindow(x, y, w, h, arrowIx, font) {
+      let ff = font ?? this.cart.font
       const left = x
       const right = x + w - 1
       const top = y
       const bottom = y + h - 1
 
       // top left/right corner
-      this.#renderFrame(this.cart.font.pipe[0], left, top)
-      this.#renderFrame(this.cart.font.pipe[2], right, top)
+      this.#renderFrame(ff.pipe[0], left, top)
+      this.#renderFrame(ff.pipe[2], right, top)
 
       // horizontal border
       for (let xx = left + 1; xx < right; xx++) {
-        this.#renderFrame(this.cart.font.pipe[1], xx, top)
-        this.#renderFrame(this.cart.font.pipe[7], xx, bottom)
+        this.#renderFrame(ff.pipe[1], xx, top)
+        this.#renderFrame(ff.pipe[7], xx, bottom)
       }
 
       // vertical border
       for (let yy = top + 1; yy < bottom; yy++) {
-        this.#renderFrame(this.cart.font.pipe[3], left, yy)
-        this.#renderFrame(this.cart.font.pipe[5], right, yy)
+        this.#renderFrame(ff.pipe[3], left, yy)
+        this.#renderFrame(ff.pipe[5], right, yy)
       }
 
       // bottom left/right corner
-      this.#renderFrame(this.cart.font.pipe[6], left, bottom)
-      this.#renderFrame(this.cart.font.pipe[8], right, bottom)
+      this.#renderFrame(ff.pipe[6], left, bottom)
+      this.#renderFrame(ff.pipe[8], right, bottom)
 
       // arrow or pagination glyph
       if (arrowIx) {
-        this.#renderFrame(this.cart.font.pipe[arrowIx], right - 1, bottom)
+        this.#renderFrame(ff.pipe[arrowIx], right - 1, bottom)
       }
 
       // background fill
       for (let yy = top + 1; yy < bottom; yy++) {
         for (let xx = left + 1; xx < right; xx++) {
-          this.#renderFrame(this.cart.font.pipe[4], xx, yy)
+          this.#renderFrame(ff.pipe[4], xx, yy)
         }
       }
     }
 
-    #renderSayText(x, y, w, h) {
+    #renderSayText(x, y, w, h, font) {
+      const ff = font ?? ff
       let xx = x
       let yy = y
       let text = this.dialogText.substring(0, this.dialogTextIx)
@@ -2067,13 +2069,14 @@ window.Zest = (function () {
         const frame =
           (glyph > 128
             ? this.cart.tiles[glyph - 128]?.frames[0]
-            : this.cart.font.chars[glyph - 32]) ?? this.cart.font.chars[0]
+            : ff.chars[glyph - 32]) ?? ff.chars[0]
         this.#renderFrame(frame, xx, yy, this.charWidth)
         xx += this.charWidth
       }
     }
 
-    #renderText(text, x, y, w, h) {
+    #renderText(text, x, y, w, h, font) {
+      const ff = font ?? this.cart.font
       let xx = x
       let yy = y
       const maxX = isDefined(w) ? x + w : ROOM_WIDTH
@@ -2091,7 +2094,7 @@ window.Zest = (function () {
         const frame =
           (glyph > 128
             ? this.cart.tiles[glyph - 128]?.frames[0]
-            : this.cart.font.chars[glyph - 32]) ?? this.cart.font.chars[0]
+            : ff.chars[glyph - 32]) ?? ff.chars[0]
         this.#renderFrame(frame, xx, yy, this.charWidth)
         xx += this.charWidth
       }
@@ -2259,21 +2262,27 @@ window.Zest = (function () {
 
       // draw system menu
       if (this.isSystemMenuOpen) {
-        const volume = ': ' + this.volume.toString().padStart(3, ' ') + '%'
+        const sysFont = typeof ZestMono !== 'undefined' ? ZestMono : null
+        const volume = sysFont
+          ? ' ' +
+            '['.repeat(Math.floor(this.volume / 20)) +
+            '|'.repeat(Math.floor(this.volume / 10) % 2) +
+            ']'.repeat(Math.floor((100 - this.volume) / 20))
+          : ': ' + this.volume.toString().padStart(3, ' ') + '%'
 
         const [wx, wy, ww, wh] = [4.5, 4.5, 16, 6]
         this.#dimScreen(this.colorBlack)
-        this.#renderWindow(wx, wy, ww, wh, false) // PipeIndex.PAGES
+        this.#renderWindow(wx, wy, ww, wh, false, sysFont) // PipeIndex.PAGES
 
         for (let i = 0; i < this.systemMenuOptions.length; i++) {
           let label = this.systemMenuOptions[i].label
           if (i === 0) label += volume
-          this.#renderText(label, wx + 2.5, wy + 1.5 + i, ww, 1)
+          this.#renderText(label, wx + 2.5, wy + 1.5 + i, ww, 1, sysFont)
         }
 
         this.#renderFrame(
-          this.cart.font.pipe[PipeIndex.CURSOR],
-          wx + 1,
+          (sysFont ?? this.cart.font).pipe[PipeIndex.CURSOR],
+          wx + 1.25,
           wy + 1.5 + this.systemCursorIx
         )
       }
