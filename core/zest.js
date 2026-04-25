@@ -36,6 +36,8 @@ window.Zest = (function () {
   const kButtonCrank = 7
 
   const clamp = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
+  const wrap = (x, len) => (x + len) % len
+
   const makeWindowRect = (rect = {}) => {
     const x = clamp(0, rect.x ?? 3, ROOM_WIDTH - 1)
     const y = clamp(0, rect.y ?? 3, ROOM_HEIGHT - 1)
@@ -306,6 +308,14 @@ window.Zest = (function () {
       this.ctx2d = canvas.getContext('2d')
       this.isRunning = false
       this.isPaused = false
+      this.volume = 100
+      this.isSystemMenuOpen = false
+      this.systemMenuOptions = [
+        { label: 'Volume' },
+        { label: 'Restart', action: () => this.restart() },
+        { label: 'Erase data', action: () => this.toss() },
+      ]
+
       window.dump = () => {
         this.dump()
       }
@@ -529,7 +539,7 @@ window.Zest = (function () {
       if (this.isPaused) return
 
       // keep world suspended while a window is open
-      if (!this.menuActive && !this.dialogActive) {
+      if (!this.menuActive && !this.dialogActive && !this.isSystemMenuOpen) {
         this.#tick()
         this.#updateInput()
         this.#runTimers()
@@ -634,7 +644,7 @@ window.Zest = (function () {
       if (!this.isRunning || this.isPaused) return
       this.isPaused = true
       this.#clearInput()
-      ZestAudio.pauseSong()
+      ZestAudio?.pauseSong()
       this.#emitEvent('pause')
     }
 
@@ -642,7 +652,7 @@ window.Zest = (function () {
       if (!this.isRunning || !this.isPaused) return
       this.isPaused = false
       this.#clearInput()
-      ZestAudio.resumeSong()
+      ZestAudio?.resumeSong()
       this.#emitEvent('resume')
     }
 
@@ -1693,6 +1703,19 @@ window.Zest = (function () {
     //   this.crankAngle += ra
     // }
 
+    openSystemMenu() {
+      if (this.isSystemMenuOpen) return
+      this.isSystemMenuOpen = true
+      this.systemCursorIx = 0
+      ZestAudio.pauseSong()
+    }
+
+    closeSystemMenu() {
+      if (!this.isSystemMenuOpen) return
+      this.isSystemMenuOpen = false
+      ZestAudio.resumeSong()
+    }
+
     #clearInput() {
       this.input[kButtonUp].clear()
       this.input[kButtonRight].clear()
@@ -1770,7 +1793,7 @@ window.Zest = (function () {
       this.event.aa = aa
 
       if (!this.isCrankDocked) {
-        if (this.menuActive) {
+        if (this.menuActive || this.isSystemMenuOpen) {
           this.uiCrankRotated += this.event.ra
           if (this.uiCrankRotated >= 90) {
             this.uiCrankRotated -= 90
@@ -1794,6 +1817,12 @@ window.Zest = (function () {
       }
 
       if (!anythingPressed) return
+
+      if (this.isSystemMenuOpen) {
+        this.#handleSystemMenuInput(dx, dy, confirmPressed, cancelPressed)
+        this.#clearInput()
+        return
+      }
 
       if (this.menuActive) {
         this.#handleMenuInput(dx, dy, confirmPressed, cancelPressed)
@@ -1858,6 +1887,33 @@ window.Zest = (function () {
         this.runScript(this.gameScript, 'change', {
           option: menu.pages[menu.pageIx][menu.cursorIx].label,
         })
+      }
+    }
+
+    #handleSystemMenuInput(dx, dy, aPress, bPress) {
+      if (aPress) {
+        const onSelect = this.systemMenuOptions[this.systemCursorIx].action
+        if (onSelect) {
+          onSelect()
+          this.closeSystemMenu()
+        }
+      } else if (bPress) {
+        this.closeSystemMenu()
+      } else if (dx != 0) {
+        if (this.systemCursorIx === 0) {
+          this.volume = clamp(0, this.volume + dx * 10, 100)
+          ZestAudio?.setVolume(this.volume / 100)
+        }
+      } else if (dy > 0) {
+        this.systemCursorIx = wrap(
+          this.systemCursorIx + 1,
+          this.systemMenuOptions.length
+        )
+      } else if (dy < 0) {
+        this.systemCursorIx = wrap(
+          this.systemCursorIx - 1,
+          this.systemMenuOptions.length
+        )
       }
     }
 
@@ -2151,6 +2207,26 @@ window.Zest = (function () {
             wy + 1 + menu.cursorIx
           )
         })
+      }
+
+      // draw system menu
+      if (this.isSystemMenuOpen) {
+        const [wx, wy, ww, wh] = [5, 5, 15, 5]
+        this.#renderWindow(wx, wy, ww, wh, false) // PipeIndex.PAGES
+
+        for (let i = 0; i < this.systemMenuOptions.length; i++) {
+          let label = this.systemMenuOptions[i].label
+          if (i === 0) {
+            label += ': ' + this.volume.toString().padStart(3, ' ') + '%'
+          }
+          this.#renderText(label, wx + 2, wy + 1 + i, ww, 1)
+        }
+
+        this.#renderFrame(
+          this.cart.font.pipe[PipeIndex.CURSOR],
+          wx + 1,
+          wy + 1 + this.systemCursorIx
+        )
       }
 
       if (this.ctx2d) {
