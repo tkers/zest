@@ -283,6 +283,9 @@ window.ZestAudio = (function () {
     const nextTick = () => {
       if (signal.pause) {
         now = audioCtx.currentTime
+        for (let v = 0; v < voices.length; v++) {
+          voices[v].stop()
+        }
         return
       }
 
