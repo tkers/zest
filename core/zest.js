@@ -1898,9 +1898,35 @@ window.Zest = (function () {
       }
     }
 
-    setVolume(value) {
+    setVolume(value, feedback) {
       this.volume = clamp(0, value, 100)
       ZestAudio?.setVolume(this.volume / 100)
+      if (feedback) {
+        ZestAudio?.playSound({
+          type: 3,
+          envelope: {
+            attack: 0.08,
+            decay: 0.4,
+            sustain: 0.75,
+            release: 0.12,
+          },
+          bpm: 180,
+          ticks: 1,
+          notes: [
+            [8, 4, 1],
+            [10, 4, 1],
+            [12, 4, 1],
+            [1, 5, 1],
+            [3, 5, 1],
+            [5, 5, 1],
+            [6, 5, 1],
+            [8, 5, 1],
+            [10, 5, 1],
+            [12, 5, 1],
+            [1, 6, 1],
+          ][Math.floor(this.volume / 10)],
+        })
+      }
     }
 
     #handleSystemMenuInput(dx, dy, aPress, bPress) {
@@ -1914,7 +1940,7 @@ window.Zest = (function () {
         this.closeSystemMenu()
       } else if (dx != 0) {
         if (this.systemCursorIx === 0) {
-          this.setVolume(this.volume + dx * 10)
+          this.setVolume(this.volume + dx * 10, true)
         }
       } else if (dy > 0) {
         this.systemCursorIx = wrap(
