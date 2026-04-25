@@ -1038,7 +1038,7 @@ window.Zest = (function () {
         return getValueOf(args[0]) <= run(args[1])
       } else if (op === 'say') {
         const msg = run(args[0])
-        const cb = args[1] && (() => run(args[1]))
+        const cb = args[1] && (() => runLater(args[1]))
         const pos = args[2] && run(args[2])
         this.say(msg, cb, pos)
       } else if (op === 'menu') {
@@ -1061,7 +1061,7 @@ window.Zest = (function () {
       } else if (op === 'option') {
         return {
           label: run(args[0]),
-          action: () => run(args[2]),
+          action: () => runLater(args[2]),
         }
       } else if (op === 'fin') {
         const msg = run(args[0])
@@ -1270,7 +1270,7 @@ window.Zest = (function () {
         this.isShaking = true
         this.#scheduleFrameTimer(() => {
           this.isShaking = false
-          if (args[1]) run(args[1])
+          if (args[1]) runLater(args[1])
         }, frames)
         this.#emitEvent('shake', { duration: frames / FPS })
       } else if (op === 'frame') {
