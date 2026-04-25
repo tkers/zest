@@ -606,18 +606,18 @@ window.Zest = (function () {
       }
       this.isRunning = true
 
+      // ENTER starting room in next frame
+      this.room = {
+        tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
+      }
+      this.roomTransition = this.start
+
       // LOAD event
       this.runScript(this.gameScript, 'load')
       this.cart.rooms.forEach((room) => this.runScript(room.script, 'load'))
       this.cart.tiles.forEach((tile) =>
         this.runScript(tile.script, 'load', { tile: tile.name })
       )
-
-      // ENTER starting room in next frame
-      this.room = {
-        tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
-      }
-      this.roomTransition = this.start
 
       // START
       this.#changeLoop(this.cart.song)
