@@ -1,0 +1,7 @@
+{
+  "color": "#4CA38D",
+  "title": "Paco & Lily (demo)",
+  "keymap": "arrow-zx",
+  "autoplay": true,
+  "plugins": ["seamless.js", "ab.js", "gamepad.js", "touch.js"]
+}
