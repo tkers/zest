@@ -2047,7 +2047,7 @@ window.Zest = (function () {
     }
 
     #renderSayText(x, y, w, h, font) {
-      const ff = font ?? ff
+      const ff = font ?? this.cart.font
       let xx = x
       let yy = y
       let text = this.dialogText.substring(0, this.dialogTextIx)
