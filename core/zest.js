@@ -34,6 +34,7 @@ window.Zest = (function () {
   const kButtonA = 5
   const kButtonB = 6
   const kButtonCrank = 7
+  const kButtonMenu = 8
 
   const clamp = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
   const wrap = (x, len) => (x + len) % len
@@ -472,6 +473,7 @@ window.Zest = (function () {
         KeyZ: kButtonB,
         KeyX: kButtonA,
         KeyC: kButtonCrank,
+        Escape: kButtonMenu,
       }
 
       const bound = new Set(Object.values(bindings))
@@ -490,6 +492,12 @@ window.Zest = (function () {
             this.undockCrank()
           } else {
             this.dockCrank()
+          }
+        } else if (btn === kButtonMenu) {
+          if (this.isSystemMenuOpen) {
+            this.closeSystemMenu()
+          } else {
+            this.openSystemMenu()
           }
         } else {
           this.pressKey(btn)
@@ -1890,6 +1898,11 @@ window.Zest = (function () {
       }
     }
 
+    setVolume(value) {
+      this.volume = clamp(0, value, 100)
+      ZestAudio?.setVolume(this.volume / 100)
+    }
+
     #handleSystemMenuInput(dx, dy, aPress, bPress) {
       if (aPress) {
         const onSelect = this.systemMenuOptions[this.systemCursorIx].action
@@ -1901,8 +1914,7 @@ window.Zest = (function () {
         this.closeSystemMenu()
       } else if (dx != 0) {
         if (this.systemCursorIx === 0) {
-          this.volume = clamp(0, this.volume + dx * 10, 100)
-          ZestAudio?.setVolume(this.volume / 100)
+          this.setVolume(this.volume + dx * 10)
         }
       } else if (dy > 0) {
         this.systemCursorIx = wrap(
@@ -2262,6 +2274,7 @@ window.Zest = (function () {
   Zest.kButtonA = kButtonA
   Zest.kButtonB = kButtonB
   Zest.kButtonCrank = kButtonCrank
+  Zest.kButtonMenu = kButtonMenu
 
   return Zest
 })()
