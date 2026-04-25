@@ -1,6 +1,6 @@
-const MIN_SCALE = 2
-const MAX_SCALE = 8
-let scale = 4
+const MIN_SCALE = 1
+const MAX_SCALE = 5
+let scale = 2
 
 /*
 Adds useful configurations when running in Tauri: 
@@ -45,35 +45,32 @@ window.addEventListener('keydown', async (e) => {
 
   const decWindowScale = () => setWindowScaleTo(Math.max(MIN_SCALE, scale - 1))
   const incWindowScale = () => setWindowScaleTo(Math.min(MAX_SCALE, scale + 1))
+  const dy = navigator.platform.startsWith('Mac') ? 28 : 0
   const setWindowScaleTo = (s) => {
     e.preventDefault()
     scale = s
     // Add some pixels to the height for the title bar in MacOS
     // https://github.com/tauri-apps/tauri/issues/15136
-    mainWindow.setSize(new LogicalSize(scale * 200, scale * 120 + 32))
+    mainWindow.setSize(new LogicalSize(scale * 400, scale * 240 + dy))
   }
 
-  if (e.shiftKey || e.ctrlKey || e.metaKey) {
+  if (e.ctrlKey || e.metaKey) {
     if (e.code == 'Digit1') {
-      setWindowScaleTo(2)
+      setWindowScaleTo(1)
     } else if (e.code == 'Digit2') {
-      setWindowScaleTo(3)
+      setWindowScaleTo(2)
     } else if (e.code == 'Digit3') {
-      setWindowScaleTo(4)
+      setWindowScaleTo(3)
     } else if (e.code == 'Digit4') {
-      setWindowScaleTo(5)
+      setWindowScaleTo(4)
     } else if (e.code == 'Digit5') {
-      setWindowScaleTo(6)
-    } else if (e.code == 'Digit6') {
-      setWindowScaleTo(7)
-    } else if (e.code == 'Digit7') {
-      setWindowScaleTo(8)
+      setWindowScaleTo(5)
     } else if (e.code == 'Minus') {
       decWindowScale()
     } else if (e.code == 'Equal') {
       incWindowScale()
     } else if (e.code == 'Digit0') {
-      setWindowScaleTo(4)
+      setWindowScaleTo(2)
     }
   }
 })
