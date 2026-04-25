@@ -2108,6 +2108,16 @@ window.Zest = (function () {
       return this.getRoomImageData(this.icon, 1, 2, 2, 2)
     }
 
+    #dimScreen([r, g, b, a]) {
+      const data = this.imgData.data
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = (data[i] + r) / 2
+        data[i + 1] = (data[i + 1] + g) / 2
+        data[i + 2] = (data[i + 2] + b) / 2
+        // data[i + 3] = (data[i + 3] + a) / 2
+      }
+    }
+
     render() {
       const inPlayerRoom = this.room.id == this.player.room
       const [cLeft, cTop, cRight, cBottom] = this.cropArea
@@ -2211,21 +2221,22 @@ window.Zest = (function () {
 
       // draw system menu
       if (this.isSystemMenuOpen) {
-        const [wx, wy, ww, wh] = [5, 5, 15, 5]
+        const volume = ': ' + this.volume.toString().padStart(3, ' ') + '%'
+
+        const [wx, wy, ww, wh] = [4.5, 4.5, 16, 6]
+        this.#dimScreen(this.colorBlack)
         this.#renderWindow(wx, wy, ww, wh, false) // PipeIndex.PAGES
 
         for (let i = 0; i < this.systemMenuOptions.length; i++) {
           let label = this.systemMenuOptions[i].label
-          if (i === 0) {
-            label += ': ' + this.volume.toString().padStart(3, ' ') + '%'
-          }
-          this.#renderText(label, wx + 2, wy + 1 + i, ww, 1)
+          if (i === 0) label += volume
+          this.#renderText(label, wx + 2.5, wy + 1.5 + i, ww, 1)
         }
 
         this.#renderFrame(
           this.cart.font.pipe[PipeIndex.CURSOR],
           wx + 1,
-          wy + 1 + this.systemCursorIx
+          wy + 1.5 + this.systemCursorIx
         )
       }
 
