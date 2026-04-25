@@ -279,11 +279,6 @@ window.Zest = (function () {
     intro: data.intro,
   })
 
-  // const repairAndCleanup = (data) => {
-  //   data.tiles = data.tiles.filter(Boolean) // remove gaps
-  //   data.rooms = data.rooms.filter(Boolean) // remove gaps
-  // }
-
   // library namespace
   class Zest extends EventTarget {
     static run(data, canvas) {
@@ -346,9 +341,6 @@ window.Zest = (function () {
         this.stop()
       }
 
-      // repairAndCleanup(data)
-      console.log(data)
-
       this.originalCart = _data
       this.cart = data
       this.meta = getMetaInfo(data)
@@ -395,7 +387,8 @@ window.Zest = (function () {
       this.isIgnored = false
       this.ignoreCount = 0
 
-      console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
+      // console.log(_data)
+      // console.log(`Loaded "${this.meta.name}" by ${this.meta.author}`)
 
       // make rooms reference frames directly for convenience
       resolveTileScripts(data.tiles, data.scripts)

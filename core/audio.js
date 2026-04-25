@@ -49,17 +49,12 @@ window.ZestAudio = (function () {
   const enable = () => {
     if (!audioCtx) {
       audioCtx = new AudioContext()
-      console.log(`[ZestAudio] Created AudioContext (${audioCtx.state})`)
-
       volumeNode = audioCtx.createGain()
       volumeNode.gain.value = 1
       volumeNode.connect(audioCtx.destination)
     }
     if (audioCtx.state === 'suspended') {
-      console.log('[ZestAudio] Resuming AudioContext...')
-      audioCtx.resume().then(() => {
-        console.log('[ZestAudio] Active!')
-      })
+      audioCtx.resume()
     }
   }
 
