@@ -942,6 +942,8 @@ window.Zest = (function () {
         } else if (parts.length === 2) {
           if (parts[0] === 'event') {
             if (name == 'event.self') return 0 // internal variable
+            if (name == 'event.px') return this.player.x
+            if (name == 'event.py') return this.player.y
             return context[parts[1]] ?? 0 // extended from this.event
           } else if (parts[0] === 'config') {
             return this.config[parts[1]] ?? 0
