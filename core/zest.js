@@ -548,7 +548,7 @@ window.Zest = (function () {
       } else {
         this.#updateInput()
 
-        if (this.dialogActive) {
+        if (this.dialogActive && !this.isSystemMenuOpen) {
           this.dialogLock--
           if (this.dialogTextIx < this.dialogText.length) {
             do {
