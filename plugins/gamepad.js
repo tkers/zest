@@ -109,8 +109,11 @@ Zest.register((game) => {
       const gpButtons = gamepad.buttons
       const gpAxes = gamepad.axes
 
+      mapButton(gpButtons[GamepadButton.START], Zest.kButtonMenu)
+
       mapButton(gpButtons[GamepadButton.B], Zest.kButtonB)
       mapButton(gpButtons[GamepadButton.A], Zest.kButtonA)
+
       mapButton(gpButtons[GamepadButton.UP], Zest.kButtonUp)
       mapButton(gpButtons[GamepadButton.DOWN], Zest.kButtonDown)
       mapButton(gpButtons[GamepadButton.LEFT], Zest.kButtonLeft)
@@ -120,12 +123,6 @@ Zest.register((game) => {
       mapAxis(gpAxes[0], Zest.kButtonLeft, Zest.kButtonRight)
 
       simulateCrank(gpAxes[2], gpAxes[3])
-
-      const startState = gpButtons[GamepadButton.START]?.pressed
-      if (prevBtns['start'] !== startState) {
-        prevBtns['start'] = startState
-        if (startState) game.pauseResume()
-      }
     }
     requestAnimationFrame(updateGamepadInput)
   }
