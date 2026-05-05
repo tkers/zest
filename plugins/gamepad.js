@@ -31,7 +31,7 @@ Zest.register((game) => {
   let gamepad
   window.addEventListener('gamepadconnected', (e) => {
     gamepad = e.gamepad
-    console.log(`Gamepad ${gamepad.index + 1} connected: ${gamepad.id}`)
+    // console.log(`Gamepad ${gamepad.index + 1} connected: ${gamepad.id}`)
   })
 
   game.addEventListener('shake', (e) => {
@@ -113,6 +113,7 @@ Zest.register((game) => {
 
       mapButton(gpButtons[GamepadButton.B], Zest.kButtonB)
       mapButton(gpButtons[GamepadButton.A], Zest.kButtonA)
+      // mapButton(gpButtons[GamepadButton.X], Zest.kButtonCrank)
 
       mapButton(gpButtons[GamepadButton.UP], Zest.kButtonUp)
       mapButton(gpButtons[GamepadButton.DOWN], Zest.kButtonDown)
