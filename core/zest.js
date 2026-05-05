@@ -480,21 +480,7 @@ window.Zest = (function () {
         if (!btn) return
         e.preventDefault()
         if (e.repeat) return
-        if (btn === kButtonCrank) {
-          if (this.isCrankDocked) {
-            this.undockCrank()
-          } else {
-            this.dockCrank()
-          }
-        } else if (btn === kButtonMenu) {
-          if (this.isSystemMenuOpen) {
-            this.closeSystemMenu()
-          } else {
-            this.openSystemMenu()
-          }
-        } else {
-          this.pressKey(btn)
-        }
+        this.pressKey(btn)
       })
 
       target.addEventListener('keyup', (e) => {
@@ -1669,7 +1655,19 @@ window.Zest = (function () {
 
     pressKey(key) {
       ZestAudio.enable()
-      if (key in this.input) {
+      if (key === kButtonCrank) {
+        if (this.isCrankDocked) {
+          this.undockCrank()
+        } else {
+          this.dockCrank()
+        }
+      } else if (key === kButtonMenu) {
+        if (this.isSystemMenuOpen) {
+          this.closeSystemMenu()
+        } else {
+          this.openSystemMenu()
+        }
+      } else if (key in this.input) {
         this.input[key].press()
       }
     }
