@@ -3,10 +3,10 @@ Zest.register((game) => {
   const DOCK_TRESHOLD = 0.6
   const CRANK_TRESHOLD = 0.03
   const GamepadButton = {
-    B: 0,
-    A: 1,
-    Y: 2,
-    X: 3,
+    A: 0,
+    B: 1,
+    X: 2,
+    Y: 3,
     L1: 4,
     R1: 5,
     L2: 6,
