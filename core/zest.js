@@ -982,6 +982,7 @@ window.Zest = (function () {
       const [op, ...args] = expr
 
       if (op === '_') {
+        // this.currentScriptLine = args[1]
         // ignore, identation maybe?
       } else if (op == '#') {
         // ignore, probably comments
@@ -991,7 +992,7 @@ window.Zest = (function () {
         const body = blocks[args[0]]
         const res = []
         for (let i = 0; i < body.length; i++) {
-          if (this.calledDone) return
+          if (this.calledDone) return res.flat()
           res.push(run(body[i]))
         }
         return res.flat()
