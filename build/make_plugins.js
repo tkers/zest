@@ -46,6 +46,11 @@ const plugins = [
     file: 'tauri.js',
     info: 'Configures keyboard shortcuts for running with Tauri',
   },
+  {
+    name: 'NWJS',
+    file: 'nwjs.js',
+    info: 'Configures menu options for running in NW.js',
+  },
 ]
 
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)
