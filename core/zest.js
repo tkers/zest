@@ -2285,7 +2285,12 @@ window.Zest = (function () {
 
     renderToCanvas(img) {
       let [shakeX, shakeY] = [0, 0]
-      if (this.isShaking && !this.menuActive && !this.dialogActive) {
+      if (
+        this.isShaking &&
+        !this.menuActive &&
+        !this.dialogActive &&
+        !this.isSystemMenuOpen
+      ) {
         ;[shakeX, shakeY] = [randomInt(-2, 2), randomInt(-2, 2)]
       }
       this.ctx2d.clearRect(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
