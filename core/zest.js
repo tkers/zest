@@ -137,7 +137,7 @@ window.Zest = (function () {
       hex = `${r}${r}${g}${g}${b}${b}`
     }
     if (hex.length != 6) {
-      warn('Invalid hex color: ${col}')
+      warn(`Invalid hex color: ${col}`)
       return [0, 0, 0, 255]
     }
     const num = parseInt(hex, 16)
