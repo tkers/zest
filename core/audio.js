@@ -56,6 +56,7 @@ window.ZestAudio = (function () {
     if (audioCtx.state === 'suspended') {
       audioCtx.resume()
     }
+    return audioCtx
   }
 
   let audioIntervalWorker
@@ -254,6 +255,8 @@ window.ZestAudio = (function () {
 
   const getVolume = () => volumeNode.gain.value
 
+  const connectAux = (dest) => volumeNode.connect(dest)
+
   const SCHEDULE_INTERVAL = 50 // 20 FPS (1000ms / 20)
   const SCHEDULE_WINDOW = 0.1 // 100ms ahead, should be >interval
 
@@ -331,5 +334,6 @@ window.ZestAudio = (function () {
     getVolume,
     setTempo,
     getTime,
+    connectAux,
   }
 })()
