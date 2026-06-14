@@ -249,7 +249,7 @@ window.ZestAudio = (function () {
   }
 
   const setVolume = (v) => {
-    volumeNode.gain.value = v
+    volumeNode.gain.value = Math.pow(v, 2)
   }
 
   const getVolume = () => volumeNode.gain.value
