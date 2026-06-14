@@ -11,6 +11,14 @@ Adds useful configurations when running in Tauri:
 - Enable window zooming (Ctrl + 1/2/3/...)
 */
 
+/*
+Set withGlobalTauri to true and add these
+permissions to capabilities/default.json:
+  - core:window:allow-set-fullscreen
+  - core:window:allow-set-size
+*/
+const getAppWindow = () => window.__TAURI__?.window?.getCurrentWindow()
+
 window.addEventListener('keydown', async (e) => {
   // Prevent refresh with F5 (Windows), Cmd+R (Mac), Ctrl+R (Linux)
   if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
@@ -18,23 +26,20 @@ window.addEventListener('keydown', async (e) => {
     return
   }
 
-  /*
-  Set withGlobalTauri to true and add these
-  permissions to capabilities/default.json:
-    - core:window:allow-set-fullscreen
-    - core:window:allow-set-size
-  */
-  const tauriWindow = window.__TAURI__?.window
-  if (!tauriWindow) return
+  // const tauriWindow = window.__TAURI__?.window
+  // if (!tauriWindow) return
 
-  const { getCurrentWindow, LogicalSize } = tauriWindow
-  const mainWindow = getCurrentWindow()
+  // const { getCurrentWindow, LogicalSize } = tauriWindow
+  // const mainWindow = getCurrentWindow()
+
+  const appWindow = getAppWindow()
+  if (!appWindow) return
 
   // Toggle fullscreen with F11 or Alt+Enter
   if (e.key == 'F11' || (e.altKey && e.key == 'Enter')) {
     e.preventDefault()
-    const isFullscreen = await mainWindow.isFullscreen()
-    mainWindow.setFullscreen(!isFullscreen)
+    const isFullscreen = await appWindow.isFullscreen()
+    appWindow.setFullscreen(!isFullscreen)
   }
 
   const decWindowScale = () => setWindowScaleTo(Math.max(MIN_SCALE, scale - 1))
@@ -45,7 +50,7 @@ window.addEventListener('keydown', async (e) => {
     scale = s
     // Add some pixels to the height for the title bar in MacOS
     // https://github.com/tauri-apps/tauri/issues/15136
-    mainWindow.setSize(new LogicalSize(scale * 400, scale * 240 + dy))
+    appWindow.setSize(new LogicalSize(scale * 400, scale * 240 + dy))
   }
 
   if (e.ctrlKey || e.metaKey) {
@@ -67,6 +72,11 @@ window.addEventListener('keydown', async (e) => {
       setWindowScaleTo(2)
     }
   }
+})
+
+document.addEventListener('fullscreenchange', () => {
+  const appWindow = getTauriWindow()
+  appWindow?.setFullscreen(document.fullscreenElement)
 })
 
 // Prevent showing menu on right click
