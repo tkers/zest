@@ -14,6 +14,9 @@ Apart from the core runtime at the heart of this project, here are some handy ex
 - **[Cartography](/zest/maps)**\
    Tool to automatically generate a world map from your game, or export all rooms individually.
 
+- **[Tape](/zest/tape)**\
+   Tool for recording Pulp songs.
+
 - **[CLI (NodeJS)](/zest/cli)**\
    Command line interface for several Zest features.
 

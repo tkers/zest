@@ -1,0 +1,49 @@
+---
+layout: default
+title: 'Zest Tape'
+css: [bundler, tape]
+js: [jszip.min, tape]
+---
+
+<h1>Zest Tape</h1>
+<h2>record Pulp songs</h2>
+
+<section id="dropzone">
+  <h3 id="drop-label" class="hint">Drop your source JSON file</h3>
+  <input type="file" id="data-in" accept="application/json" />
+  <canvas id="card-view" width="200" height="120" class="hidden"></canvas>
+</section>
+
+<section id="controls">
+  <div id="progress-wrap">
+    <div id="progress-bar">
+      <div id="progress-fill" style="width: 0%"></div>
+    </div>
+    <small id="time-now">0:00</small>
+    <small id="time-max">0:00</small>
+  </div>
+</section>
+
+<section class="config">
+  <div>
+    <h3>Song</h3>
+    <select id="song-in">
+      <option value="" selected disabled>Nothing Loaded</option>
+    </select>
+  </div>
+  <div>
+    <h3>Keep Intro</h3>
+    <input type="checkbox" id="intro-in" checked />
+  </div>
+</section>
+
+<!--<section id="playlist" class="hidden"></section>-->
+
+<section style="margin-top: 64px">
+  <a href="#" id="download-link" class="disabled">Record</a>
+  <!--<a href="#" id="download-link-alt" class="clicky disabled"
+    >Everything</a
+  >-->
+</section>
+
+<section id="rec-out"></section>

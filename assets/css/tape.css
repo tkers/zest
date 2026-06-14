@@ -1,0 +1,110 @@
+body {
+  /*background-color: #31c17f;*/
+  background-color: #6b2545;
+  /*color: #ffbddb;*/
+  color: #fabf9b;
+}
+
+header {
+  /*background-color: #49e19cc0;
+  background-color: #d2435d;*/
+  background-color: #5c1536a0;
+}
+
+header nav a {
+  color: #fcf7ddc0;
+}
+header nav a:hover {
+  background: none;
+  color: #fcf7dd;
+}
+
+h1 {
+  color: #fcf7dd;
+}
+
+section#dropzone {
+  border-color: #c7819e;
+  border-color: #0006;
+}
+section#dropzone:hover {
+  border-color: #ffbddb;
+  border-color: #000a;
+}
+section#dropzone h3 {
+  color: #c7819e;
+}
+section#dropzone:hover h3 {
+  color: #ffbddb;
+}
+section#dropzone.loaded {
+  background-color: #d2435d;
+}
+section#dropzone.loaded:hover {
+  border-color: #000;
+}
+
+h1::after {
+  background-color: #d2435d;
+  box-shadow: 0 1px 0 #5c1536;
+  text-shadow: 0 -1px 0 #5c1536;
+  /*background-color: #841cde;
+  box-shadow: 0 1px 0 #6519a7;
+  text-shadow: 0 -1px 0 #6519a7;*/
+}
+
+small,
+footer,
+a.clicky + p {
+  /*color: #296644;*/
+  color: #c7819e;
+}
+footer a,
+a {
+  color: #ffbddb;
+}
+footer a:hover,
+a:hover {
+  color: #ffceec;
+}
+
+input[type='checkbox']:checked {
+  /*background-color: #6519a7;*/
+  background-color: #d2435d;
+}
+
+section#controls #progress-wrap {
+  max-width: 400px;
+  margin: 0 auto 32px;
+}
+section#controls #progress-wrap small#time-now {
+  float: left;
+  margin: 4px 4px;
+}
+section#controls #progress-wrap small#time-max {
+  float: right;
+  margin: 4px -2px;
+}
+section#controls #progress-bar {
+  background-color: #5c1536;
+  width: 100%;
+  height: 8px;
+  margin: 14px 2px 0;
+  box-sizing: border-box;
+}
+section#controls #progress-fill {
+  height: 100%;
+  background-color: #d2435d;
+  margin: 0;
+  max-width: 100%;
+}
+
+#rec-out audio {
+  mix-blend-mode: overlay;
+  vertical-align: middle;
+  margin: 16px;
+}
+
+#rec-out a {
+  white-space: nowrap;
+}
