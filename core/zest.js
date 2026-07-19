@@ -54,6 +54,11 @@ window.Zest = (function () {
     console.error(`[FAIL] ${message}`)
   }
 
+  const toggleFullscreen = () =>
+    document?.fullscreenElement
+      ? document?.exitFullscreen?.()
+      : document?.documentElement?.requestFullscreen?.({ keyboardLock: 'browser' })
+
   const Y2K = 946684800
   const getDateTimePart = (part) => {
     const now = new Date()
@@ -308,14 +313,19 @@ window.Zest = (function () {
       this.isSystemMenuOpen = false
       this.systemMenuOptions = [
         { label: 'Volume' },
-        { label: 'Restart', action: () => this.restart() },
-        { label: 'Erase data', action: () => this.toss() },
+        { label: 'Fullscreen', action: toggleFullscreen },
+        { label: 'Reset Cart', action: () => this.reset() },
       ]
 
       window.dump = () => {
         this.dump()
       }
       Zest.#plugins.forEach((init) => init(this))
+    }
+
+    reset() {
+      this.toss();
+      this.restart()
     }
 
     restart() {

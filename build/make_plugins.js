@@ -31,7 +31,6 @@ const plugins = [
     name: 'Space Key',
     file: 'space.js',
     info: 'Adds extra Space key binding for the A button',
-    enabled: false,
   },
   {
     name: 'A/B Keys',
@@ -42,11 +41,6 @@ const plugins = [
     name: 'Integer Scaling',
     file: 'intscale.js',
     info: 'Forces integer scaling to avoid distorted pixels',
-  },
-  {
-    name: 'Fullscreen Toggle',
-    file: 'fullscreen.js',
-    info: 'Appends a Fullscreen option to the System Menu',
   },
   {
     name: 'Mousewheel Crank',
