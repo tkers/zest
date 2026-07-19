@@ -21,14 +21,13 @@ and using the <a href="{{ site.baseurl }}/docs">API reference</a> to load and ru
 
 ## Special PulpScript extensions
 
-Some extensions to the runtime make it easier to maintain a single Pulp game
-while still being able to use some Zest features:
+Games that run through Zest can use a couple of extra features in PulpScript. You don't need to do anything special to enable these extensions, and they will simply be ignored when running your game on a Playdate.
 
-Use `event.zest == 1` to detect if the game is currently running in Zest. This can be useful to change some of your game's default settings, or enabling alternative controls for e.g. the crank.
+### Changing Colors
 
-Set `config.colorBlack` and `config.colorWhite` to control the color palette. You can do this once (e.g. in the `load` event of your Game script), or change the colors multiple times, for example have a unique palette for each room.
+Set `config.colorBlack` and `config.colorWhite` to control the color palette. You can do this once (e.g. in the `load` event of your Game script), or change the colors multiple times, for example have a unique palette for each room. The value should be a valid hexadecimal color code, prefixed with a `#`.
 
-To opt-out of simulating the device appearance (the default colors), you can use this to switch to pure black an white:
+To opt-out of simulating the device appearance (the default colors), you can use this to switch to pure black and white:
 
 ```
 on load do
@@ -36,6 +35,26 @@ on load do
   config.colorWhite = "#ffffff"
 end
 ```
+
+### Detecting Runtime
+
+You can detect which runtime your game is being played in to make it easier to maintain a single Pulp game for multiple targets (i.e. both Playdate and Brower). The special `event.zest` variable will be set to `1` by Zest, and remain untouched (meaning `0`) on a Playdate.
+
+This means you can use fhe following to detect if your game is currently running in Zest:
+
+```
+on load do
+  if event.zest == 1 then
+    log "Running in the browser"
+  else
+    log "Running on a Playdate"
+  end
+end
+```
+
+This can be useful to change some of your game's default settings, or enabling alternative controls for e.g. the crank.
+
+> Note that you don't have to explicitly check this if you only want to change the colors (by setting config.colorBlack and config.colorWhite), as your Playdate will simply ignore unknown config variables.
 
 ## Bundler instructions
 
