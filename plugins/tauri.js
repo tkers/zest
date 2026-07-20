@@ -3,7 +3,7 @@ const MAX_SCALE = 5
 let scale = 2
 
 /*
-Adds useful configurations when running in Tauri: 
+Adds useful configurations when running in Tauri:
 - Prevent page refresh (F5 or Cmd+R)
 - Prevent context menu (right mouse click)
 - Enable fullscreen toggle (F11 or Alt+Enter)
@@ -75,8 +75,8 @@ window.addEventListener('keydown', async (e) => {
 })
 
 document.addEventListener('fullscreenchange', () => {
-  const appWindow = getTauriWindow()
-  appWindow?.setFullscreen(document.fullscreenElement)
+  const appWindow = getAppWindow()
+  appWindow?.setFullscreen(!!document.fullscreenElement)
 })
 
 // Prevent showing menu on right click

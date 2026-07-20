@@ -57,7 +57,9 @@ window.Zest = (function () {
   const toggleFullscreen = () =>
     document?.fullscreenElement
       ? document?.exitFullscreen?.()
-      : document?.documentElement?.requestFullscreen?.({ keyboardLock: 'browser' })
+      : document?.documentElement?.requestFullscreen?.({
+          keyboardLock: 'browser',
+        })
 
   const Y2K = 946684800
   const getDateTimePart = (part) => {
@@ -324,7 +326,7 @@ window.Zest = (function () {
     }
 
     reset() {
-      this.toss();
+      this.toss()
       this.restart()
     }
 
@@ -813,7 +815,9 @@ window.Zest = (function () {
       }
       this.playTimers = {}
       this.frameOverrides = {}
-      this.say(message, () => this.restart(), pos)
+      if (message) {
+        this.say(message, () => this.restart(), pos)
+      }
       this.#emitEvent('finish')
     }
 
