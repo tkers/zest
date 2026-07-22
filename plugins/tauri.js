@@ -12,12 +12,29 @@ Adds useful configurations when running in Tauri:
 */
 
 /*
-Set withGlobalTauri to true and add these
+Set `withGlobalTauri` to true and add these
 permissions to capabilities/default.json:
   - core:window:allow-set-fullscreen
   - core:window:allow-set-size
 */
+
 const getAppWindow = () => window.__TAURI__?.window?.getCurrentWindow()
+
+const toggleFullscreen = async () => {
+  const appWindow = getAppWindow()
+  const wasFullscreen = await appWindow.isFullscreen()
+  appWindow.setFullscreen(!wasFullscreen)
+}
+
+// Add some pixels to the height for the title bar in MacOS
+// https://github.com/tauri-apps/tauri/issues/15136
+const MAC_DY = navigator.platform.startsWith('Mac') ? 32 : 0
+
+const resizeWindow = (width, height) => {
+  const appWindow = getAppWindow()
+  const { LogicalSize } = window.__TAURI__?.window
+  appWindow.setSize(new LogicalSize(width, height + MAC_DY))
+}
 
 window.addEventListener('keydown', async (e) => {
   // Prevent refresh with F5 (Windows), Cmd+R (Mac), Ctrl+R (Linux)
@@ -26,31 +43,21 @@ window.addEventListener('keydown', async (e) => {
     return
   }
 
-  // const tauriWindow = window.__TAURI__?.window
-  // if (!tauriWindow) return
-
-  // const { getCurrentWindow, LogicalSize } = tauriWindow
-  // const mainWindow = getCurrentWindow()
-
-  const appWindow = getAppWindow()
-  if (!appWindow) return
-
   // Toggle fullscreen with F11 or Alt+Enter
   if (e.key == 'F11' || (e.altKey && e.key == 'Enter')) {
     e.preventDefault()
-    const isFullscreen = await appWindow.isFullscreen()
-    appWindow.setFullscreen(!isFullscreen)
+    toggleFullscreen()
   }
 
   const decWindowScale = () => setWindowScaleTo(Math.max(MIN_SCALE, scale - 1))
   const incWindowScale = () => setWindowScaleTo(Math.min(MAX_SCALE, scale + 1))
-  const dy = navigator.platform.startsWith('Mac') ? 28 : 0
-  const setWindowScaleTo = (s) => {
+  const setWindowScaleTo = async (s) => {
+    const isFullscreen = await getAppWindow()?.isFullscreen()
+    if (isFullscreen) return
+
     e.preventDefault()
     scale = s
-    // Add some pixels to the height for the title bar in MacOS
-    // https://github.com/tauri-apps/tauri/issues/15136
-    appWindow.setSize(new LogicalSize(scale * 400, scale * 240 + dy))
+    resizeWindow(scale * 400, scale * 240)
   }
 
   if (e.ctrlKey || e.metaKey) {
@@ -74,10 +81,13 @@ window.addEventListener('keydown', async (e) => {
   }
 })
 
-document.addEventListener('fullscreenchange', () => {
-  const appWindow = getAppWindow()
-  appWindow?.setFullscreen(!!document.fullscreenElement)
+// Fix the initial screen size on Mac
+window.addEventListener('load', () => {
+  resizeWindow(800, 480)
 })
 
 // Prevent showing menu on right click
 document.addEventListener('contextmenu', (e) => e.preventDefault())
+
+// Override browser fullscreen behaviour
+Zest.toggleFullscreen = toggleFullscreen
