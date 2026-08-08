@@ -62,6 +62,11 @@ const plugins = [
     file: 'nwjs.js',
     info: 'Configures menu options for running in NW.js',
   },
+  {
+    name: 'Debug',
+    file: 'debug.js',
+    info: 'Includes debug tools in the output bundle',
+  },
 ]
 
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)
