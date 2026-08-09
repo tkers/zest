@@ -956,8 +956,8 @@ window.Zest = (function () {
         } else if (parts.length === 2) {
           if (parts[0] === 'event') {
             if (name == 'event.self') return 0 // internal variable
-            if (name == 'event.px') return this.player.x
-            if (name == 'event.py') return this.player.y
+            // if (name == 'event.px') return this.player.x
+            // if (name == 'event.py') return this.player.y
             return context[parts[1]] ?? 0 // extended from this.event
           } else if (parts[0] === 'config') {
             return this.config[parts[1]] ?? 0
@@ -1225,10 +1225,6 @@ window.Zest = (function () {
       } else if (op === 'goto') {
         const { x, y } = run(args[0])
         this.goto(x, y, args[1] && run(args[1]))
-        if (!args[1]) {
-          context.px = x
-          context.py = y
-        }
       } else if (op === 'wait') {
         const delay = run(args[0]) * FPS
         this.#scheduleFrameTimer(() => runLater(args[1]), delay)
@@ -1551,10 +1547,10 @@ window.Zest = (function () {
         this.roomTransitionX = x
         this.roomTransitionY = y
       } else {
-        this.event.px = x
-        this.event.py = y
         const ctx = {
           ...this.event,
+          px: x,
+          py: y,
           tx: x,
           ty: y,
           dx: x - this.player.x,
