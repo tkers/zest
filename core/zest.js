@@ -1538,19 +1538,26 @@ window.Zest = (function () {
     }
 
     goto(x, y, room) {
-      if (isDefined(room)) {
+      let nextRoom = isDefined(room) && this.getRoom(room)
+      if (nextRoom == this.room) nextRoom = null
+
+      if (nextRoom) {
         // EXIT event
         this.#emitInternally('exit')
-
         this.store()
-        this.roomTransition = this.getRoom(room)
+
+        // ignore consecutive room transitions in single frame
+        if (this.roomTransition) return
+
+        // @TODO room transitions should stack (FILO)
+        this.roomTransition = nextRoom
         this.roomTransitionX = x
         this.roomTransitionY = y
       } else {
+        this.event.px = x
+        this.event.py = y
         const ctx = {
           ...this.event,
-          px: x,
-          py: y,
           tx: x,
           ty: y,
           dx: x - this.player.x,
