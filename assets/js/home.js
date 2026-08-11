@@ -12,6 +12,14 @@ window.addEventListener('load', () => {
   const titleLabel = document.getElementById('label-title')
   const authorLabel = document.getElementById('label-author')
 
+  Zest.toggleFullscreen = () => {
+    if (document?.fullscreenElement) {
+      document?.exitFullscreen?.()
+    } else {
+      lcd?.parentElement?.requestFullscreen?.({ keyboardLock: 'browser' })
+    }
+  }
+
   // load and start the demo game
   const game = new Zest(lcd) // Zest.run(gameData, lcd)
   lcd.addEventListener('click', () => ZestAudio.enable())
