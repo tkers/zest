@@ -2087,8 +2087,9 @@ window.Zest = (function () {
       }
     }
 
-    #renderText(text, x, y, w, h, font) {
+    #renderText(text, x, y, w, h, font, charWidth) {
       const ff = font ?? this.cart.font
+      const cw = charWidth ?? this.charWidth
       let xx = x
       let yy = y
       const maxX = isDefined(w) ? x + w : ROOM_WIDTH
@@ -2107,8 +2108,8 @@ window.Zest = (function () {
           (glyph > 128
             ? this.cart.tiles[glyph - 128]?.frames[0]
             : ff.chars[glyph - 32]) ?? ff.chars[0]
-        this.#renderFrame(frame, xx, yy, this.charWidth)
-        xx += this.charWidth
+        this.#renderFrame(frame, xx, yy, cw)
+        xx += cw
       }
     }
 
@@ -2275,6 +2276,7 @@ window.Zest = (function () {
       // draw system menu
       if (this.isSystemMenuOpen) {
         const sysFont = typeof ZestMono !== 'undefined' ? ZestMono : null
+        const cw = sysFont && 1
         const volume = sysFont
           ? ' ' +
             '['.repeat(Math.floor(this.volume / 20)) +
@@ -2289,13 +2291,14 @@ window.Zest = (function () {
         for (let i = 0; i < this.systemMenuOptions.length; i++) {
           let label = this.systemMenuOptions[i].label
           if (i === 0) label += volume
-          this.#renderText(label, wx + 2.5, wy + 1.5 + i, ww, 1, sysFont)
+          this.#renderText(label, wx + 2.5, wy + 1.5 + i, ww, 1, sysFont, cw)
         }
 
         this.#renderFrame(
           (sysFont ?? this.cart.font).pipe[PipeIndex.CURSOR],
           wx + 1.25,
-          wy + 1.5 + this.systemCursorIx
+          wy + 1.5 + this.systemCursorIx,
+          cw
         )
       }
 
