@@ -561,6 +561,10 @@ window.Zest = (function () {
           } else if (!this.menuActive) {
             this.dialogFrameIx++
           }
+
+          if (this.config.allowBackgroundAnimation === 1) {
+            this.frameIx++
+          }
         }
 
         this.render()

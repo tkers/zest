@@ -56,6 +56,20 @@ This can be useful to change some of your game's default settings, or enabling a
 
 > Note that you don't have to explicitly check this if you only want to change the colors (by setting config.colorBlack and config.colorWhite), as your Playdate will simply ignore unknown config variables.
 
+### Experimental features
+
+You can opt-in to keep your tiles animating in the background whenever a `say` or `menu` box is active:
+
+```
+on load do
+  config.allowBackgroundAnimation = 1
+end
+```
+
+Events and room transitions will not happen during this time, but be aware that the `event.frame` counter advances, and can cause some events to trigger out of order. Do not use this feature if your game requires `wait` or `play` timers to stay in perfect sync.
+
+> While changing palette colors and detecting the runtime are expected to be pretty stable features, these may not be. Use the experimental configuration flags at your own risk.
+
 ## Bundler instructions
 
 Using the Bundler is supposed to be as straighforward as possible, but there's a few quirks to know about.
