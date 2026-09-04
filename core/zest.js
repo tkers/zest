@@ -322,9 +322,6 @@ window.Zest = (function () {
         { label: 'Reset Game', action: () => this.reset() },
       ]
 
-      window.dump = () => {
-        this.dump()
-      }
       Zest.#plugins.forEach((init) => init(this))
     }
 
