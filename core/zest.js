@@ -2286,7 +2286,10 @@ window.Zest = (function () {
             '['.repeat(Math.floor(this.volume / 20)) +
             '|'.repeat(Math.floor(this.volume / 10) % 2) +
             ']'.repeat(Math.floor((100 - this.volume) / 20))
-          : ': ' + this.volume.toString().padStart(3, ' ') + '%'
+          : ': ' +
+            Math.floor(this.volume / 10)
+              .toString()
+              .padStart(2, ' ')
 
         const [wx, wy, ww, wh] = [4.5, 4.5, 16, 6]
         this.#dimScreen(this.colorBlack)
