@@ -319,7 +319,7 @@ window.Zest = (function () {
       this.systemMenuOptions = [
         { label: 'Volume' },
         { label: 'Fullscreen', action: () => Zest.toggleFullscreen() },
-        { label: 'Reset Cart', action: () => this.reset() },
+        { label: 'Reset Game', action: () => this.reset() },
       ]
 
       window.dump = () => {
@@ -2283,15 +2283,15 @@ window.Zest = (function () {
         const cw = sysFont ? 1 : undefined
         const volume = sysFont
           ? ' ' +
-            '['.repeat(Math.floor(this.volume / 20)) +
+            '{'.repeat(Math.floor(this.volume / 20)) +
             '|'.repeat(Math.floor(this.volume / 10) % 2) +
-            ']'.repeat(Math.floor((100 - this.volume) / 20))
+            '}'.repeat(Math.floor((100 - this.volume) / 20))
           : ': ' +
             Math.floor(this.volume / 10)
               .toString()
-              .padStart(2, ' ')
+              .padStart(2, '0')
 
-        const [wx, wy, ww, wh] = [4.5, 4.5, 16, 6]
+        const [wx, wy, ww, wh] = sysFont ? [4.5, 4.5, 16, 6] : [5, 4.5, 15, 6]
         this.#dimScreen(this.colorBlack)
         this.#renderWindow(wx, wy, ww, wh, false, sysFont) // PipeIndex.PAGES
 
