@@ -38,6 +38,11 @@ const plugins = [
     info: 'Adds extra (layout-dependent) key bindings for the A and B buttons',
   },
   {
+    name: 'Match Font',
+    file: 'menufont.js',
+    info: "Render the system menu with the game's own font",
+  },
+  {
     name: 'Integer Scaling',
     file: 'intscale.js',
     info: 'Forces integer scaling to avoid distorted pixels',
