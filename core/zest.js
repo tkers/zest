@@ -2280,7 +2280,7 @@ window.Zest = (function () {
       // draw system menu
       if (this.isSystemMenuOpen) {
         const sysFont = typeof ZestMono !== 'undefined' ? ZestMono : null
-        const cw = sysFont && 1
+        const cw = sysFont ? 1 : undefined
         const volume = sysFont
           ? ' ' +
             '['.repeat(Math.floor(this.volume / 20)) +
