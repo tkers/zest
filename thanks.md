@@ -15,6 +15,7 @@ Zest is a labour of love, shared freely as open source software. This project wo
 
 - [Pixel Ghost](https://pixelghost.uk)
 - [SN-Studios](https://sn-studios.itch.io)
+- [Rumblestrut](https://rumblestrut.itch.io)
 - [RSTeknology](https://robertsteeber.itch.io)
 - [Puddle Scum](https://puddle-scum.itch.io)
 - [MintFerret](https://mintferret.itch.io)
