@@ -1041,9 +1041,9 @@ window.Zest = (function () {
         }
         return res.flat()
       } else if (op === 'eq') {
-        return getValueOf(args[0]) == run(args[1])
+        return getValueOf(args[0]) === run(args[1])
       } else if (op === 'neq') {
-        return getValueOf(args[0]) != run(args[1])
+        return getValueOf(args[0]) !== run(args[1])
       } else if (op === 'gt') {
         return getValueOf(args[0]) > run(args[1])
       } else if (op === 'lt') {
