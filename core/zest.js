@@ -1261,6 +1261,7 @@ window.Zest = (function () {
       } else if (op === 'draw') {
         const who = run(args[0])
         const tile = this.getTile(who)
+        if (!tile) return warn(`Missing tile reference: ${who}`)
         const where = run(args[1])
         this.#renderTile(tile, where.xFloat, where.yFloat)
       } else if (op === 'fill') {
