@@ -38,6 +38,11 @@ const plugins = [
     info: 'Adds extra (layout-dependent) key bindings for the A and B buttons',
   },
   {
+    name: 'C Button',
+    file: 'buttonc.js',
+    info: 'Makes the dock/undock key emit a "custom" player event instead',
+  },
+  {
     name: 'Match Font',
     file: 'menufont.js',
     info: "Render the system menu with the game's own font",

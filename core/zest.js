@@ -327,6 +327,7 @@ window.Zest = (function () {
       this.isRunning = false
       this.isPaused = false
       this.volume = 100
+      this.useCustomButton = false
       this.isSystemMenuOpen = false
       this.systemMenuOptions = [
         { label: 'Volume' },
@@ -1691,7 +1692,10 @@ window.Zest = (function () {
     pressKey(key) {
       ZestAudio.enable()
       if (key === kButtonCrank) {
-        if (this.isCrankDocked) {
+        if (this.useCustomButton) {
+          this.#runPlayerScript('custom')
+          this.#emitEvent('custom')
+        } else if (this.isCrankDocked) {
           this.undockCrank()
         } else {
           this.dockCrank()

@@ -56,6 +56,12 @@ This can be useful to change some of your game's default settings, or enabling a
 
 > Note that you don't have to explicitly check this if you only want to change the colors (by setting config.colorBlack and config.colorWhite), as your Playdate will simply ignore unknown config variables.
 
+### Auxiliary Button
+
+Zest doesn't fully support the Crank, but it does map a key (<kbd>C</kbd> by default) to the `dock` and `undock` events, so you can use this as an extra button of sorts.
+
+To make things easy, you can also enable the _C Button_ plugin in the bundler to emit a `custom` event to the Player instead. This can simplify your code a bit if you don't need the toggling behaviour that docking and undocking the crank provides.
+
 ### Experimental features
 
 You can opt-in to keep your tiles animating in the background whenever a `say` or `menu` box is active:
