@@ -308,6 +308,18 @@ window.Zest = (function () {
       }
     }
 
+    static readStorage(key) {
+      return JSON.parse(localStorage.getItem(key) ?? '{}')
+    }
+
+    static writeStorage(key, data) {
+      localStorage.setItem(key, JSON.stringify(data))
+    }
+
+    static deleteStorage(key) {
+      localStorage.removeItem(key)
+    }
+
     constructor(canvas) {
       super()
       this.canvas = canvas
@@ -447,7 +459,7 @@ window.Zest = (function () {
       this.frameOverrides = {}
 
       this.storeKey = `zest/${this.meta.author}/${this.meta.name}`
-      this.storeData = JSON.parse(localStorage.getItem(this.storeKey) ?? '{}')
+      this.storeData = Zest.readStorage(this.storeKey)
       this.storeDirty = new Set()
 
       this.event = {
@@ -508,7 +520,7 @@ window.Zest = (function () {
         this.storeData[name] = this.globals[name]
         this.storeDirty.add(name)
       } else {
-        localStorage.setItem(this.storeKey, JSON.stringify(this.storeData))
+        Zest.writeStorage(this.storeKey, this.storeData)
         this.#emitEvent('store', {
           key: this.storeKey,
           data: filterObject(this.storeData, ([k]) => this.storeDirty.has(k)),
@@ -531,7 +543,7 @@ window.Zest = (function () {
     toss() {
       this.storeData = {}
       this.storeDirty = new Set()
-      localStorage.removeItem(this.storeKey)
+      Zest.writeStorage(this.storeKey)
     }
 
     #loop() {
