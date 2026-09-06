@@ -16,9 +16,15 @@ const downloadLinkAlt = document.getElementById('download-link-alt')
 const fileOut = document.getElementById('file-out')
 const pluginsOut = document.getElementById('plugins-out')
 
-pluginsOut.innerHTML = plugins
-  .map((plugin) => {
-    return `<li class="plugin">
+pluginsOut.innerHTML = Object.entries(
+  Object.groupBy(plugins, ({ type }) => type)
+)
+  .map(([typ, ps]) => {
+    return `<fieldset>
+    <legend><h3>${typ}</h3></legend>
+    <ol>${ps
+      .map(
+        (plugin) => `<li class="plugin">
     <div>
       <input type="checkbox" onchange="updateEstimatedSize()" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
     </div>
@@ -29,6 +35,9 @@ pluginsOut.innerHTML = plugins
       <p>${plugin.info}</p>
     </div>
     </li>`
+      )
+      .join('\n')}</ol>
+  </fieldset>`
   })
   .join('\n')
 
