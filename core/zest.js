@@ -309,7 +309,11 @@ window.Zest = (function () {
     }
 
     static readStorage(key) {
-      return JSON.parse(localStorage.getItem(key) ?? '{}')
+      try {
+        return JSON.parse(localStorage.getItem(key) ?? '{}')
+      } catch {
+        return {}
+      }
     }
 
     static writeStorage(key, data) {
@@ -329,6 +333,7 @@ window.Zest = (function () {
       this.volume = 100
       this.useCustomButton = false
       this.isSystemMenuOpen = false
+
       this.systemMenuOptions = [
         { label: 'Volume' },
         { label: 'Fullscreen', action: () => Zest.toggleFullscreen() },
@@ -544,7 +549,7 @@ window.Zest = (function () {
     toss() {
       this.storeData = {}
       this.storeDirty = new Set()
-      Zest.writeStorage(this.storeKey)
+      Zest.deleteStorage(this.storeKey)
     }
 
     #loop() {
