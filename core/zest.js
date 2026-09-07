@@ -2299,7 +2299,7 @@ window.Zest = (function () {
       // draw system menu
       if (this.isSystemMenuOpen) {
         const sysFont = typeof ZestMono !== 'undefined' ? ZestMono : null
-        const cw = sysFont ? 1 : undefined
+        const cw = sysFont ? 1 : this.charWidth
         const volume = sysFont
           ? ' ' +
             '{'.repeat(Math.floor(this.volume / 20)) +
@@ -2310,7 +2310,11 @@ window.Zest = (function () {
               .toString()
               .padStart(2, '0')
 
-        const [wx, wy, ww, wh] = sysFont ? [4.5, 4.5, 16, 6] : [5, 4.5, 15, 6]
+        const [wx, wy, ww, wh] = sysFont
+          ? [4.5, 4.5, 16, 6]
+          : cw == 1
+            ? [5, 4.5, 15, 6]
+            : [7.5, 4.5, 10, 6]
         this.#dimScreen(this.colorBlack)
         this.#renderWindow(wx, wy, ww, wh, false, sysFont) // PipeIndex.PAGES
 
@@ -2323,8 +2327,7 @@ window.Zest = (function () {
         this.#renderFrame(
           (sysFont ?? this.cart.font).pipe[PipeIndex.CURSOR],
           wx + 1.25,
-          wy + 1.5 + this.systemCursorIx,
-          cw
+          wy + 1.5 + this.systemCursorIx
         )
       }
 
