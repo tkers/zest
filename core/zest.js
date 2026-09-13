@@ -2115,8 +2115,8 @@ window.Zest = (function () {
       const cw = charWidth ?? this.charWidth
       let xx = x
       let yy = y
-      const maxX = isDefined(w) ? x + w : ROOM_WIDTH
-      const maxY = isDefined(h) ? y + h : ROOM_HEIGHT
+      const maxX = isDefined(w) ? x + w - 1 : ROOM_WIDTH
+      const maxY = isDefined(h) ? y + h - 1 : ROOM_HEIGHT
 
       for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
