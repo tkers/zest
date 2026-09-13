@@ -1012,8 +1012,8 @@ window.Zest = (function () {
 
       const run = (e) => this.runExpression(e, blocks, context)
       const runLater = (e) => {
-        this.runExpression(e, blocks, { ...context, ...this.event })
-        this.calledDone = false
+        run(e)
+        this.calledDone = false // @TODO is this actually needed?
       }
       const [op, ...args] = expr
 
