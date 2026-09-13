@@ -10,6 +10,12 @@ embed: embed/index.html
 CORE_SRC := $(wildcard core/*.js)
 TEMPLATE_SRC := $(wildcard bundler_template/*)
 PLUGINS_SRC := $(wildcard plugins/*.js)
+TEST_SRC := $(wildcard test/*.js)
+
+test: test/.pass
+test/.pass: $(CORE_SRC) $(TEST_SRC)
+	@for file in test/*.js; do node "$$file" || exit 1; done
+	@touch $@
 
 dist/zest.min.js: $(CORE_SRC)
 	npx terser core/zest.js core/audio.js core/font.js -c drop_console -m -o dist/zest.min.js
