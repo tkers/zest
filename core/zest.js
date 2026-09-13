@@ -2,7 +2,7 @@
 
 /*! Copyright (c) 2026 Tijn Kersjes - MIT License */
 
-window.Zest = (function () {
+globalThis.Zest = (function () {
   const FPS = 20
   const CELL_SIZE = 8
   const ROOM_WIDTH = 25
@@ -327,7 +327,7 @@ window.Zest = (function () {
     constructor(canvas) {
       super()
       this.canvas = canvas
-      this.ctx2d = canvas.getContext('2d')
+      this.ctx2d = canvas?.getContext('2d')
       this.isRunning = false
       this.isPaused = false
       this.volume = 100
@@ -618,7 +618,7 @@ window.Zest = (function () {
 
     play() {
       // always allow this to capture user gestures
-      ZestAudio.enable()
+      ZestAudio?.enable()
 
       if (this.isRunning) {
         warn('Already running')
@@ -922,31 +922,31 @@ window.Zest = (function () {
 
     playSound(ref) {
       const sound = this.getSound(ref)
-      ZestAudio.playSound(sound)
+      ZestAudio?.playSound(sound)
     }
     bpm(tempo) {
-      ZestAudio.setTempo(tempo)
+      ZestAudio?.setTempo(tempo)
     }
     loopMusic(ref) {
       const song = this.getSong(ref)
       if (this.currentSong == song) return
-      ZestAudio.stopSong()
+      ZestAudio?.stopSong()
       this.currentSong = song
-      ZestAudio.playSong(song, true)
+      ZestAudio?.playSong(song, true)
     }
     onceMusic(ref, cb) {
       const song = this.getSong(ref)
       if (this.currentSong == song) return
-      ZestAudio.stopSong()
+      ZestAudio?.stopSong()
       this.currentSong = song
-      ZestAudio.playSong(song, false, () => {
+      ZestAudio?.playSong(song, false, () => {
         this.currentSong = null
         cb && cb()
       })
     }
     stopMusic() {
       this.currentSong = null
-      ZestAudio.stopSong()
+      ZestAudio?.stopSong()
     }
 
     #changeLoop(ref) {
@@ -1695,7 +1695,7 @@ window.Zest = (function () {
     }
 
     pressKey(key) {
-      ZestAudio.enable()
+      ZestAudio?.enable()
       if (key === kButtonCrank) {
         if (this.useCustomButton) {
           this.#runPlayerScript('custom')
@@ -1750,13 +1750,13 @@ window.Zest = (function () {
       if (this.isSystemMenuOpen) return
       this.isSystemMenuOpen = true
       this.systemCursorIx = 0
-      ZestAudio.pauseSong()
+      ZestAudio?.pauseSong()
     }
 
     closeSystemMenu() {
       if (!this.isSystemMenuOpen) return
       this.isSystemMenuOpen = false
-      ZestAudio.resumeSong()
+      ZestAudio?.resumeSong()
     }
 
     #clearInput() {
