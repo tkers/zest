@@ -555,6 +555,8 @@ globalThis.Zest = (function () {
     #loop() {
       if (this.isPaused) return
 
+      this.event.frame++
+
       // keep world suspended while a window is open
       if (!this.menuActive && !this.dialogActive && !this.isSystemMenuOpen) {
         this.#tick()
@@ -588,8 +590,6 @@ globalThis.Zest = (function () {
 
     #tick() {
       this.frameIx++
-      this.event.frame = this.frameIx
-
       if (this.frameIx > 1) {
         // skip during initial room transition
         this.runScript(this.gameScript, 'loop')
