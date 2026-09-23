@@ -2017,6 +2017,7 @@ globalThis.Zest = (function () {
     }
 
     #renderTile(tile, x, y) {
+      if (x >= ROOM_WIDTH && y >= ROOM_HEIGHT) return
       return this.#renderFrame(getCurrentFrameForTile(tile, this.frameIx), x, y)
     }
 
@@ -2042,6 +2043,7 @@ globalThis.Zest = (function () {
 
         const px = xx + (i % 8)
         const py = yy + ((i / 8) | 0)
+        if (px >= PIXEL_WIDTH || py >= PIXEL_HEIGHT) continue // out of bounds, don't wrap
         const pi = 4 * (px + py * PIXEL_WIDTH)
 
         data[pi] = r
@@ -2118,8 +2120,8 @@ globalThis.Zest = (function () {
       const cw = charWidth ?? this.charWidth
       let xx = x
       let yy = y
-      const maxX = isDefined(w) ? x + w - 1 : ROOM_WIDTH
-      const maxY = isDefined(h) ? y + h - 1 : ROOM_HEIGHT
+      const maxX = isDefined(w) ? x + w - 1 : ROOM_WIDTH + 1
+      const maxY = isDefined(h) ? y + h - 1 : ROOM_HEIGHT + 1
 
       for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
