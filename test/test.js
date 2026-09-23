@@ -1,3 +1,25 @@
+import crypto from 'crypto'
+const hash = (x) =>
+  crypto.createHash('SHA1').update(x).digest('hex').substring(0, 10)
+
+import fs from 'fs'
+import path from 'path'
+const pathFor = (...x) => path.resolve(import.meta.dirname, ...x)
+const readFile = (fname) =>
+  fs.existsSync(fname) ? fs.readFileSync(fname, 'utf8') : null
+const writeFile = (fname, data) => {
+  fs.mkdirSync(path.dirname(fname), { recursive: true })
+  fs.writeFileSync(fname, data)
+}
+
+import pngjs from './png.js'
+const pngFromImageData = (imageData) => {
+  const { width, height, data } = imageData
+  const png = new pngjs.PNG({ width, height })
+  png.data.set(data)
+  return pngjs.PNG.sync.write(png)
+}
+
 globalThis.ZestAudio = null
 globalThis.ImageData = function (w, h) {
   this.width = w
@@ -19,6 +41,7 @@ import '../core/zest.js'
 const color = {
   red: (x) => `\x1b[31m${x}\x1b[0m`,
   green: (x) => `\x1b[32m${x}\x1b[0m`,
+  yellow: (x) => `\x1b[33m${x}\x1b[0m`,
   magenta: (x) => `\x1b[35m${x}\x1b[0m`,
   cyan: (x) => `\x1b[36m${x}\x1b[0m`,
 }
@@ -39,6 +62,7 @@ const test = (data) => {
   }
 
   const ok = (msg) => print(`${color.green('[ OK ]')} ${msg}`)
+  const warn = (msg) => print(`${color.yellow('[WARN]')} ${msg}`)
   const fail = (msg) => {
     print(`${color.red('[FAIL]')} ${msg}`)
     abort()
@@ -114,6 +138,37 @@ const test = (data) => {
     })
   }
 
+  const snapshot = () => {
+    const frames = new Error().stack.split('\n')
+    const caller = frames[2].split('/').pop()
+    const specName = hash(caller)
+    const fname = pathFor('_snapshots', `${specName}.png`)
+    const expectedSnap = readFile(fname)
+    const actualSnap = pngFromImageData(zest.imgData)
+
+    // const imgData = JSON.stringify(zest.imgData.data)
+    // const actualSnap = `<html>
+    //   <canvas id="lcd" width="200" height="120" style="image-rendering:pixelated;width:100%;height:100%;object-fit:contain;"></canvas>
+    //   <script type="text/javascript">
+    //     const ctx = document.getElementById('lcd').getContext('2d')
+    //     const img = ctx.createImageData(200, 120)
+    //     img.data.set(${imgData})
+    //     ctx.putImageData(img, 0, 0);
+    //   </script>
+    //   </html>`
+
+    if (!expectedSnap) {
+      warn(`Created new snapshot for ${caller}`)
+      writeFile(fname, actualSnap)
+    } else if (expectedSnap == actualSnap) {
+      ok(`Snapshot ${caller}`)
+    } else {
+      const aname = pathFor('_snapshots', `${specName}_actual.png`)
+      writeFile(aname, actualSnap)
+      fail(`Snapshot mismatch at ${caller}\n       ${aname}`)
+    }
+  }
+
   const play = () => {
     print(`Running spec: ${zest.meta.name} (${zest.meta.author})...`)
     zest.play()
@@ -123,6 +178,7 @@ const test = (data) => {
     tap,
     wait,
     expect,
+    snapshot,
     done,
     play,
     restart: () => zest.restart(),
