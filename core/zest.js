@@ -1421,7 +1421,7 @@ globalThis.Zest = (function () {
       if (!script) return
 
       // ctx can override 'self'
-      const context = { ...this.event, self: script, ...ctx, name }
+      const context = { self: script, ...ctx, ...this.event, name }
 
       const anyExpr = script.any
       if (anyExpr) {
