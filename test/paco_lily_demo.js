@@ -17,6 +17,6 @@ await tap(BTN_DOWN)
 await tap(BTN_DOWN)
 
 await wait(1) // wait for room transition
-snapshot()
+snapshot('paco-lily-pond')
 
 done()

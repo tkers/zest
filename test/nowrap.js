@@ -5,5 +5,5 @@ const { play, ignore, snapshot, done } = test(data)
 
 ignore()
 play()
-snapshot()
+snapshot('nowrap')
 done()

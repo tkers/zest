@@ -138,10 +138,10 @@ const test = (data) => {
     })
   }
 
-  const snapshot = () => {
+  const snapshot = (name) => {
     const frames = new Error().stack.split('\n')
     const caller = frames[2].split('/').pop()
-    const specName = hash(caller)
+    const specName = name ?? hash(caller)
     const fname = pathFor('_snapshots', `${specName}.png`)
     const expectedSnap = readFile(fname)
     const actualSnap = pngFromImageData(zest.imgData)
