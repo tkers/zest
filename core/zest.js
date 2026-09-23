@@ -755,7 +755,10 @@ globalThis.Zest = (function () {
       const windowSize = [
         rect.x ?? 0,
         rect.y ?? 0,
-        rect.w ?? Math.max(...options.map((o) => o.label.length)),
+        rect.w ??
+          Math.ceil(
+            Math.max(...options.map((o) => o.label.length)) * this.charWidth
+          ),
         rect.h ?? options.length,
       ]
       const pages = chunkify(options, windowSize[3])
