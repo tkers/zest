@@ -36,7 +36,6 @@ window.ZestAudio = (function () {
   const freqForNote = (note, oct) => FREQ[note - 1 + oct * 12]
 
   const VOICE_TYPES = ['sine', 'square', 'sawtooth', 'triangle', 'noise']
-  const parseVoiceType = (ix) => VOICE_TYPES[ix]
 
   const DEFAULT_ENVELOPE = {
     attack: 0.005,
