@@ -734,7 +734,12 @@ globalThis.Zest = (function () {
           }
           this.dialogLinkedToMenu = true
           const [sx, sy, sw, sh] = makeWindowRect(rect)
-          const w = Math.min(8, Math.max(...options.map((o) => o.label.length)))
+          const w = Math.min(
+            8,
+            Math.ceil(
+              Math.max(...options.map((o) => o.label.length)) * this.charWidth
+            )
+          )
           const h = options.length < 6 ? options.length : 4
           const x = sx + sw - w - 2
           const y = sy + sh
@@ -2286,12 +2291,7 @@ globalThis.Zest = (function () {
           )
           const lines = menu.pages[menu.pageIx]
           for (let i = 0; i < lines.length; i++) {
-            this.#renderText(
-              lines[i].label,
-              wx + 2,
-              wy + 1 + i,
-              ww / this.charWidth
-            )
+            this.#renderText(lines[i].label, wx + 2, wy + 1 + i, ww)
           }
           this.#renderFrame(
             this.cart.font.pipe[
