@@ -2101,10 +2101,12 @@ globalThis.Zest = (function () {
     }
 
     #renderSayText(x, y, w, h, font) {
+      let text = this.dialogText.substring(0, this.dialogTextIx)
+      // return this.#renderText(text, x, y, w, h, font) // @TODO this should be merged
+
       const ff = font ?? this.cart.font
       let xx = x
       let yy = y
-      let text = this.dialogText.substring(0, this.dialogTextIx)
 
       for (let i = 0; i < text.length; i++) {
         let glyph = text.charCodeAt(i)
@@ -2113,11 +2115,18 @@ globalThis.Zest = (function () {
           yy++
         }
         if (glyph == 10) continue // ignore nl (prewrapped text)
-        const frame =
-          (glyph > 128
-            ? this.cart.tiles[glyph - 128]?.frames[0]
-            : ff.chars[glyph - 32]) ?? ff.chars[0]
-        this.#renderFrame(frame, xx, yy, this.charWidth)
+        if (glyph > 128) {
+          // draw full embed regardless of font width, most glyphs get overwritten
+          // but the last one should be rendered in full (bug in Pulp?)
+          this.#renderFrame(this.cart.tiles[glyph - 128]?.frames[0], xx, yy, 1)
+        } else {
+          this.#renderFrame(
+            ff.chars[glyph - 32] ?? ff.chars[0],
+            xx,
+            yy,
+            this.charWidth
+          )
+        }
         xx += this.charWidth
       }
     }
@@ -2139,11 +2148,14 @@ globalThis.Zest = (function () {
         }
         if (xx > maxX) continue
         if (glyph == 10 || glyph == 12) continue // skip nl and ff
-        const frame =
-          (glyph > 128
-            ? this.cart.tiles[glyph - 128]?.frames[0]
-            : ff.chars[glyph - 32]) ?? ff.chars[0]
-        this.#renderFrame(frame, xx, yy, cw)
+
+        if (glyph > 128) {
+          // draw full embed regardless of font width, most glyphs get overwritten
+          // but the last one should be rendered in full (bug in Pulp?)
+          this.#renderFrame(this.cart.tiles[glyph - 128]?.frames[0], xx, yy, 1)
+        } else {
+          this.#renderFrame(ff.chars[glyph - 32] ?? ff.chars[0], xx, yy, cw)
+        }
         xx += cw
       }
     }
