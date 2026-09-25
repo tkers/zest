@@ -2001,12 +2001,14 @@ globalThis.Zest = (function () {
 
       const [r, g, b, a] =
         (col == 'white') !== this.isInverted ? this.colorWhite : this.colorBlack
-      const right = x + w
-      const bottom = y + h
+      const left = clamp(0, x, PIXEL_WIDTH)
+      const top = clamp(0, y, PIXEL_HEIGHT)
+      const right = clamp(0, x + w, PIXEL_WIDTH)
+      const bottom = clamp(0, y + h, PIXEL_HEIGHT)
 
       const data = this.imgData.data
-      for (let py = y; py < bottom; py++) {
-        for (let px = x; px < right; px++) {
+      for (let py = top; py < bottom; py++) {
+        for (let px = left; px < right; px++) {
           const pi = 4 * (px + py * PIXEL_WIDTH)
           data[pi] = r
           data[pi + 1] = g
