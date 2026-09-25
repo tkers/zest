@@ -1,6 +1,6 @@
 # Thank You
 
-## project contributers
+## project contributors
 
 Zest is a labour of love, shared freely as open source software. This project would not have been possible without the support of these amazing people:
 
@@ -16,6 +16,7 @@ Zest is a labour of love, shared freely as open source software. This project wo
 - [Pixel Ghost](https://pixelghost.uk)
 - [SN-Studios](https://sn-studios.itch.io)
 - [Rumblestrut](https://rumblestrut.itch.io)
+- [James Gameboy](https://jamesgameboy.bandcamp.com)
 - [RSTeknology](https://robertsteeber.itch.io)
 - [Puddle Scum](https://puddle-scum.itch.io)
 - [MintFerret](https://mintferret.itch.io)
