@@ -2136,7 +2136,7 @@ globalThis.Zest = (function () {
       const cw = charWidth ?? this.charWidth
       let xx = x
       let yy = y
-      const maxX = isDefined(w) ? x + w - 1 : ROOM_WIDTH + 1
+      const maxX = isDefined(w) ? x + w - cw : ROOM_WIDTH + 1
       const maxY = isDefined(h) ? y + h - 1 : ROOM_HEIGHT + 1
 
       for (let i = 0; i < text.length; i++) {
