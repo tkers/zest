@@ -12,7 +12,7 @@ const writeFile = (fname, data) => {
   fs.writeFileSync(fname, data)
 }
 
-import pngjs from './png.js'
+import pngjs from './utils/png.js'
 const pngFromImageData = (imageData) => {
   const { width, height, data } = imageData
   const png = new pngjs.PNG({ width, height })
@@ -20,40 +20,19 @@ const pngFromImageData = (imageData) => {
   return pngjs.PNG.sync.write(png)
 }
 
-globalThis.ZestAudio = null
-globalThis.ImageData = function (w, h) {
-  this.width = w
-  this.height = h
-  this.data = []
-}
-const noop = () => {}
-globalThis.localStorage = {
-  setItem: noop,
-  getItem: noop,
-  deleteItem: noop,
-}
-
 const print = console.log
-console.log = noop
+console.log = () => {}
 
+import color from './utils/color.js'
+import './utils/mocks.js'
 import '../core/zest.js'
-
-const color = {
-  red: (x) => `\x1b[31m${x}\x1b[0m`,
-  green: (x) => `\x1b[32m${x}\x1b[0m`,
-  yellow: (x) => `\x1b[33m${x}\x1b[0m`,
-  magenta: (x) => `\x1b[35m${x}\x1b[0m`,
-  cyan: (x) => `\x1b[36m${x}\x1b[0m`,
-}
-
-// const fname = '../_demo/paco-lily.json'
-// const { default: data } = await import(fname, { with: { type: 'json' } })
 
 const TIMEOUT_DELAY = 5000
 const test = (data) => {
   const zest = Zest.load(data)
 
-  // zest.config.allowBackgroundAnimation = 1
+  let logCount = 0
+  let snapCount = 0
 
   const timeout = setTimeout(() => zest.stop(), TIMEOUT_DELAY)
   const abort = () => {
@@ -95,7 +74,16 @@ const test = (data) => {
         `Received ${messages.length} extra log message${messages.length > 1 ? 's' : ''}!\n${messages.map((m, i) => `${i + 1}. ${color.cyan(m)}`).join('\n')}`
       )
     } else {
-      print('\nAll done!')
+      // print('\nAll done!')
+      ok(
+        `${zest.meta.name} (${[
+          logCount > 0 && `${logCount} log messages`,
+          snapCount > 0 && `${snapCount} snapshots`,
+          logCount + snapCount == 0 && 'new',
+        ]
+          .filter(Boolean)
+          .join(',')})`
+      )
       abort()
       process.exit(0)
     }
@@ -111,7 +99,8 @@ const test = (data) => {
         `Mismatch in log message!\nExpected: ${color.magenta(expected)}\n  Actual: ${color.cyan(message)}`
       )
     } else {
-      ok(message)
+      // ok(message)
+      logCount++
     }
     resolve()
   }
@@ -161,7 +150,8 @@ const test = (data) => {
       warn(`Created new snapshot for ${caller}`)
       writeFile(fname, actualSnap)
     } else if (expectedSnap == actualSnap) {
-      ok(`Snapshot ${caller}`)
+      // ok(`Snapshot ${caller}`)
+      snapCount++
     } else {
       const aname = pathFor('_snapshots', `${specName}_actual.png`)
       writeFile(aname, actualSnap)
@@ -170,7 +160,7 @@ const test = (data) => {
   }
 
   const play = () => {
-    print(`Running spec: ${zest.meta.name} (${zest.meta.author})...`)
+    // print(`Running spec: ${zest.meta.name} (${zest.meta.author})...`)
     zest.play()
   }
 
