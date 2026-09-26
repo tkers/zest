@@ -1,6 +1,7 @@
 import { template } from './bundlerTemplate.js'
 import { plugins } from './bundlerPlugins.js'
 import { minify } from './minify.js'
+import { pack, unpack } from './packer.js'
 
 const pluginsByFile = Object.fromEntries(
   plugins.map((plugin) => [plugin.file, plugin.src])
@@ -9,13 +10,10 @@ const pluginsByFile = Object.fromEntries(
 const getPluginCode = (pluginFiles = []) =>
   pluginFiles.map((file) => pluginsByFile[file] ?? '').join('\n')
 
-export function estimateSize(gameData, pluginFiles) {
+export function estimateSize(gameData, pluginFiles, useCompression) {
   const pluginCode = getPluginCode(pluginFiles)
-  return (
-    template.length +
-    pluginCode.length +
-    JSON.stringify(minify(gameData)).length
-  )
+  const data = useCompression ? pack(minify(gameData)) : minify(gameData)
+  return template.length + pluginCode.length + JSON.stringify(data).length
 }
 
 const kButtonUp = 1
@@ -61,6 +59,7 @@ export function bundle({
   title,
   meta,
   keymap,
+  useCompression,
   plugins,
   gameData,
 }) {
@@ -70,7 +69,16 @@ export function bundle({
   const vMetatags = meta ?? ''
   const vKeymap = JSON.stringify(keyboard_mappers[keymap] ?? {})
   const vPlugins = getPluginCode(plugins)
-  const vGame = JSON.stringify(gameData ? minify(gameData) : {})
+
+  let vGame
+  if (useCompression) {
+    const packedGameData = JSON.stringify(
+      gameData ? pack(minify(gameData)) : {}
+    )
+    vGame = `(${unpack.toString()})(${packedGameData})`
+  } else {
+    vGame = JSON.stringify(gameData ? minify(gameData) : {})
+  }
 
   return template
     .replace('{{AUTOPLAY}}', vAutoplay)

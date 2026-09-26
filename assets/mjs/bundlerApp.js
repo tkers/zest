@@ -11,6 +11,7 @@ const inColor = document.getElementById('color-in')
 const inTitle = document.getElementById('title-in')
 const inAutoplay = document.getElementById('autoplay-in')
 const inControls = document.getElementById('controls-in')
+const inCompression = document.getElementById('compression-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
 const fileOut = document.getElementById('file-out')
@@ -122,7 +123,11 @@ function getSelectedPlugins() {
 
 function updateEstimatedSize() {
   if (!rawGameData) return
-  const size = estimateSize(rawGameData, getSelectedPlugins())
+  const size = estimateSize(
+    rawGameData,
+    getSelectedPlugins(),
+    inCompression.checked
+  )
   fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
 }
 window.updateEstimatedSize = updateEstimatedSize
@@ -202,6 +207,7 @@ downloadLink.addEventListener('click', (e) => {
     color: inColor.value,
     title: inTitle.value,
     keymap: inControls.value,
+    useCompression: inCompression.checked,
     meta: faviconTags,
     plugins: selectedPlugins,
     gameData: rawGameData,

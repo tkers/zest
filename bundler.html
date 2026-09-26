@@ -50,6 +50,29 @@ mjs: bundlerApp
   </div>
 </section>
 
+<section>
+  <fieldset>
+    <legend><h3>experimental</h3></legend>
+    <ol>
+      <li class="plugin">
+        <div>
+          <input
+            type="checkbox"
+            id="compression-in"
+            onchange="updateEstimatedSize()"
+          />
+        </div>
+        <div>
+          <label for="compression-in"
+            ><strong>Frame data compression</strong></label
+          >
+          <p>Can reduce the bundle size by up to 50%</p>
+        </div>
+      </li>
+    </ol>
+  </fieldset>
+</section>
+
 <section id="plugins-out"></section>
 
 <section style="margin-top: 64px">
