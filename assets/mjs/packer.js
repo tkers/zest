@@ -8,9 +8,9 @@ export const pack = (data) => {
 
     for (let i = 0; i < 64; i++) {
       if (transparency) {
-        bytes[Math.floor(i / 4)] |= data[i] << ((i % 4) << 1)
+        bytes[i >> 2] |= data[i] << ((i % 4) << 1)
       } else {
-        bytes[Math.floor(i / 8)] |= data[i] << (i % 8)
+        bytes[i >> 3] |= data[i] << (i % 8)
       }
     }
 
@@ -23,6 +23,11 @@ export const pack = (data) => {
   const packData = (data) => ({
     ...data,
     frames: packFrames(data.frames),
+    font: {
+      ...data.font,
+      pipe: data.font.pipe.map(encodeFrameData),
+      chars: data.font.chars.map(encodeFrameData),
+    },
   })
 
   return packData(data)
@@ -32,15 +37,15 @@ export const unpack = (data) => {
   const str2bytes = (str) => Array.from(atob(str), (c) => c.charCodeAt(0))
 
   const decodeFrameData = (str) => {
-    const transparency = str.length === 24
+    const transparency = str.length > 12
     const bytes = str2bytes(str)
     const data = new Array(64)
 
     for (let i = 0; i < 64; i++) {
       if (transparency) {
-        data[i] = (bytes[Math.floor(i / 4)] >> ((i % 4) << 1)) % 4
+        data[i] = (bytes[i >> 2] >> ((i % 4) << 1)) % 4
       } else {
-        data[i] = (bytes[Math.floor(i / 8)] >> (i % 8)) % 2
+        data[i] = (bytes[i >> 3] >> (i % 8)) % 2
       }
     }
 
@@ -53,6 +58,11 @@ export const unpack = (data) => {
   const unpackData = (data) => ({
     ...data,
     frames: unpackFrames(data.frames),
+    font: {
+      ...data.font,
+      pipe: data.font.pipe.map(decodeFrameData),
+      chars: data.font.chars.map(decodeFrameData),
+    },
   })
 
   return unpackData(data)
