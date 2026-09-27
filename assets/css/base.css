@@ -70,6 +70,7 @@ header {
 
 header nav {
   max-width: 720px;
+  min-width: fit-content;
   margin: 0 auto;
   padding: 16px 8px;
   display: flex;
