@@ -1584,16 +1584,14 @@ globalThis.Zest = (function () {
       } else {
         this.event.px = x
         this.event.py = y
-        const ctx = {
-          ...this.event,
-          tx: x,
-          ty: y,
-          dx: x - this.player.x,
-          dy: y - this.player.y,
-        }
+        this.event.tx = 0
+        this.event.ty = 0
+        this.event.dx = x - this.player.x
+        this.event.dy = y - this.player.y
+
         this.player.x = x
         this.player.y = y
-        this.#runPlayerScript('update', ctx)
+        this.#runPlayerScript('update')
       }
     }
 
