@@ -629,8 +629,8 @@ globalThis.Zest = (function () {
       // ENTER starting room in next frame
       this.room = {
         tiles: Array(ROOM_HEIGHT * ROOM_WIDTH).fill(this.namedTiles.black),
+        isDummy: true, // prevent emitting EXIT events from this room
       }
-      this.roomTransition = this.start
 
       // LOAD event
       this.runScript(this.gameScript, 'load')
@@ -643,6 +643,9 @@ globalThis.Zest = (function () {
       this.#changeLoop(this.cart.song)
       this.runScript(this.gameScript, 'start')
       this.#emitEvent('start')
+
+      // allow LOAD and START to set the initial room
+      if (!this.roomTransition) this.roomTransition = this.start
 
       // loop at 20 FPS (50ms per tick)
       this.loopTimer = setInterval(() => this.#loop(), 1000 / FPS)
@@ -1571,8 +1574,10 @@ globalThis.Zest = (function () {
 
       if (nextRoom) {
         // EXIT event
-        this.#emitInternally('exit')
-        this.store()
+        if (!this.room.isDummy) {
+          this.#emitInternally('exit')
+          this.store()
+        }
 
         // ignore consecutive room transitions in single frame
         if (this.roomTransition) return
