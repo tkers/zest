@@ -18,6 +18,12 @@ const plugins = [
     enabled: true,
   },
   {
+    name: 'Virtual Buttons',
+    file: 'virtual.js',
+    info: 'Adds on-screen controls to mobile screens',
+    type: 'input',
+  },
+  {
     name: 'Voice',
     file: 'voice.js',
     info: 'Enables voice controls (cursed)',

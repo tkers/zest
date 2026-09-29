@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8" />
     <title>{{TITLE}}</title>
     <meta name="viewport" content="width=device-width, viewport-fit=cover" />
     <meta name="generator" content="Zest Bundler" />
@@ -19,5 +20,19 @@
     <main class="{{AUTOPLAY}}">
       <canvas id="lcd" width="200" height="120"></canvas>
     </main>
+    <section class="virtual-gamepad">
+      <button id="btn-m">•••</button>
+      <div class="dpad">
+        <button id="btn-u">▲</button>
+        <button id="btn-l">◀&#xFE0E;</button>
+        <div>&nbsp;</div>
+        <button id="btn-r">▶&#xFE0E;</button>
+        <button id="btn-d">▼</button>
+      </div>
+      <div class="btns">
+        <button id="btn-b">🅑</button>
+        <button id="btn-a">🅐</button>
+      </div>
+    </section>
   </body>
 </html>

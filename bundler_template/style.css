@@ -12,6 +12,7 @@ main {
   height: 100%;
   position: relative;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: #000000;
@@ -50,4 +51,155 @@ main:active::after {
 }
 main.clicked::after {
   display: none;
+}
+
+.virtual-gamepad {
+  display: none;
+
+  align-items: center;
+  justify-content: space-around;
+  padding: 2rem 0;
+
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+
+  background-color: #fab125e0;
+  box-shadow: 0 -2px 4px #0002;
+  border-top: 2px solid #fff2;
+  border-radius: 24px;
+
+  user-select: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Seamless */
+/*main[style] + .virtual-gamepad {
+  background-color: #4444;
+  border-radius: 0;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}*/
+
+.virtual-gamepad button {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font-family: monospace;
+  font-size: 18px;
+  background-color: #fff3;
+  color: #fffc;
+  box-shadow: 0 2px 0 #0002;
+  border-top: 1px solid #fff4;
+}
+
+.virtual-gamepad button:active {
+  background-color: #0002;
+  color: #fff6;
+}
+
+.dpad {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.dpad button,
+.dpad div {
+  position: absolute;
+
+  --btn-size: 50px;
+  line-height: var(--btn-size);
+  width: var(--btn-size);
+  height: var(--btn-size);
+}
+
+.dpad button:nth-of-type(1) {
+  left: var(--btn-size);
+  top: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  box-shadow: none;
+}
+
+.dpad button:nth-of-type(2) {
+  left: 0;
+  top: var(--btn-size);
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.dpad div {
+  background-color: #fff3;
+  left: var(--btn-size);
+  top: var(--btn-size);
+}
+
+.dpad button:nth-of-type(3) {
+  right: 0;
+  top: var(--btn-size);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.dpad button:nth-of-type(4) {
+  left: var(--btn-size);
+  top: calc(2 * var(--btn-size));
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border: 0;
+}
+
+.btns {
+  position: relative;
+  width: 140px;
+  height: 150px;
+}
+
+.btns button {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+
+  border-radius: 100%;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.btns button:nth-child(1) {
+  left: 0;
+  top: 60px;
+}
+.btns button:nth-child(2) {
+  right: 0;
+  top: 30px;
+}
+
+button#btn-m {
+  width: 32px;
+  height: 16px;
+  font-size: 10px;
+  border-radius: 32px;
+  position: absolute;
+  top: 4px;
+  margin: 0 auto;
+  box-shadow: 0 1px 0 #0002;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  body.with-virtual main {
+    justify-content: start;
+  }
+  body.with-virtual canvas {
+    max-height: 50%;
+  }
+  body.with-virtual .virtual-gamepad {
+    display: flex;
+  }
 }
