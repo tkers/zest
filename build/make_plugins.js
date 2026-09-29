@@ -18,6 +18,12 @@ const plugins = [
     enabled: true,
   },
   {
+    name: 'Voice',
+    file: 'voice.js',
+    info: 'Enables voice controls (cursed)',
+    type: 'input',
+  },
+  {
     name: 'Seamless Borders',
     file: 'seamless.js',
     info: "Matches the screen borders to the game's color palette",
