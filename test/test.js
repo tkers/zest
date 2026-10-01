@@ -36,13 +36,20 @@ const test = (data) => {
 
   const timeout = setTimeout(() => zest.stop(), TIMEOUT_DELAY)
   const abort = () => {
-    zest.stop()
+    if (zest.isRunning) zest.stop()
     clearTimeout(timeout)
+  }
+
+  let isSkipped = false
+  const skip = () => {
+    isSkipped = true
+    print(`${color.yellow('[SKIP]')} ${zest.meta.name}`)
   }
 
   const ok = (msg) => print(`${color.green('[ OK ]')} ${msg}`)
   const warn = (msg) => print(`${color.yellow('[WARN]')} ${msg}`)
   const fail = (msg) => {
+    if (isSkipped) return abort()
     print(`${color.red('[FAIL]')} ${msg}`)
     abort()
     process.exit(1)
@@ -65,13 +72,14 @@ const test = (data) => {
   }
 
   const done = () => {
+    if (isSkipped) return abort()
     if (expectations.length > 0) {
       fail(
-        `Ended early, expected ${expectations.length} more log message${expectations.length > 1 ? 's' : ''}!\n${expectations.map((m, i) => `${i + 1}. ${color.magenta(m[0])}`).join('\n')}`
+        `${zest.meta.name} Ended early, expected ${expectations.length} more log message${expectations.length > 1 ? 's' : ''}!\n${expectations.map((m, i) => `${i + 1}. ${color.magenta(m[0])}`).join('\n')}`
       )
     } else if (messages.length > 0) {
       fail(
-        `Received ${messages.length} extra log message${messages.length > 1 ? 's' : ''}!\n${messages.map((m, i) => `${i + 1}. ${color.cyan(m)}`).join('\n')}`
+        `${zest.meta.name} Received ${messages.length} extra log message${messages.length > 1 ? 's' : ''}!\n${messages.map((m, i) => `${i + 1}. ${color.cyan(m)}`).join('\n')}`
       )
     } else {
       // print('\nAll done!')
@@ -82,7 +90,7 @@ const test = (data) => {
           logCount + snapCount == 0 && 'new',
         ]
           .filter(Boolean)
-          .join(',')})`
+          .join(', ')})`
       )
       abort()
       process.exit(0)
@@ -174,6 +182,7 @@ const test = (data) => {
     restart: () => zest.restart(),
     listen,
     ignore,
+    skip,
   }
 }
 
