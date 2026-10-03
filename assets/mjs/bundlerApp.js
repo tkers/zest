@@ -23,9 +23,9 @@ pluginsOut.innerHTML = Object.entries(
   .map(([typ, ps]) => {
     return `<fieldset>
     <legend><h3>${typ}</h3></legend>
-    <ol>${ps
+    <ol class="plugins">${ps
       .map(
-        (plugin) => `<li class="plugin">
+        (plugin) => `<li>
     <div>
       <input type="checkbox" onchange="updateEstimatedSize()" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
     </div>

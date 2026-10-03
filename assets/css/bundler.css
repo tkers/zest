@@ -257,22 +257,28 @@ fieldset legend {
   padding: 16px;
 }
 
-ol#plugins-out {
+ol.plugins {
   list-style-type: none;
-  padding-left: 16px;
+  padding-left: 2rem;
   margin: 0;
 }
 
-li.plugin {
+@media (max-width: 740px) {
+  ol.plugins {
+    padding: 0;
+  }
+}
+
+ol.plugins li {
   display: flex;
   text-align: left;
   margin: 0 0 32px;
 }
-li.plugin div {
+ol.plugins li div {
   align-content: center;
   margin: 0 4px;
 }
-li.plugin div p {
+ol.plugins li div p {
   margin: 0;
 }
 
