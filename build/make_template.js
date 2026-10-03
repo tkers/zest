@@ -27,6 +27,10 @@ minifyJs(js).then((minjs) => {
     .replace('{{INLINE_JS}}', minjs)
 
   const outFile = resolvePath('../assets/mjs/bundlerTemplate.js')
-  writeFileSync(outFile, `export const template = ${JSON.stringify(compiled)}`)
+  writeFileSync(
+    outFile,
+    `/* auto-generated code; DO NOT EDIT */
+export const template = ${JSON.stringify(compiled)}`
+  )
   console.log(`Created template at ${outFile}`)
 })

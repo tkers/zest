@@ -119,6 +119,7 @@ const pluginList = Promise.all(
 pluginList.then((list) => {
   writeFileSync(
     resolvePath('../assets/mjs/bundlerPlugins.js'),
-    `export const plugins = ${JSON.stringify(list)}`
+    `/* auto-generated code; DO NOT EDIT */
+export const plugins = ${JSON.stringify(list)}`
   )
 })
