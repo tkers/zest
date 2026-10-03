@@ -3,3 +3,4 @@ node_modules/
 vendor/
 _site/
 test/.pass
+test/_snapshots/*_actual.png
