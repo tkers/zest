@@ -1,14 +1,16 @@
 .PHONY: all core template plugins embed
 
-all: core template plugins embed
+all: core template themes plugins embed
 
 core: dist/zest.min.js
 template: assets/mjs/bundlerTemplate.js
+themes: assets/mjs/bundlerThemes.js
 plugins: assets/mjs/bundlerPlugins.js
 embed: embed/index.html
 
 CORE_SRC := $(wildcard core/*.js)
 TEMPLATE_SRC := $(wildcard bundler_template/*)
+THEMES_SRC := $(wildcard bundler_themes/*)
 PLUGINS_SRC := $(wildcard plugins/*.js)
 TEST_SRC := $(wildcard test/*.js)
 
@@ -25,6 +27,9 @@ dist/zest.min.js: $(CORE_SRC)
 
 assets/mjs/bundlerTemplate.js: $(TEMPLATE_SRC) $(CORE_SRC) build/make_template.js
 	node build/make_template.js
+
+assets/mjs/bundlerThemes.js: $(THEMES_SRC) build/make_themes.js
+	node build/make_themes.js
 
 assets/mjs/bundlerPlugins.js: $(PLUGINS_SRC) build/make_plugins.js
 	node build/make_plugins.js

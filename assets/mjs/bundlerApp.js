@@ -1,5 +1,6 @@
 import { bundle } from './bundler.js'
 import { plugins } from './bundlerPlugins.js'
+import { themes } from './bundlerThemes.js'
 
 let rawGameData = null
 
@@ -14,6 +15,11 @@ const inControls = document.getElementById('controls-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
 const pluginsOut = document.getElementById('plugins-out')
+const inTheme = document.getElementById('theme-in')
+
+inTheme.innerHTML = themes
+  .map(({ name }) => `<option value="${name}">${name}</option>`)
+  .join('\n')
 
 pluginsOut.innerHTML = Object.entries(
   Object.groupBy(plugins, ({ type }) => type)
@@ -103,6 +109,12 @@ function createFavicon(img, tint, size = 128) {
 
   return bigCanvas.toDataURL('image/png')
 }
+
+function previewTheme() {
+  const css = themes.find((t) => t.name == inTheme.value)?.css
+  document.getElementById('theme-preview').innerHTML = css
+}
+window.previewTheme = previewTheme
 
 function createFaviconTags(img, tint, size) {
   const url = createFavicon(img, tint, size)
@@ -194,6 +206,7 @@ downloadLink.addEventListener('click', (e) => {
     title: inTitle.value,
     keymap: inControls.value,
     meta: faviconTags,
+    theme: inTheme.value,
     plugins: selectedPlugins,
     gameData: rawGameData,
   })

@@ -1,4 +1,5 @@
 import { template } from './bundlerTemplate.js'
+import { themes } from './bundlerThemes.js'
 import { plugins } from './bundlerPlugins.js'
 import { minify } from './minify.js'
 import { pack, unpack } from './packer.js'
@@ -54,12 +55,19 @@ export function bundle({
   meta,
   keymap,
   plugins,
+  theme,
   gameData,
 }) {
   const vAutoplay = autoplay ? 'clicked' : ''
   const vColor = color ?? '#808080'
   const vTitle = title ?? 'Zest game'
-  const vMetatags = meta ?? ''
+  let vMetatags = meta ?? ''
+
+  const css = theme && themes.find((t) => t.name == theme)?.css
+  if (css) {
+    vMetatags += `<style type="text/css">${css}</style>`
+  }
+
   const vKeymap = JSON.stringify(keyboard_mappers[keymap] ?? {})
   const vPlugins = getPluginCode(plugins)
 

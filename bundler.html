@@ -6,6 +6,8 @@ js: ../../core/utils
 mjs: bundlerApp
 ---
 
+<style id="theme-preview" type="text/css"></style>
+
 <h1>Zest Bundler</h1>
 <h2>export your Pulp game to web</h2>
 
@@ -78,6 +80,20 @@ mjs: bundlerApp
             <option value="wasd-,.">WASD keys + , .</option>
             <option value="hjkl-as">HJKL keys + A S</option>
           </select>
+        </div>
+      </li>
+      <li>
+        <div>
+          <label for="theme-in"> <strong>Virtual Gamepad</strong></label>
+          <p>Set a theme for the mobile onscreen controls</p>
+        </div>
+        <div style="position: relative">
+          <select id="theme-in" onchange="previewTheme()"></select>
+          <div class="virtual-gamepad">
+            <div class="btns">
+              <button id="btn-a">•</button>
+            </div>
+          </div>
         </div>
       </li>
     </ol>

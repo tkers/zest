@@ -1,0 +1,2 @@
+/* auto-generated code; DO NOT EDIT */
+export const themes = [{"name":"Yellow","file":"yellow.css","css":".virtual-gamepad{background-color:#fab125}"},{"name":"Purple","file":"purple.css","css":".virtual-gamepad{background-color:#9046fa}"},{"name":"Aqua","file":"aqua.css","css":".virtual-gamepad{background-color:#22bda4}"},{"name":"Pink","file":"pink.css","css":".virtual-gamepad{background-color:#f03e5a}"}]
