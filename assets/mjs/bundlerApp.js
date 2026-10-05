@@ -1,4 +1,4 @@
-import { bundle, estimateSize } from './bundler.js'
+import { bundle } from './bundler.js'
 import { plugins } from './bundlerPlugins.js'
 
 let rawGameData = null
@@ -14,7 +14,6 @@ const inControls = document.getElementById('controls-in')
 const inCompression = document.getElementById('compression-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
-const fileOut = document.getElementById('file-out')
 const pluginsOut = document.getElementById('plugins-out')
 
 pluginsOut.innerHTML = Object.entries(
@@ -27,11 +26,11 @@ pluginsOut.innerHTML = Object.entries(
       .map(
         (plugin) => `<li>
     <div>
-      <input type="checkbox" onchange="updateEstimatedSize()" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
+      <input type="checkbox" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
     </div>
     <div>
       <label for="plugin-box-${plugin.file}">
-        <strong>${plugin.name}</strong> <small>+${Math.ceil(plugin.src.length / 100) / 10} KB</small>
+        <strong>${plugin.name}</strong>
       </label>
       <p>${plugin.info}</p>
     </div>
@@ -121,20 +120,8 @@ function getSelectedPlugins() {
     .map((plugin) => plugin.file)
 }
 
-function updateEstimatedSize() {
-  if (!rawGameData) return
-  const size = estimateSize(
-    rawGameData,
-    getSelectedPlugins(),
-    inCompression.checked
-  )
-  fileOut.innerText = `~${Math.ceil(size / 1000)} KB`
-}
-window.updateEstimatedSize = updateEstimatedSize
-
 function handleProjectDataLoaded(e) {
   rawGameData = JSON.parse(e.target.result)
-  updateEstimatedSize()
 
   cardViewer.load(rawGameData)
   inTitle.value = rawGameData.name

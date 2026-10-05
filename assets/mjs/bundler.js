@@ -10,12 +10,6 @@ const pluginsByFile = Object.fromEntries(
 const getPluginCode = (pluginFiles = []) =>
   pluginFiles.map((file) => pluginsByFile[file] ?? '').join('\n')
 
-export function estimateSize(gameData, pluginFiles, useCompression) {
-  const pluginCode = getPluginCode(pluginFiles)
-  const data = useCompression ? pack(minify(gameData)) : minify(gameData)
-  return template.length + pluginCode.length + JSON.stringify(data).length
-}
-
 const kButtonUp = 1
 const kButtonRight = 2
 const kButtonDown = 3
