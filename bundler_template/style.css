@@ -181,13 +181,13 @@ button#btn-m {
 }
 
 @media (pointer: coarse) and (orientation: portrait) and (min-width: 320px) {
-  body.with-virtual main {
+  main {
     justify-content: start;
   }
-  body.with-virtual canvas {
+  canvas {
     max-height: 50%;
   }
-  body.with-virtual .virtual-gamepad {
+  .virtual-gamepad {
     display: flex;
   }
 }
