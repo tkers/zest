@@ -3,5 +3,5 @@
   "title": "Paco & Lily (demo)",
   "keymap": "arrow-zx",
   "autoplay": true,
-  "plugins": ["seamless.js", "ab.js", "gamepad.js", "touch.js", "virtual.js"]
+  "plugins": ["seamless.js", "ab.js", "gamepad.js", "touch.js", "menufont.js"]
 }
