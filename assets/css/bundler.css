@@ -113,16 +113,6 @@ small {
   text-align: center;
 }
 
-section.config {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 32px 64px;
-}
-
 input[type='text'],
 select {
   appearance: none;
@@ -259,24 +249,25 @@ fieldset legend {
 
 ol.plugins {
   list-style-type: none;
-  padding-left: 2rem;
+  padding: 0 1rem;
   margin: 0;
-}
-
-@media (max-width: 740px) {
-  ol.plugins {
-    padding: 0;
-  }
 }
 
 ol.plugins li {
   display: flex;
   text-align: left;
-  margin: 0 0 32px;
+  padding: 0 0 16px;
+  margin: 0 0 16px;
+}
+ol.plugins li:not(:last-child) {
+  border-bottom: 1px solid #a77f3b;
 }
 ol.plugins li div {
   align-content: center;
   margin: 0 4px;
+}
+ol.plugins li div:nth-child(2) {
+  margin-left: auto;
 }
 ol.plugins li div p {
   margin: 0;

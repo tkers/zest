@@ -24,30 +24,64 @@ mjs: bundlerApp
   </p>
 </section>
 
-<section class="config">
-  <div>
-    <h3>Title</h3>
-    <input type="text" id="title-in" />
-  </div>
-  <div>
-    <h3>Palette</h3>
-    <div id="color-wrap">
-      <input type="color" id="color-in" value="#808080" />
-    </div>
-  </div>
-  <div>
-    <h3>Autoplay</h3>
-    <input type="checkbox" id="autoplay-in" />
-  </div>
-  <div>
-    <h3>Controls</h3>
-    <select id="controls-in">
-      <option value="arrow-zx">Arrow keys + Z X</option>
-      <option value="arrow-as">Arrow keys + A S</option>
-      <option value="wasd-,.">WASD keys + , .</option>
-      <option value="hjkl-as">HJKL keys + A S</option>
-    </select>
-  </div>
+<section>
+  <fieldset>
+    <legend><h3>general settings</h3></legend>
+    <ol class="plugins">
+      <li>
+        <div>
+          <label for="title-in"><strong>Title</strong></label>
+          <p>Title of the exported HTML page</p>
+        </div>
+        <div>
+          <input type="text" id="title-in" />
+        </div>
+      </li>
+      <li>
+        <div>
+          <label for="color-in"><strong>Palette</strong></label>
+          <p>Add a splash of color to your game</p>
+          <p>
+            <small>
+              Leave unset if your game uses config.colorBlack /
+              config.colorWhite
+            </small>
+          </p>
+        </div>
+        <div>
+          <div id="color-wrap">
+            <input type="color" id="color-in" value="#808080" />
+          </div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <label for="autoplay-in"><strong>Autoplay</strong></label>
+          <p>Immediately start game when page loads</p>
+          <p>
+            <small>Audio might be muted until first player interaction</small>
+          </p>
+        </div>
+        <div>
+          <input type="checkbox" id="autoplay-in" />
+        </div>
+      </li>
+      <li>
+        <div>
+          <label for="controls-in"><strong>Controls</strong></label>
+          <p>Keyboard mapping</p>
+        </div>
+        <div>
+          <select id="controls-in">
+            <option value="arrow-zx">Arrow keys + Z X</option>
+            <option value="arrow-as">Arrow keys + A S</option>
+            <option value="wasd-,.">WASD keys + , .</option>
+            <option value="hjkl-as">HJKL keys + A S</option>
+          </select>
+        </div>
+      </li>
+    </ol>
+  </fieldset>
 </section>
 
 <section id="plugins-out"></section>

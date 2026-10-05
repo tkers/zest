@@ -25,13 +25,13 @@ pluginsOut.innerHTML = Object.entries(
       .map(
         (plugin) => `<li>
     <div>
-      <input type="checkbox" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
-    </div>
-    <div>
       <label for="plugin-box-${plugin.file}">
         <strong>${plugin.name}</strong>
       </label>
       <p>${plugin.info}</p>
+    </div>
+    <div>
+      <input type="checkbox" id="plugin-box-${plugin.file}"${plugin.enabled ? ' CHECKED' : ''} />
     </div>
     </li>`
       )
