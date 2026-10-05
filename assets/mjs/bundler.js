@@ -53,7 +53,6 @@ export function bundle({
   title,
   meta,
   keymap,
-  useCompression,
   plugins,
   gameData,
 }) {
@@ -64,15 +63,8 @@ export function bundle({
   const vKeymap = JSON.stringify(keyboard_mappers[keymap] ?? {})
   const vPlugins = getPluginCode(plugins)
 
-  let vGame
-  if (useCompression) {
-    const packedGameData = JSON.stringify(
-      gameData ? pack(minify(gameData)) : {}
-    )
-    vGame = `(${unpack.toString()})(${packedGameData})`
-  } else {
-    vGame = JSON.stringify(gameData ? minify(gameData) : {})
-  }
+  const packedGameData = JSON.stringify(gameData ? pack(minify(gameData)) : {})
+  const vGame = `(${unpack.toString()})(${packedGameData})`
 
   return template
     .replace('{{AUTOPLAY}}', vAutoplay)

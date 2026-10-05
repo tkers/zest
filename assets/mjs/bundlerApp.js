@@ -11,7 +11,6 @@ const inColor = document.getElementById('color-in')
 const inTitle = document.getElementById('title-in')
 const inAutoplay = document.getElementById('autoplay-in')
 const inControls = document.getElementById('controls-in')
-const inCompression = document.getElementById('compression-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
 const pluginsOut = document.getElementById('plugins-out')
@@ -194,7 +193,6 @@ downloadLink.addEventListener('click', (e) => {
     color: inColor.value,
     title: inTitle.value,
     keymap: inControls.value,
-    useCompression: inCompression.checked,
     meta: faviconTags,
     plugins: selectedPlugins,
     gameData: rawGameData,
