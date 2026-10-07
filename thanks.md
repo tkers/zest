@@ -1,3 +1,6 @@
+---
+---
+
 # Thank You
 
 ## project contributors
@@ -21,3 +24,5 @@ Zest is a labour of love, shared freely as open source software. This project wo
 - [Puddle Scum](https://puddle-scum.itch.io)
 - [MintFerret](https://mintferret.itch.io)
 - [BT](https://bechameltest.com)
+
+Special thanks to [toadleigh](https://toadley.space) for the _Café_ virtual gamepad theme <img src="{{ site.baseurl }}/assets/img/dudebro.png" alt=":dudebro:" style="width: 24px; vertical-align: sub" />

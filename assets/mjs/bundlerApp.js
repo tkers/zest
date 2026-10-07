@@ -17,8 +17,10 @@ const downloadLinkAlt = document.getElementById('download-link-alt')
 const pluginsOut = document.getElementById('plugins-out')
 const inTheme = document.getElementById('theme-in')
 
-inTheme.innerHTML = themes
-  .map(({ name }) => `<option value="${name}">${name}</option>`)
+inTheme.innerHTML = Object.entries(Object.groupBy(themes, ({ type }) => type))
+  .map(([typ, ts]) => {
+    return `<optgroup label="${typ}">${ts.map(({ name }) => `<option value="${name}">${name}</option>`)}</optgroup>`
+  })
   .join('\n')
 
 pluginsOut.innerHTML = Object.entries(

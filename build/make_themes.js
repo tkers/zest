@@ -3,10 +3,11 @@ import { join, resolve } from 'path'
 import CleanCSS from 'clean-css'
 
 const themes = [
-  { name: 'Yellow', file: 'yellow.css' },
-  { name: 'Purple', file: 'purple.css' },
-  { name: 'Aqua', file: 'aqua.css' },
-  { name: 'Pink', file: 'pink.css' },
+  { name: 'Yellow', file: 'yellow.css', type: 'Classic' },
+  { name: 'Purple', file: 'purple.css', type: 'Classic' },
+  { name: 'Aqua', file: 'aqua.css', type: 'Classic' },
+  { name: 'Pink', file: 'pink.css', type: 'Classic' },
+  { name: 'Café', file: 'cafe.css', type: 'Special' },
 ]
 
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)
