@@ -335,7 +335,7 @@ globalThis.Zest = (function () {
       this.isSystemMenuOpen = false
 
       this.systemMenuOptions = [
-        { label: 'Volume' },
+        { label: 'Volume: ' },
         { label: 'Fullscreen', action: () => Zest.toggleFullscreen() },
         { label: 'Reset Game', action: () => this.reset() },
       ]
@@ -2322,21 +2322,11 @@ globalThis.Zest = (function () {
       if (this.isSystemMenuOpen) {
         const sysFont = typeof ZestMono !== 'undefined' ? ZestMono : null
         const cw = sysFont ? 1 : this.charWidth
-        const volume = sysFont
-          ? ' ' +
-            '{'.repeat(Math.floor(this.volume / 20)) +
-            '|'.repeat(Math.floor(this.volume / 10) % 2) +
-            '}'.repeat(Math.floor((100 - this.volume) / 20))
-          : ': ' +
-            Math.floor(this.volume / 10)
-              .toString()
-              .padStart(2, '0')
+        const volume = Math.floor(this.volume / 10)
+          .toString()
+          .padStart(2, '0')
 
-        const [wx, wy, ww, wh] = sysFont
-          ? [4.5, 4.5, 16, 6]
-          : cw == 1
-            ? [5, 4.5, 15, 6]
-            : [7.5, 4.5, 10, 6]
+        const [wx, wy, ww, wh] = cw == 1 ? [5, 4.5, 15, 6] : [7.5, 4.5, 10, 6]
         this.#dimScreen(this.colorBlack)
         this.#renderWindow(wx, wy, ww, wh, false, sysFont) // PipeIndex.PAGES
 
