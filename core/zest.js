@@ -4,7 +4,6 @@
 
 globalThis.Zest = (function () {
   const FPS = 20
-  const CELL_SIZE = 8
   const ROOM_WIDTH = 25
   const ROOM_HEIGHT = 15
   const PIXEL_WIDTH = 200
@@ -2049,6 +2048,7 @@ globalThis.Zest = (function () {
       return this.#renderFrame(getCurrentFrameForTile(tile, this.frameIx), x, y)
     }
 
+    // assumes 8x8 frames in Array(64)
     #renderFrame(frame, x, y, halfWidth = 1) {
       if (!frame) {
         warn('Missing bitmap data in renderFrame')
@@ -2062,18 +2062,19 @@ globalThis.Zest = (function () {
       const cBlack = this.isInverted ? this.colorWhite : this.colorBlack
       const cWhite = this.isInverted ? this.colorBlack : this.colorWhite
 
-      // assumes 8x8 frames in Array(64)
-      for (let i = 0; i < 64; i++) {
-        const col = frame[i]
-        if (col == 2) continue // transparent
-        if (i % 8 >= halfWidth * 8) continue
-        const rgba = col == 1 ? cBlack : cWhite
-
-        const px = xx + (i % 8)
-        const py = yy + ((i / 8) | 0)
-        if (px >= PIXEL_WIDTH || py >= PIXEL_HEIGHT) continue // out of bounds, don't wrap
-        const pi = px + py * PIXEL_WIDTH
-        data[pi] = rgba
+      let framePixelIndex = 0
+      let dataPixelIndex = xx + yy * PIXEL_WIDTH
+      const maxCol = Math.min(PIXEL_WIDTH - xx, halfWidth * 8)
+      const maxRow = Math.min(PIXEL_HEIGHT - yy, 8)
+      for (let r = 0; r < maxRow; r++) {
+        for (let c = 0; c < 8; c++) {
+          const col = frame[framePixelIndex++]
+          if (col !== 2 && c < maxCol) {
+            data[dataPixelIndex] = col == 1 ? cBlack : cWhite
+          }
+          dataPixelIndex++
+        }
+        dataPixelIndex += PIXEL_WIDTH - 8
       }
     }
 
