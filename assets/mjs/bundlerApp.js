@@ -1,4 +1,4 @@
-import { bundle } from './bundler.js'
+import { bundle, revision } from './bundler.js'
 import { plugins } from './bundlerPlugins.js'
 import { themes } from './bundlerThemes.js'
 
@@ -15,7 +15,10 @@ const inControls = document.getElementById('controls-in')
 const downloadLink = document.getElementById('download-link')
 const downloadLinkAlt = document.getElementById('download-link-alt')
 const pluginsOut = document.getElementById('plugins-out')
+const revisionOut = document.getElementById('revision-out')
 const inTheme = document.getElementById('theme-in')
+
+revisionOut.innerHTML = `rev:${revision}`
 
 inTheme.innerHTML = Object.entries(Object.groupBy(themes, ({ type }) => type))
   .map(([typ, ts]) => {

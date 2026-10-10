@@ -113,6 +113,10 @@ small {
   text-align: center;
 }
 
+#revision-out {
+  font-family: monospace;
+}
+
 .virtual-gamepad {
   width: 120px;
   height: 40px;

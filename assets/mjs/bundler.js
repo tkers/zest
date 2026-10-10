@@ -4,6 +4,8 @@ import { plugins } from './bundlerPlugins.js'
 import { minify } from './minify.js'
 import { pack, unpack } from './packer.js'
 
+export { revision } from './bundlerTemplate.js'
+
 const pluginsByFile = Object.fromEntries(
   plugins.map((plugin) => [plugin.file, plugin.src])
 )

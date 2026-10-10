@@ -3,6 +3,9 @@ import { resolve } from 'path'
 import CleanCSS from 'clean-css'
 import * as Terser from 'terser'
 
+import { createHash } from 'crypto'
+const hash = (x) => createHash('SHA1').update(x).digest('hex').slice(0, 7)
+
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)
 const read = (fname) => readFileSync(resolvePath(fname), 'utf8')
 const minifyCss = (css) => new CleanCSS().minify(css).styles
@@ -30,6 +33,7 @@ minifyJs(js).then((minjs) => {
   writeFileSync(
     outFile,
     `/* auto-generated code; DO NOT EDIT */
+export const revision = ${JSON.stringify(hash(compiled))}
 export const template = ${JSON.stringify(compiled)}`
   )
   console.log(`Created template at ${outFile}`)
