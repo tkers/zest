@@ -3,7 +3,7 @@ globalThis.ZestAudio = null
 globalThis.ImageData = function (w, h) {
   this.width = w
   this.height = h
-  this.data = []
+  this.data = new Uint8ClampedArray(w * h * 4)
 }
 
 globalThis.localStorage = {

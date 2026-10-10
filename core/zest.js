@@ -130,7 +130,7 @@ globalThis.Zest = (function () {
     return res
   }
 
-  const hexToRgba = (col) => {
+  const hexToAbgr32 = (col) => {
     let hex = col[0] == '#' ? col.slice(1) : col
     if (hex.length == 3) {
       const [r, g, b] = hex.split('')
@@ -138,10 +138,23 @@ globalThis.Zest = (function () {
     }
     if (hex.length != 6) {
       warn(`Invalid hex color: ${col}`)
-      return [0, 0, 0, 255]
+      return 0xff000000 >>> 0
     }
     const num = parseInt(hex, 16)
-    return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff, 255]
+    return (
+      (((num & 0x0000ff) << 16) |
+        (num & 0x00ff00) |
+        ((num >> 16) & 0x0000ff) |
+        0xff000000) >>>
+      0
+    )
+  }
+
+  const avgAbgr32 = (x, y) => {
+    const r = ((x & 0x0000ff) + (y & 0x0000ff)) >> 1
+    const g = ((x & 0x00ff00) + (y & 0x00ff00)) >> 1
+    const b = ((x & 0xff0000) + (y & 0xff0000)) >> 1
+    return (r & 0x0000ff) | (g & 0x00ff00) | (b & 0xff0000) | 0xff000000
   }
 
   const isXY = (obj) => obj && Number.isFinite(obj.x) && Number.isFinite(obj.y)
@@ -382,6 +395,7 @@ globalThis.Zest = (function () {
       this.menuStack = []
       this.cropArea = [0, 0, 25, 15]
       this.imgData = new ImageData(PIXEL_WIDTH, PIXEL_HEIGHT)
+      this.imgData32 = new Uint32Array(this.imgData.data.buffer)
 
       this.config = {
         sayAdvanceDelay: 0.2,
@@ -400,8 +414,9 @@ globalThis.Zest = (function () {
         colorWhite: COLOR_WHITE,
       }
 
-      this.colorBlack = hexToRgba(this.config.colorBlack)
-      this.colorWhite = hexToRgba(this.config.colorWhite)
+      this.colorBlack = hexToAbgr32(this.config.colorBlack)
+      this.colorWhite = hexToAbgr32(this.config.colorWhite)
+      this.colorGrey = avgAbgr32(this.colorWhite, this.colorBlack)
 
       this.input = {
         [kButtonUp]: new ButtonState(),
@@ -1010,8 +1025,14 @@ globalThis.Zest = (function () {
         } else if (parts[0] == 'config') {
           const key = parts[1]
           this.config[key] = val
-          if (key === 'colorBlack') this.colorBlack = hexToRgba(val)
-          if (key === 'colorWhite') this.colorWhite = hexToRgba(val)
+          if (key === 'colorBlack') {
+            this.colorBlack = hexToAbgr32(val)
+            this.colorGrey = avgAbgr32(this.colorBlack, this.colorWhite)
+          }
+          if (key === 'colorWhite') {
+            this.colorWhite = hexToAbgr32(val)
+            this.colorGrey = avgAbgr32(this.colorBlack, this.colorWhite)
+          }
           this.#emitEvent('config', { key, value: val })
         } else {
           warn(`Not allowed to set: ${name}`)
@@ -2007,21 +2028,18 @@ globalThis.Zest = (function () {
       //   return
       // }
 
-      const [r, g, b, a] =
+      const rgba =
         (col == 'white') !== this.isInverted ? this.colorWhite : this.colorBlack
       const left = clamp(0, x, PIXEL_WIDTH)
       const top = clamp(0, y, PIXEL_HEIGHT)
       const right = clamp(0, x + w, PIXEL_WIDTH)
       const bottom = clamp(0, y + h, PIXEL_HEIGHT)
 
-      const data = this.imgData.data
+      const data = this.imgData32
       for (let py = top; py < bottom; py++) {
         for (let px = left; px < right; px++) {
-          const pi = 4 * (px + py * PIXEL_WIDTH)
-          data[pi] = r
-          data[pi + 1] = g
-          data[pi + 2] = b
-          data[pi + 3] = a
+          const pi = px + py * PIXEL_WIDTH
+          data[pi] = rgba
         }
       }
     }
@@ -2040,7 +2058,7 @@ globalThis.Zest = (function () {
       const xx = (8 * x) | 0
       const yy = (8 * y) | 0
 
-      const data = this.imgData.data
+      const data = this.imgData32
       const cBlack = this.isInverted ? this.colorWhite : this.colorBlack
       const cWhite = this.isInverted ? this.colorBlack : this.colorWhite
 
@@ -2049,17 +2067,13 @@ globalThis.Zest = (function () {
         const col = frame[i]
         if (col == 2) continue // transparent
         if (i % 8 >= halfWidth * 8) continue
-        const [r, g, b, a] = col == 1 ? cBlack : cWhite
+        const rgba = col == 1 ? cBlack : cWhite
 
         const px = xx + (i % 8)
         const py = yy + ((i / 8) | 0)
         if (px >= PIXEL_WIDTH || py >= PIXEL_HEIGHT) continue // out of bounds, don't wrap
-        const pi = 4 * (px + py * PIXEL_WIDTH)
-
-        data[pi] = r
-        data[pi + 1] = g
-        data[pi + 2] = b
-        data[pi + 3] = a
+        const pi = px + py * PIXEL_WIDTH
+        data[pi] = rgba
       }
     }
 
@@ -2164,7 +2178,7 @@ globalThis.Zest = (function () {
     }
 
     #renderFrameToImageData(img, frame, x, y) {
-      const data = img.data
+      const data = new Uint32Array(img.data.buffer)
       const width = img.width
 
       const black = this.colorBlack
@@ -2172,23 +2186,18 @@ globalThis.Zest = (function () {
 
       // assumes 8x8 frames in Array(64)
       for (let i = 0; i < 64; i++) {
-        const [r, g, b, a] = frame[i] == 1 ? black : white
+        const rgba = frame[i] == 1 ? black : white
 
         const px = x + (i % 8)
         const py = y + ((i / 8) | 0)
-        const pi = 4 * (px + py * width)
+        const pi = px + py * width
 
-        data[pi] = r
-        data[pi + 1] = g
-        data[pi + 2] = b
-        data[pi + 3] = a
+        data[pi] = rgba
       }
     }
 
     getRoomImageData(room, x = 0, y = 0, w = ROOM_WIDTH, h = ROOM_HEIGHT) {
       if (!room) return
-      const black = this.colorBlack
-      const white = this.colorWhite
       const img = new ImageData((w * 8) | 0, (h * 8) | 0)
       for (let dy = 0; dy < h; dy++) {
         for (let dx = 0; dx < w; dx++) {
@@ -2212,13 +2221,10 @@ globalThis.Zest = (function () {
       return this.getRoomImageData(this.icon, 1, 2, 2, 2)
     }
 
-    #dimScreen([r, g, b, a]) {
-      const data = this.imgData.data
-      for (let i = 0; i < data.length; i += 4) {
-        data[i] = (data[i] + r) / 2
-        data[i + 1] = (data[i + 1] + g) / 2
-        data[i + 2] = (data[i + 2] + b) / 2
-        // data[i + 3] = (data[i + 3] + a) / 2
+    #dimScreen() {
+      const data = this.imgData32
+      for (let i = 0; i < data.length; i++) {
+        data[i] = data[i] == this.colorWhite ? this.colorGrey : this.colorBlack
       }
     }
 
@@ -2327,7 +2333,7 @@ globalThis.Zest = (function () {
           .padStart(2, '0')
 
         const [wx, wy, ww, wh] = cw == 1 ? [5, 4.5, 15, 6] : [7.5, 4.5, 10, 6]
-        this.#dimScreen(this.colorBlack)
+        this.#dimScreen()
         this.#renderWindow(wx, wy, ww, wh, false, sysFont) // PipeIndex.PAGES
 
         for (let i = 0; i < this.systemMenuOptions.length; i++) {
