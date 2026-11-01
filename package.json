@@ -2,7 +2,7 @@
   "name": "zest",
   "version": "0.0.1",
   "description": "A web runtime for Pulp games",
-  "repository": "git@github.com:tkers/zest.git",
+  "repository": "git@codeberg.org:tkers/zest.git",
   "author": "Tijn Kersjes <tijn@divbyzero.nl>",
   "license": "MIT",
   "private": true,

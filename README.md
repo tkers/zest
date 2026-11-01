@@ -8,7 +8,7 @@ use it to make their games available to more players.
 
 This project is still in active development, so don't expect your game to be
 fully compatible just yet! Have a look at the
-[open issues on GitHub](https://github.com/tkers/zest/issues) to see where we're
+[open issues on Codeberg](https://codeberg.org/tkers/zest/issues) to see where we're
 currently at.
 
 ---

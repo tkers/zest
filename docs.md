@@ -11,13 +11,13 @@ The runtime library is the core of what makes Zest work. By manually integrating
 
 <section class="center">
   <a
-    href="{{ site.github.releases_url }}"
+    href="https://codeberg.org/tkers/zest/releases"
     target="_blank"
     class="btn btn-primary"
     >Download</a
   >
   <a
-    href="{{ site.github.issues_url }}"
+    href="https://codeberg.org/tkers/zest/issues"
     target="_blank"
     class="btn btn-secondary"
     >Open Issues</a
