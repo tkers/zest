@@ -38,11 +38,19 @@ globalThis.Zest = (function () {
   const clamp = (lo, x, hi) => Math.min(Math.max(lo, x), hi)
   const wrap = (x, len) => (x + len) % len
 
-  const makeWindowRect = (rect = {}) => {
+  const makeSayRect = (rect = {}) => {
     const x = clamp(0, rect.x ?? 3, ROOM_WIDTH - 1)
     const y = clamp(0, rect.y ?? 3, ROOM_HEIGHT - 1)
     const w = clamp(0, rect.w ?? 17, ROOM_WIDTH - 2 - x)
-    const h = clamp(0, rect.h ?? 4, ROOM_HEIGHT - 2 - y)
+    const h = clamp(0, rect.h ?? 4, ROOM_HEIGHT - 1 - y) // allow 1 tile past room_height
+    return [x, y, w, h]
+  }
+
+  const makeMenuRect = (rect = {}) => {
+    const x = clamp(0, rect.x, ROOM_WIDTH - 1)
+    const y = clamp(0, rect.y, ROOM_HEIGHT - 1)
+    const w = clamp(0, rect.w, ROOM_WIDTH - 3 - x)
+    const h = clamp(0, rect.h, ROOM_HEIGHT - 1 - y) // allow 1 tile past room_height
     return [x, y, w, h]
   }
 
@@ -750,7 +758,7 @@ globalThis.Zest = (function () {
             return
           }
           this.dialogLinkedToMenu = true
-          const [sx, sy, sw, sh] = makeWindowRect(rect)
+          const [sx, sy, sw, sh] = makeSayRect(rect)
           const w = Math.min(
             8,
             Math.ceil(
@@ -774,15 +782,19 @@ globalThis.Zest = (function () {
 
       this.#clearInput()
 
-      const windowSize = [
-        rect.x ?? 0,
-        rect.y ?? 0,
-        rect.w ??
-          Math.ceil(
-            Math.max(...options.map((o) => o.label.length)) * this.charWidth
-          ),
-        rect.h ?? options.length,
-      ]
+      const windowSize = makeMenuRect(
+        {
+          x: rect.x ?? 0,
+          y: rect.y ?? 0,
+          w:
+            rect.w ??
+            Math.ceil(
+              Math.max(...options.map((o) => o.label.length)) * this.charWidth
+            ),
+          h: rect.h ?? options.length,
+        },
+        options
+      )
       const pages = chunkify(options, windowSize[3])
 
       this.menuActive = true
@@ -815,7 +827,7 @@ globalThis.Zest = (function () {
       this.#clearInput()
       this.dialogActive = true
       this.dialogLinkedToMenu = false
-      this.dialogWindowSize = makeWindowRect(rect)
+      this.dialogWindowSize = makeSayRect(rect)
       this.dialogPages = wrapText(
         message,
         this.dialogWindowSize[2] / this.charWidth,
