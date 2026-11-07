@@ -9,6 +9,26 @@ const themes = [
   { name: 'Pink', file: 'pink.css', type: 'Classic' },
   { name: 'Glass', file: 'glass.css', type: 'Classic' },
   {
+    name: 'Iridescent',
+    file: 'iridescent.css',
+    type: 'Spectrum',
+  },
+  {
+    name: 'Amphibian',
+    file: 'amphibian.css',
+    type: 'Spectrum',
+  },
+  {
+    name: 'Minty',
+    file: 'minty.css',
+    type: 'Spectrum',
+  },
+  {
+    name: 'Selenium',
+    file: 'selenium.css',
+    type: 'Spectrum',
+  },
+  {
     name: 'Pacific',
     file: 'pacific.css',
     type: 'Editions',
