@@ -7,7 +7,28 @@ const themes = [
   { name: 'Purple', file: 'purple.css', type: 'Classic' },
   { name: 'Aqua', file: 'aqua.css', type: 'Classic' },
   { name: 'Pink', file: 'pink.css', type: 'Classic' },
-  { name: 'Café', file: 'cafe.css', type: 'Special' },
+  { name: 'Glass', file: 'glass.css', type: 'Classic' },
+  {
+    name: 'Pacific',
+    file: 'pacific.css',
+    type: 'Editions',
+  },
+  {
+    name: 'Cosmic',
+    file: 'cosmic.css',
+    type: 'Editions',
+  },
+  {
+    name: 'Neapolitan',
+    file: 'neapolitan.css',
+    type: 'Editions',
+  },
+  {
+    name: 'Mocha',
+    file: 'mocha.css',
+    type: 'Editions',
+  },
+  { name: 'Café', file: 'cafe.css', type: 'Editions' },
 ]
 
 const resolvePath = (fname) => resolve(import.meta.dirname, fname)

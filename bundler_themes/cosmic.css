@@ -1,0 +1,36 @@
+.virtual-gamepad {
+  background: no-repeat
+    linear-gradient(
+      120deg,
+      #000930 52%,
+
+      #272948 52%,
+      #272948 59%,
+
+      #6653ac 59%,
+      #6653ac 66%,
+
+      #ac91f3 66%,
+      #ac91f3 73%,
+
+      #77b0f5 73%,
+      #77b0f5 80%,
+
+      #99f6f9 80%,
+      #99f6f9 87%,
+
+      #000930 87%
+    );
+}
+
+.virtual-gamepad button,
+.dpad div {
+  background-color: #33395a;
+}
+
+.btns button {
+  box-shadow:
+    inset 0 1px #fff3,
+    inset 0 -2px 0 #0005,
+    0 0 0 4px #000930;
+}
